@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "eeglab-mcp-server"
+version = "2.1.0"
+description = "MATLAB EEGLAB EEG analysis MCP stdio server with 37 low-level tools and 3 research workflow tools."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["mcp>=1.0.0"]
+authors = [{ name = "EEGLAB MCP maintainers" }]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Scientific/Engineering",
+]
+
+[project.scripts]
+eeglab-mcp-server = "eeglab_mcp_server.server:run_main"
+
+[tool.setuptools]
+package-dir = { "" = ".." }
+packages = ["eeglab_mcp_server", "eeglab_mcp_server.tools"]

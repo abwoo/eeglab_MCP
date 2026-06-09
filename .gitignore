@@ -1,0 +1,42 @@
+# Python caches and environments
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+venv/
+env/
+*.egg-info/
+
+# MATLAB/EEGLAB generated state and outputs
+eeglabmcp/
+reports/
+*.asv
+*.fig
+*.mat
+
+# EEG datasets and large/local research data
+*.set
+*.fdt
+*.eeg
+*.vhdr
+*.vmrk
+*.edf
+*.bdf
+*.cnt
+*.xdf
+*.brainvision
+
+# Local editor/OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# Local secrets/config backups
+*.bak
+*.bak-*
+*.tmp
+*.log

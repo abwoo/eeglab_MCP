@@ -1,0 +1,51 @@
+<evals>
+  <!-- These are task-level MCP evaluation prompts for model tool-use behavior, not an automated test runner. -->
+  <eval id="1">
+    <question>Inspect a local EEGLAB .set dataset as a research recording: summarize source path, data shape, channel count, sampling rate, duration, channel-location coverage, event labels/counts, event latency range, processing-history availability, and whether ICA weights are present.</question>
+    <expected>Call eeglab_init, eeglab_load_data, eeglab_info, eeglab_get_events, and eeglab_history or eeglab_qc_report; answer with recording/provenance metadata before analysis interpretation.</expected>
+  </eval>
+  <eval id="2">
+    <question>Prepare an ERP preprocessing plan for target and standard events, starting from recording/event provenance, then run the minimum safe tool sequence on the loaded dataset.</question>
+    <expected>Use eeglab_info or eeglab_qc_report, eeglab_get_events, eeglab_filter, eeglab_clean_line_noise, eeglab_reref, eeglab_epoch, and eeglab_erp_analysis; report recording metadata, event counts, epoch/baseline windows, and filtering choices.</expected>
+  </eval>
+  <eval id="3">
+    <question>Run a resting-state spectral analysis for alpha and beta power after conservative cleanup.</question>
+    <expected>Use eeglab_filter, eeglab_clean_line_noise, eeglab_clean_rawdata, eeglab_reref, and eeglab_spectral; report frequency range and band power summary.</expected>
+  </eval>
+  <eval id="4">
+    <question>The first load attempt fails because the path is missing. Recover and continue with a valid absolute path.</question>
+    <expected>Observe the missing_required_arguments error, retry eeglab_load_data with filepath, then call eeglab_info.</expected>
+  </eval>
+  <eval id="5">
+    <question>Classify ICA components, decide which eye and muscle components should be removed, and save a processed copy.</question>
+    <expected>Call eeglab_run_ica if ICA is absent, then eeglab_classify_ica, eeglab_flag_components or eeglab_remove_components, and eeglab_save_data with a new output path.</expected>
+  </eval>
+  <eval id="6">
+    <question>Create an ERSP and ITC time-frequency result for channel Cz around a stimulus event and save a figure.</question>
+    <expected>Use eeglab_get_events, eeglab_epoch, eeglab_timefreq, and eeglab_plot_timefreq; include baseline, frequency range, and output path.</expected>
+  </eval>
+  <eval id="7">
+    <question>Generate a P300 topography around 300 ms after confirming the dataset has event-locked epochs.</question>
+    <expected>Call eeglab_info, epoch if needed, then eeglab_topoplot with a 250-350 ms window or 300 ms point; report output_path.</expected>
+  </eval>
+  <eval id="8">
+    <question>Build a STUDY from a BIDS directory and configure a condition design for group-level ERP statistics while preserving recording/provenance assumptions.</question>
+    <expected>Call eeglab_import_bids or eeglab_study_create, eeglab_study_design, and eeglab_study_statistics; report subjects, design levels, alpha, correction, and the required single-subject preprocessing/provenance assumptions.</expected>
+  </eval>
+  <eval id="9">
+    <question>A user asks for source localization before ICA exists. Recover correctly.</question>
+    <expected>Call eeglab_source_localization, interpret the prerequisite error, then run eeglab_run_ica before retrying source localization.</expected>
+  </eval>
+  <eval id="10">
+    <question>Use the one-click ERP pipeline, then inspect the result and explain recording metadata, processing steps, outputs, and limitations without making clinical claims.</question>
+    <expected>Call eeglab_pipeline with pipeline_type erp, then eeglab_info, eeglab_qc_report, and eeglab_history; summarize recording/provenance fields, steps, output files, parameters, and limitations.</expected>
+  </eval>
+  <eval id="11">
+    <question>The user provides a dataset but no research goal. Produce a strict research plan that identifies what to ask, what conservative default to use if answers are unavailable, and what QC gates must pass before processing.</question>
+    <expected>Call eeglab_info and eeglab_workflow_recommend with available metadata or analysis_type auto; report clarifying_questions, default_assumptions, project_phases, qc_gates, and adaptive_decision_rules before recommending a branch.</expected>
+  </eval>
+  <eval id="12">
+    <question>After repeated plugin failures and missing acquisition notes in a multi-subject EEG project, propose how the MCP/skill workflow should evolve without silently changing scientific defaults.</question>
+    <expected>Use eeglab_qc_report and eeglab_workflow_recommend; report provenance_hints and self_evolution_hooks, and recommend adding project-specific notes/evals only after review.</expected>
+  </eval>
+</evals>

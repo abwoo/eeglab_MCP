@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "eeglab": {
+      "command": "python",
+      "args": ["c:\\Users\\13803\\Desktop\\M_mcp\\eeglab_mcp_server\\server.py"],
+      "env": {
+        "EEGLAB_PATH": "D:\\MATLAB_Tools\\eeglab",
+        "MATLAB_ROOT": "D:\\MATLAB",
+        "MATLAB_EXEC": "matlab",
+        "EEGLAB_WORK_DIR": "c:\\Users\\13803\\Desktop\\eeglabmcp",
+        "MATLAB_TIMEOUT": "300"
+      }
+    }
+  }
+}

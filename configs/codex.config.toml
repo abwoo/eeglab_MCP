@@ -1,0 +1,14 @@
+# Copy this block into C:\Users\13803\.codex\config.toml and adjust paths if needed.
+# This can coexist with [mcp_servers.matlab]; keep this server named eeglab.
+
+[mcp_servers.eeglab]
+command = "python"
+args = ['C:\Users\13803\Desktop\M_mcp\eeglab_mcp_server\server.py']
+startup_timeout_sec = 120
+
+[mcp_servers.eeglab.env]
+EEGLAB_PATH = 'D:\MATLAB_Tools\eeglab'
+MATLAB_ROOT = 'D:\MATLAB'
+MATLAB_EXEC = "matlab"
+EEGLAB_WORK_DIR = 'C:\Users\13803\Desktop\eeglabmcp'
+MATLAB_TIMEOUT = "300"

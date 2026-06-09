@@ -1,0 +1,15 @@
+interface:
+  display_name: "EEGLAB Analysis"
+  short_description: "Standard EEG workflows with EEGLAB MCP"
+  brand_color: "#2563EB"
+  default_prompt: "Use $eeglab-analysis to inspect this EEG dataset and recommend a reproducible EEGLAB MCP workflow."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "eeglab"
+      description: "Local EEGLAB MCP stdio server exposing eeglab_* analysis tools."
+      transport: "stdio"
+
+policy:
+  allow_implicit_invocation: true
