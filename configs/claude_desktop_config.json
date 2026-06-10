@@ -3,7 +3,7 @@
     "eeglab": {
       "command": "python",
       "args": [
-        "C:\\Users\\13803\\Desktop\\M_mcp\\eeglab_mcp_server\\server.py"
+        "C:\\Users\\13803\\Desktop\\eeglab_MCP\\eeglab_mcp_server\\server.py"
       ],
       "env": {
         "EEGLAB_PATH": "D:\\MATLAB_Tools\\eeglab",

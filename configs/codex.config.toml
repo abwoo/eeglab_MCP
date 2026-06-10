@@ -3,7 +3,7 @@
 
 [mcp_servers.eeglab]
 command = "python"
-args = ['C:\Users\13803\Desktop\M_mcp\eeglab_mcp_server\server.py']
+args = ['C:\Users\13803\Desktop\eeglab_MCP\eeglab_mcp_server\server.py']
 startup_timeout_sec = 120
 
 [mcp_servers.eeglab.env]

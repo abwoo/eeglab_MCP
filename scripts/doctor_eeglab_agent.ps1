@@ -51,14 +51,36 @@ async def main():
             tools = await session.list_tools()
             prompts = await session.list_prompts()
             resources = await session.list_resources()
+            tool_names = {tool.name for tool in tools.tools}
+            legacy = {
+                "eeglab_init", "eeglab_load_data", "eeglab_save_data", "eeglab_import_bids",
+                "eeglab_info", "eeglab_history", "eeglab_filter", "eeglab_resample",
+                "eeglab_reref", "eeglab_select_channels", "eeglab_interpolate_channels",
+                "eeglab_edit_channels", "eeglab_clean_line_noise", "eeglab_clean_rawdata",
+                "eeglab_run_ica", "eeglab_classify_ica", "eeglab_flag_components",
+                "eeglab_remove_components", "eeglab_reject_epochs", "eeglab_get_events",
+                "eeglab_epoch", "eeglab_erp_analysis", "eeglab_sort_epochs",
+                "eeglab_average_erp", "eeglab_spectral", "eeglab_timefreq",
+                "eeglab_connectivity", "eeglab_topoplot", "eeglab_plot_erp",
+                "eeglab_plot_timefreq", "eeglab_plot_components", "eeglab_source_localization",
+                "eeglab_source_settings", "eeglab_study_create", "eeglab_study_design",
+                "eeglab_study_statistics", "eeglab_pipeline", "eeglab_qc_report",
+                "eeglab_erp_light_workflow", "eeglab_workflow_recommend"
+            }
+            research = {"eeglab_project_plan", "eeglab_protocol_export", "eeglab_plugin_check", "eeglab_event_semantics_audit"}
+            prompt_names = {prompt.name for prompt in prompts.prompts}
+            resource_uris = {str(resource.uri) for resource in resources.resources}
             print(f"tool_count={len(tools.tools)}")
+            print(f"legacy_tools_present={legacy.issubset(tool_names)}")
+            print(f"research_tools_present={research.issubset(tool_names)}")
             print(f"prompt_count={len(prompts.prompts)}")
             print(f"resource_count={len(resources.resources)}")
+            print(f"official_resource_present={'eeglab://official/references.md' in resource_uris}")
 
 asyncio.run(main())
 '@
     $output = $mcpCheck | python -B -
-    $ok = ($LASTEXITCODE -eq 0) -and ($output -match 'tool_count=40') -and ($output -match 'prompt_count=4') -and ($output -match 'resource_count=4')
+    $ok = ($LASTEXITCODE -eq 0) -and ($output -match 'legacy_tools_present=True') -and ($output -match 'research_tools_present=True') -and ($output -match 'official_resource_present=True')
     Add-Check "mcp_stdio_smoke" $ok "Inspect Python dependencies and run python -B scripts\verify_framework.py."
     $output | ForEach-Object { Write-Host $_ }
 }
