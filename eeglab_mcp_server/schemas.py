@@ -195,6 +195,218 @@ def workflow_tools() -> list[Tool]:
                 openWorldHint=False,
             ),
         ),
+        Tool(
+            name="eeglab_project_plan",
+            title="EEGLAB Research Project Plan",
+            description=(
+                "Create a complete research-grade EEG analysis plan from the user's goal, data shape, event semantics, "
+                "project scale, montage state, and plugin constraints. Use this before preprocessing, ICA, source, or "
+                "group/STUDY work when the project needs a reproducible protocol rather than a single tool call. "
+                "This tool does not run MATLAB or change data."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "research_goal": {
+                        "type": "string",
+                        "description": "Primary hypothesis, research question, or analysis objective. Leave blank only when unknown.",
+                    },
+                    "analysis_type": {
+                        "type": "string",
+                        "enum": ["auto", "erp", "resting", "timefreq", "ica", "study", "source", "connectivity", "segment_qc"],
+                        "description": "Requested analysis family. Use auto when the user has not committed to a method.",
+                    },
+                    "project_scale": {
+                        "type": "string",
+                        "enum": ["unknown", "single_subject", "multi_subject", "bids_study", "exploratory_qc"],
+                        "description": "Study organization and expected level of inference.",
+                    },
+                    "data_format": {
+                        "type": "string",
+                        "description": "Observed file format or container, for example .set, BrainVision, EDF/BDF, CNT, or BIDS.",
+                    },
+                    "data_shape": {
+                        "type": "string",
+                        "enum": ["unknown", "continuous_or_single_trial", "epoched"],
+                        "description": "Whether the available EEG data are continuous/single-trial or already epoched.",
+                    },
+                    "event_types": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Known marker labels or candidate event types.",
+                    },
+                    "event_semantics": {
+                        "type": "object",
+                        "description": "Mapping from event label to meaning, such as condition, boundary, impedance, or segment marker.",
+                    },
+                    "srate": {"type": "number", "description": "Sampling rate in Hz, if known."},
+                    "subject_count": {"type": "integer", "minimum": 1, "description": "Number of subjects expected in the project."},
+                    "session_count": {"type": "integer", "minimum": 1, "description": "Number of sessions/runs per subject, if known."},
+                    "has_channel_locations": {
+                        "type": "boolean",
+                        "description": "Whether channel-location metadata are complete enough for topography/source claims.",
+                    },
+                    "has_behavioral_log": {
+                        "type": "boolean",
+                        "description": "Whether external behavioral/event logs are available for condition-level interpretation.",
+                    },
+                    "has_continuous_raw": {
+                        "type": "boolean",
+                        "description": "Whether the original continuous raw recording is available, not only epoched derivatives.",
+                    },
+                    "required_outputs": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Expected deliverables such as cleaned .set, ERP tables, spectra, figures, protocol, or group statistics.",
+                    },
+                },
+                "required": [],
+            },
+            outputSchema=WORKFLOW_OUTPUT_SCHEMA,
+            annotations=ToolAnnotations(
+                title="Research project plan",
+                readOnlyHint=True,
+                destructiveHint=False,
+                idempotentHint=True,
+                openWorldHint=False,
+            ),
+        ),
+        Tool(
+            name="eeglab_protocol_export",
+            title="EEGLAB Protocol Export",
+            description=(
+                "Export a study protocol from current assumptions, parameters, QC gates, steps, outputs, limitations, "
+                "and official EEGLAB reference anchors. Use when a plan needs a Markdown or JSON protocol for a lab notebook, "
+                "methods section draft, or reproducibility handoff. It writes a file only when output_path is supplied."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "format": {
+                        "type": "string",
+                        "enum": ["markdown", "json"],
+                        "default": "markdown",
+                        "description": "Protocol serialization format.",
+                    },
+                    "output_path": {
+                        "type": "string",
+                        "description": "Optional file path for the exported protocol. Omit for structured/text content only.",
+                    },
+                    "research_goal": {"type": "string", "description": "Study goal or hypothesis to record."},
+                    "analysis_type": {"type": "string", "description": "Analysis family or branch being documented."},
+                    "parameters": {"type": "object", "description": "Exact preprocessing/analysis parameters to preserve."},
+                    "qc_gates": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "QC gates that must be checked before analysis-ready claims.",
+                    },
+                    "steps": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Planned or completed workflow steps.",
+                    },
+                    "outputs": {"type": "object", "description": "Expected or produced output files/tables/figures."},
+                    "limitations": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Known limitations and blocked interpretations.",
+                    },
+                },
+                "required": [],
+            },
+            outputSchema=WORKFLOW_OUTPUT_SCHEMA,
+            annotations=ToolAnnotations(
+                title="Protocol export",
+                readOnlyHint=False,
+                destructiveHint=False,
+                idempotentHint=False,
+                openWorldHint=False,
+            ),
+        ),
+        Tool(
+            name="eeglab_plugin_check",
+            title="EEGLAB Plugin Check",
+            description=(
+                "Check whether important EEGLAB plugins/functions are reachable in the local MATLAB/EEGLAB path, including "
+                "clean_rawdata, ICLabel, DIPFIT, BIDS import, LIMO, and SIFT-related functions. Use before plugin-dependent "
+                "ICA cleanup, ASR, source, BIDS/STUDY, or connectivity workflows."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "plugins": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Optional plugin/function groups to probe. Defaults to clean_rawdata, ICLabel, DIPFIT, BIDS, LIMO, and SIFT.",
+                    }
+                },
+                "required": [],
+            },
+            outputSchema=WORKFLOW_OUTPUT_SCHEMA,
+            annotations=ToolAnnotations(
+                title="Plugin check",
+                readOnlyHint=True,
+                destructiveHint=False,
+                idempotentHint=True,
+                openWorldHint=False,
+            ),
+        ),
+        Tool(
+            name="eeglab_event_semantics_audit",
+            title="EEGLAB Event Semantics Audit",
+            description=(
+                "Classify event labels as candidate triggers, task conditions, boundaries, impedance/QC annotations, or "
+                "segment markers before epoching. Use this when marker meanings are ambiguous, when BrainVision/EDF events "
+                "mix task and metadata markers, or when only start/end segment markers are available. This tool does not edit events."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "event_types": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Event labels observed in the data.",
+                    },
+                    "event_counts": {
+                        "type": "object",
+                        "description": "Mapping of event label to observed count.",
+                    },
+                    "event_descriptions": {
+                        "type": "object",
+                        "description": "Optional user/lab-provided mapping of event label to meaning.",
+                    },
+                    "boundary_markers": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Labels known to indicate boundaries, run starts/ends, or pauses rather than analysis events.",
+                    },
+                    "condition_markers": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Labels confirmed as task conditions or analysis triggers.",
+                    },
+                    "segment_markers": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Labels used only to pair start/end recording or task-block segments.",
+                    },
+                    "exclude_markers": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Labels to exclude from derived analysis event tables.",
+                    },
+                },
+                "required": [],
+            },
+            outputSchema=WORKFLOW_OUTPUT_SCHEMA,
+            annotations=ToolAnnotations(
+                title="Event semantics audit",
+                readOnlyHint=True,
+                destructiveHint=False,
+                idempotentHint=True,
+                openWorldHint=False,
+            ),
+        ),
     ]
 
 
@@ -211,12 +423,62 @@ TOOL_TITLES: dict[str, str] = {
     "eeglab_pipeline": "Run Pipeline",
 }
 
+TOOL_DESCRIPTION_APPENDIX: dict[str, str] = {
+    "eeglab_init": "Official pattern: starts EEGLAB with eeglab nogui. Preconditions: MATLAB can resolve EEGLAB. Modifies MATLAB path/session, not EEG data. Common failures: MATLAB unavailable or EEGLAB_PATH wrong.",
+    "eeglab_load_data": "Official pattern: wraps pop_loadset/pop_biosig/pop_loadbv-style import depending on file type, then eeg_checkset. Preconditions: local readable dataset and sidecars when needed. Modifies in-memory EEG. Common failures: missing .fdt/.eeg sidecar or unsupported format.",
+    "eeglab_save_data": "Official pattern: wraps pop_saveset. Preconditions: EEG is loaded. Writes a derivative .set/.fdt; do not overwrite raw inputs unless explicitly approved. Common failures: invalid output path or missing EEG.",
+    "eeglab_import_bids": "Official pattern: uses EEGLAB BIDS import/STUDY path such as pop_importbids. Preconditions: BIDS-like folder and plugin support. Modifies ALLEEG/STUDY/EEG in MATLAB. Common failures: invalid BIDS layout or missing BIDS tools.",
+    "eeglab_info": "Official pattern: inspects EEG structure fields and eeg_checkset-compatible metadata. Preconditions: EEG is loaded. Read-only. Common failures: no current EEG dataset.",
+    "eeglab_history": "Official pattern: reads EEG.history, where EEGLAB usually records pop_ command history. Preconditions: EEG is loaded. Read-only. Common failures: empty or imported history.",
+    "eeglab_filter": "Official pattern: wraps pop_eegfiltnew or equivalent EEGLAB filtering. Preconditions: continuous/epoched suitability and justified cutoffs. Modifies in-memory EEG. Common failures: invalid cutoff order or overly aggressive filter settings.",
+    "eeglab_resample": "Official pattern: wraps pop_resample. Preconditions: EEG is loaded and target sample rate is justified. Modifies in-memory EEG. Common failures: nonpositive sample rate.",
+    "eeglab_reref": "Official pattern: wraps pop_reref. Preconditions: reference policy is known and channel labels are valid for channel reference. Modifies in-memory EEG. Common failures: missing reference channel or inappropriate rank assumptions.",
+    "eeglab_select_channels": "Official pattern: wraps pop_select for channel inclusion/exclusion. Preconditions: channel labels are known. Modifies in-memory EEG. Common failures: mixing include and exclude lists or absent labels.",
+    "eeglab_interpolate_channels": "Official pattern: wraps pop_interp. Preconditions: bad-channel list and channel locations are available. Modifies in-memory EEG. Common failures: missing montage/channel locations.",
+    "eeglab_edit_channels": "Official pattern: wraps pop_chanedit-style channel metadata edits. Preconditions: channel-location file or rename map is valid. Modifies channel metadata. Common failures: wrong montage file or incomplete label mapping.",
+    "eeglab_clean_line_noise": "Official pattern: line-noise cleanup around 50/60 Hz. Preconditions: local mains frequency and data shape are known. Modifies in-memory EEG. Common failures: plugin/function unavailable or wrong line frequency.",
+    "eeglab_clean_rawdata": "Official pattern: wraps clean_rawdata/pop_clean_rawdata for bad channels, bad segments, and ASR. Preconditions: continuous raw data and documented thresholds. Modifies in-memory EEG. Common failures: plugin missing or aggressive thresholds removing too much data.",
+    "eeglab_run_ica": "Official pattern: wraps pop_runica/runica or Picard. Preconditions: suitable continuous data, rank/reference considered, bad channels addressed. Modifies ICA fields. Common failures: plugin missing, rank mismatch, insufficient data.",
+    "eeglab_classify_ica": "Official pattern: wraps ICLabel/pop_iclabel. Preconditions: ICA weights exist and ICLabel is installed. Modifies component classification metadata. Common failures: no ICA or missing ICLabel dependencies.",
+    "eeglab_flag_components": "Official pattern: uses ICLabel probability classes to mark candidate components. Preconditions: ICLabel classifications exist. Modifies rejection flags, not data removal. Common failures: thresholds too broad or missing classifications.",
+    "eeglab_remove_components": "Official pattern: wraps pop_subcomp. Preconditions: reviewed component list or explicit threshold. Modifies in-memory EEG by subtracting components. Common failures: removing brain components or ambiguous auto thresholds.",
+    "eeglab_reject_epochs": "Official pattern: wraps EEGLAB epoch rejection methods. Preconditions: epoched data and documented thresholds. Modifies in-memory EEG. Common failures: continuous data or overly strict thresholds.",
+    "eeglab_get_events": "Official pattern: reads EEG.event/urevent. Preconditions: EEG is loaded. Read-only. Common failures: missing markers or ambiguous event semantics.",
+    "eeglab_epoch": "Official pattern: wraps pop_epoch and baseline correction. Preconditions: validated task-condition markers and epoch/baseline windows. Modifies in-memory EEG into epoched data. Common failures: no matching events or baseline outside epoch.",
+    "eeglab_erp_analysis": "Official pattern: derives ERP summaries from epoched EEG. Preconditions: event semantics, baseline, and channel choices are valid. Read-only analysis output. Common failures: continuous data or missing channels.",
+    "eeglab_sort_epochs": "Official pattern: sorts epochs by event/condition metadata. Preconditions: epoched data and condition labels. Modifies epoch order/metadata. Common failures: absent condition field.",
+    "eeglab_average_erp": "Official pattern: averages ERP by condition/channel from epoched data. Preconditions: valid epochs and condition labels. Read-only analysis output. Common failures: no trials after rejection.",
+    "eeglab_spectral": "Official pattern: spectral analysis via EEGLAB spectopo-style functions. Preconditions: suitable continuous/epoch data and frequency range. Read-only analysis output. Common failures: frequency range above Nyquist or unsuitable epochs.",
+    "eeglab_timefreq": "Official pattern: time-frequency via newtimef/pop_newtimef-style ERSP/ITC. Preconditions: event-locked epochs, baseline, channels, and frequency/cycle choices. Read-only analysis output. Common failures: missing epochs or too-short windows.",
+    "eeglab_connectivity": "Official pattern: connectivity estimates such as coherence/PLV. Preconditions: channels, frequency range, and artifact policy are defined. Read-only analysis output. Common failures: missing channels or overinterpreting sensor-level connectivity.",
+    "eeglab_topoplot": "Official pattern: wraps topoplot/pop_topoplot. Preconditions: channel locations and valid time/frequency selection. Writes figure output. Common failures: missing montage or invalid output path.",
+    "eeglab_plot_erp": "Official pattern: wraps EEGLAB ERP plotting. Preconditions: ERP/epoched data and requested channels exist. Writes figure output. Common failures: missing channels or no condition averages.",
+    "eeglab_plot_timefreq": "Official pattern: wraps time-frequency plotting. Preconditions: valid time-frequency settings and channel. Writes figure output. Common failures: no current epoched data or bad output path.",
+    "eeglab_plot_components": "Official pattern: plots ICA components/topographies. Preconditions: ICA exists and channel locations help interpretation. Writes figure output. Common failures: no ICA or missing montage.",
+    "eeglab_source_localization": "Official pattern: wraps DIPFIT settings and multifit for equivalent dipoles. Preconditions: ICA, correct channel locations, head model resources, and DIPFIT. Modifies dipfit fields. Common failures: missing DIPFIT/montage or no ICA.",
+    "eeglab_source_settings": "Official pattern: wraps pop_dipfit_settings. Preconditions: DIPFIT resources and coordinate assumptions are known. Modifies source model settings. Common failures: missing template files or wrong montage.",
+    "eeglab_study_create": "Official pattern: wraps pop_importbids/pop_studywizard/pop_study. Preconditions: multiple datasets or BIDS layout with stable single-subject processing. Modifies STUDY/ALLEEG. Common failures: inconsistent metadata or missing BIDS tools.",
+    "eeglab_study_design": "Official pattern: wraps std_makedesign. Preconditions: STUDY exists and design variables are known. Modifies STUDY design. Common failures: missing subject/condition metadata.",
+    "eeglab_study_statistics": "Official pattern: wraps STUDY statistical parameter/stat calls. Preconditions: valid design, precomputed measures, alpha/correction policy. Read/write STUDY state. Common failures: missing measures or invalid correction assumptions.",
+    "eeglab_pipeline": "Official pattern: chains pop_ preprocessing/analysis functions into a standardized derivative workflow. Preconditions: user accepts defaults and output path is separate from raw data. High risk because many decisions are bundled. Common failures: missing plugins/events or unsuitable defaults.",
+    "eeglab_qc_report": "Research workflow: combines info/events/history into a QC gate. Preconditions: EEG loaded. Read-only. Common failures: no EEG or incomplete acquisition metadata.",
+    "eeglab_erp_light_workflow": "Research workflow: conservative smoke ERP using load/filter/epoch/ERP/save. Preconditions: validated ERP event labels and separate output directory. Writes derivative files. Common failures: wrong event labels or absent requested channels.",
+    "eeglab_workflow_recommend": "Research workflow: non-destructive recommender for analysis branch, QC gates, and limitations. Preconditions: pass known facts when available. Read-only. Common failures: insufficient goal/event/montage facts.",
+    "eeglab_project_plan": "Research workflow: project-level protocol planner. Preconditions: goal/design facts if available. Read-only. Common failures: unresolved event semantics or missing montage/behavioral log constraints.",
+    "eeglab_protocol_export": "Research workflow: protocol serializer to Markdown/JSON. Preconditions: steps/parameters/QC gates should be reviewed. May write one protocol file. Common failures: invalid output path.",
+    "eeglab_plugin_check": "Research workflow: probes plugin/function availability in MATLAB/EEGLAB. Preconditions: MATLAB and EEGLAB can start. Read-only. Common failures: missing plugin path or unavailable MATLAB.",
+    "eeglab_event_semantics_audit": "Research workflow: classifies markers before epoching. Preconditions: event labels/counts or user semantics. Read-only. Common failures: no condition-level event remains after excluding boundaries/QC markers.",
+}
+
 READ_ONLY_TOOLS = {
     "eeglab_info",
     "eeglab_history",
     "eeglab_get_events",
     "eeglab_workflow_recommend",
     "eeglab_qc_report",
+    "eeglab_project_plan",
+    "eeglab_plugin_check",
+    "eeglab_event_semantics_audit",
 }
 
 DESTRUCTIVE_TOOLS = {
@@ -239,6 +501,11 @@ def annotate_tools(tools: list[Tool]) -> list[Tool]:
     """Add MCP title/annotation metadata without changing tool names."""
     for tool in tools:
         tool.title = tool.title or TOOL_TITLES.get(tool.name, tool.name.replace("_", " ").title())
+        appendix = TOOL_DESCRIPTION_APPENDIX.get(tool.name)
+        if appendix:
+            description = tool.description or ""
+            if appendix not in description:
+                tool.description = f"{description} {appendix}".strip()
         if tool.annotations is None:
             read_only = tool.name in READ_ONLY_TOOLS
             tool.annotations = ToolAnnotations(
@@ -540,6 +807,21 @@ def validate_tool_contracts(name: str, arguments: dict[str, Any]) -> list[str]:
 
     elif name == "eeglab_workflow_recommend":
         _positive_number(arguments, "srate", errors)
+
+    elif name == "eeglab_project_plan":
+        _positive_number(arguments, "srate", errors)
+        _positive_integer(arguments, "subject_count", errors)
+        _positive_integer(arguments, "session_count", errors)
+
+    elif name == "eeglab_protocol_export":
+        if "qc_gates" in arguments and _is_present(arguments, "qc_gates") is False:
+            errors.append("eeglab_protocol_export 的 qc_gates 不能为空数组")
+        if "steps" in arguments and _is_present(arguments, "steps") is False:
+            errors.append("eeglab_protocol_export 的 steps 不能为空数组")
+
+    elif name == "eeglab_plugin_check":
+        if "plugins" in arguments and _is_present(arguments, "plugins") is False:
+            errors.append("eeglab_plugin_check 的 plugins 不能为空数组")
 
     elif name in {"eeglab_pipeline", "eeglab_erp_light_workflow"}:
         highpass_field = "highpass" if name == "eeglab_pipeline" else "low_cutoff"

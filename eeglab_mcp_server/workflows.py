@@ -17,6 +17,182 @@ LIMITATIONS = [
     "Light workflows are smoke-tested entry points and do not replace study-specific preprocessing decisions.",
 ]
 
+OFFICIAL_REFERENCES = [
+    {
+        "name": "EEGLAB GitHub",
+        "url": "https://github.com/sccn/eeglab",
+        "use": "Open-source EEGLAB MATLAB/Octave signal-processing environment.",
+    },
+    {
+        "name": "EEGLAB functions guide",
+        "url": "https://eeglab.org/tutorials/ConceptsGuide/EEGLAB_functions.html",
+        "use": "Official pop_/eeg_ function model used by MCP tool descriptions.",
+    },
+    {
+        "name": "EEGLAB tutorials",
+        "url": "https://eeglab.org/tutorials/",
+        "use": "Official workflow tutorials for scripting, preprocessing, ICA, ERP, time-frequency, STUDY, and source work.",
+    },
+    {
+        "name": "clean_rawdata",
+        "url": "https://eeglab.org/plugins/clean_rawdata/",
+        "use": "ASR, bad-channel, and bad-segment cleaning prerequisites.",
+    },
+    {
+        "name": "ICLabel",
+        "url": "https://github.com/sccn/ICLabel",
+        "use": "ICA component classification prerequisite and interpretation limits.",
+    },
+    {
+        "name": "DIPFIT",
+        "url": "https://eeglab.org/plugins/dipfit/",
+        "use": "Source-localization prerequisites and template model assumptions.",
+    },
+    {
+        "name": "EEG-BIDS in EEGLAB",
+        "url": "https://eeglab.org/tutorials/11_Scripting/Analyzing_EEG_BIDS_data_in_EEGLAB.html",
+        "use": "BIDS import and STUDY/group-analysis path.",
+    },
+    {
+        "name": "EEGLAB Course",
+        "url": "https://github.com/sccn/EEGLAB_course",
+        "use": "Official course coverage for BIDS, preprocessing, ERP/time-frequency, source/connectivity, ICA clustering, and statistics.",
+    },
+]
+
+DEFAULT_QC_GATES = [
+    "raw_input_preserved",
+    "recording_metadata_reported",
+    "channel_location_coverage_checked",
+    "event_labels_and_latencies_checked",
+    "processing_history_or_session_steps_recorded",
+    "analysis_branch_matches_study_design",
+    "destructive_steps_write_new_outputs",
+    "artifact_rejection_thresholds_reported",
+    "outputs_and_limitations_reported",
+]
+
+NON_ANALYSIS_EVENT_ROLES = {"boundary", "impedance", "segment_marker", "excluded", "qc_annotation"}
+
+
+def _as_list(value: Any) -> list[Any]:
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return value
+    return [value]
+
+
+def _as_string_list(value: Any) -> list[str]:
+    return [str(item).strip() for item in _as_list(value) if str(item).strip()]
+
+
+def _norm_label(value: Any) -> str:
+    return str(value).strip().lower()
+
+
+def _event_role_from_semantics(label: str, semantics: dict[str, Any]) -> str | None:
+    """Return a normalized role supplied by user/lab semantics, when available."""
+    if not isinstance(semantics, dict):
+        return None
+    raw = semantics.get(label)
+    if raw is None:
+        raw = semantics.get(_norm_label(label))
+    if isinstance(raw, dict):
+        raw = raw.get("role") or raw.get("type") or raw.get("meaning")
+    if raw is None:
+        return None
+    text = str(raw).strip().lower()
+    if any(term in text for term in ("condition", "target", "standard", "stimulus", "trigger", "response")):
+        return "condition"
+    if any(term in text for term in ("boundary", "start", "end", "segment", "block", "run")):
+        return "segment_marker" if "segment" in text or "start" in text or "end" in text else "boundary"
+    if "impedance" in text:
+        return "impedance"
+    if any(term in text for term in ("exclude", "delete", "ignore", "qc", "metadata")):
+        return "excluded"
+    return text or None
+
+
+def _analysis_event_types(
+    event_types: list[str],
+    event_semantics: dict[str, Any] | None = None,
+    condition_markers: list[str] | None = None,
+    exclude_markers: list[str] | None = None,
+    boundary_markers: list[str] | None = None,
+    segment_markers: list[str] | None = None,
+) -> list[str]:
+    """Return markers that are eligible for condition/event-locked analysis."""
+    condition_set = {_norm_label(item) for item in _as_string_list(condition_markers)}
+    exclude_set = {_norm_label(item) for item in _as_string_list(exclude_markers)}
+    boundary_set = {_norm_label(item) for item in _as_string_list(boundary_markers)}
+    segment_set = {_norm_label(item) for item in _as_string_list(segment_markers)}
+    eligible: list[str] = []
+    for event in event_types:
+        key = _norm_label(event)
+        role = _event_role_from_semantics(event, event_semantics or {})
+        if key in condition_set or role == "condition":
+            eligible.append(event)
+        elif key in exclude_set or key in boundary_set or key in segment_set:
+            continue
+        elif role in NON_ANALYSIS_EVENT_ROLES:
+            continue
+        elif "impedance" in key or "boundary" in key or key in {"s1000", "new segment", "start", "end"}:
+            continue
+        else:
+            eligible.append(event)
+    return eligible
+
+
+def _research_blockers(
+    *,
+    analysis_type: str,
+    event_types: list[str],
+    analysis_events: list[str],
+    data_shape: str | None,
+    has_channel_locations: bool | None,
+    has_ica: bool | None,
+    has_continuous_raw: bool | None,
+    has_behavioral_log: bool | None,
+    project_scale: str,
+) -> tuple[list[str], list[str]]:
+    """Return blocking conditions and explicit not-recommended actions."""
+    blockers: list[str] = []
+    not_recommended: list[str] = [
+        "Do not overwrite raw EEG files; write derivatives to a separate output path.",
+        "Do not make clinical or diagnostic claims from signal-processing outputs.",
+    ]
+
+    if analysis_type in {"erp", "timefreq"}:
+        not_recommended.append("Do not epoch around boundary, impedance, excluded, or segment-only markers.")
+        if event_types and not analysis_events:
+            blockers.append("No confirmed condition/trigger event remains after excluding boundary/QC/segment markers.")
+        elif not event_types:
+            blockers.append("Event-locked ERP/time-frequency analysis needs validated event labels and condition semantics.")
+        if has_behavioral_log is False:
+            not_recommended.append("Do not claim condition-level behavioral interpretation without a behavioral log or validated event-code map.")
+
+    if analysis_type in {"source", "connectivity"}:
+        if has_channel_locations is False:
+            blockers.append("Channel locations are missing; source/topography/connectivity interpretation is blocked until montage metadata is repaired.")
+        not_recommended.append("Do not infer anatomical sources from sensor data without correct montage, ICA/source prerequisites, and reported model assumptions.")
+
+    if analysis_type == "source" and has_ica is False:
+        blockers.append("Source localization through DIPFIT needs ICA components or another explicitly justified source model.")
+
+    if analysis_type in {"ica", "resting"} and data_shape == "epoched" and has_continuous_raw is False:
+        blockers.append("ICA/resting analysis from epoched-only data is blocked unless the design explicitly supports that use.")
+
+    if analysis_type == "study":
+        if project_scale not in {"multi_subject", "bids_study"}:
+            blockers.append("STUDY/group analysis needs a multi-subject or BIDS/STUDY project structure.")
+        not_recommended.append("Do not run group statistics before the single-subject preprocessing protocol is locked and documented.")
+
+    if has_channel_locations is False:
+        not_recommended.append("Do not produce topography or source claims until channel-location coverage is repaired.")
+
+    return blockers, not_recommended
+
 
 def text_payload(payload: dict[str, Any]) -> list[TextContent]:
     """Return a JSON text MCP payload."""
@@ -187,10 +363,12 @@ def recommend_workflow(args: dict[str, Any]) -> dict[str, Any]:
     event_types = args.get("event_types", [])
     data_shape = args.get("data_shape")
     has_channel_locations = args.get("has_channel_locations")
+    event_semantics = args.get("event_semantics") if isinstance(args.get("event_semantics"), dict) else {}
+    analysis_events = _analysis_event_types(event_types, event_semantics)
 
     if requested_analysis_type != "auto":
         analysis_type = requested_analysis_type
-    elif event_types:
+    elif analysis_events:
         analysis_type = "erp"
     elif data_shape == "epoched":
         analysis_type = "erp"
@@ -203,6 +381,19 @@ def recommend_workflow(args: dict[str, Any]) -> dict[str, Any]:
     event_types = args.get("event_types", [])
     srate = args.get("srate")
     has_ica = args.get("has_ica", False)
+    has_continuous_raw = args.get("has_continuous_raw")
+    has_behavioral_log = args.get("has_behavioral_log")
+    blockers, not_recommended = _research_blockers(
+        analysis_type=analysis_type,
+        event_types=event_types,
+        analysis_events=analysis_events,
+        data_shape=data_shape,
+        has_channel_locations=has_channel_locations,
+        has_ica=has_ica,
+        has_continuous_raw=has_continuous_raw,
+        has_behavioral_log=has_behavioral_log,
+        project_scale=project_scale,
+    )
 
     common = ["eeglab_init", "eeglab_load_data", "eeglab_info recording/channel/event audit", "eeglab_qc_report"]
     parameters: dict[str, Any] = {
@@ -216,6 +407,9 @@ def recommend_workflow(args: dict[str, Any]) -> dict[str, Any]:
         "has_ica": has_ica,
         "data_shape": data_shape,
         "has_channel_locations": has_channel_locations,
+        "analysis_event_types": analysis_events,
+        "has_continuous_raw": has_continuous_raw,
+        "has_behavioral_log": has_behavioral_log,
     }
     base_hints = [
         "Preserve the raw dataset; write transformed outputs to a new path.",
@@ -238,10 +432,10 @@ def recommend_workflow(args: dict[str, Any]) -> dict[str, Any]:
         required_user_decisions.append("project scale and grouping")
         clarifying_questions.append("Is this single-subject, multi-subject, BIDS/STUDY, or exploratory QC work?")
         default_assumptions.append("Project scale is unknown; start with single-subject provenance/QC before group-level assumptions.")
-    if analysis_type in {"erp", "timefreq"} and not event_types:
+    if analysis_type in {"erp", "timefreq"} and not analysis_events:
         required_user_decisions.append("event labels and task conditions")
         clarifying_questions.append("Which event labels define the conditions/epochs, and what epoch/baseline windows match the study design?")
-        default_assumptions.append("No event labels were supplied; inspect events and avoid event-locked analysis until labels are confirmed.")
+        default_assumptions.append("No confirmed analysis event labels were supplied; inspect event semantics and avoid event-locked analysis until labels are confirmed.")
     if has_channel_locations is False:
         required_user_decisions.append("montage/channel-location repair")
         clarifying_questions.append("Can you provide the cap montage/channel-location file, or should analysis avoid topography/source outputs?")
@@ -258,9 +452,9 @@ def recommend_workflow(args: dict[str, Any]) -> dict[str, Any]:
             "eeglab_erp_analysis",
             "eeglab_save_data to a new output path",
         ]
-        hints = base_hints + ["Use event audit first; ERP is not meaningful without validated event labels."]
-        if not event_types:
-            hints.append("No event_types were supplied; inspect events before epoching.")
+        hints = base_hints + ["Use event audit first; ERP is not meaningful without validated condition/trigger labels."]
+        if not analysis_events:
+            hints.append("No analysis_event_types were resolved; run eeglab_event_semantics_audit before epoching.")
     elif analysis_type == "resting":
         steps = common + [
             "eeglab_filter highpass 0.5/1 Hz and lowpass 45/80 Hz as appropriate",
@@ -310,17 +504,7 @@ def recommend_workflow(args: dict[str, Any]) -> dict[str, Any]:
         "5_output_and_reporting: save processed datasets/figures/tables, report exact parameters and limitations, and avoid clinical claims",
         "6_project_evolution: turn repeated failures/decisions into updated protocol notes, eval prompts, and skill guidance after review",
     ]
-    qc_gates = [
-        "raw_input_preserved",
-        "recording_metadata_reported",
-        "channel_location_coverage_checked",
-        "event_labels_and_latencies_checked",
-        "processing_history_or_session_steps_recorded",
-        "analysis_branch_matches_study_design",
-        "destructive_steps_write_new_outputs",
-        "artifact_rejection_thresholds_reported",
-        "outputs_and_limitations_reported",
-    ]
+    qc_gates = DEFAULT_QC_GATES
     adaptive_decision_rules = [
         "If research_goal is missing, ask for it; if unavailable, infer a conservative first-pass path from events and data_shape.",
         "If event_types are present, ERP/time-frequency branches are candidates; if events are absent, prefer resting-state QC/spectral analysis.",
@@ -350,6 +534,12 @@ def recommend_workflow(args: dict[str, Any]) -> dict[str, Any]:
             "required_user_decisions": required_user_decisions,
             "clarifying_questions": clarifying_questions,
             "default_assumptions": default_assumptions,
+            "blocking_conditions": blockers,
+            "not_recommended": not_recommended,
+            "analysis_event_types": analysis_events,
+            "research_grade_next_step": (
+                "Resolve blocking_conditions before processing." if blockers else "Proceed through qc_gates before any destructive processing."
+            ),
             "qc_gates": qc_gates,
             "adaptive_decision_rules": adaptive_decision_rules,
             "self_evolution_hooks": self_evolution_hooks,
@@ -368,6 +558,329 @@ def recommend_workflow(args: dict[str, Any]) -> dict[str, Any]:
                 "artifact_rejection_or_ica_decisions",
                 "software_and_plugin_limitations",
             ],
+        },
+    )
+
+
+def event_semantics_audit(args: dict[str, Any]) -> dict[str, Any]:
+    """Classify event markers before deriving epochs or condition tables."""
+    event_types = _as_string_list(args.get("event_types"))
+    event_counts_raw = args.get("event_counts") if isinstance(args.get("event_counts"), dict) else {}
+    event_counts = {str(key): value for key, value in event_counts_raw.items()}
+    if not event_types:
+        event_types = list(event_counts)
+
+    event_descriptions = args.get("event_descriptions") if isinstance(args.get("event_descriptions"), dict) else {}
+    boundary_markers = {_norm_label(item) for item in _as_string_list(args.get("boundary_markers"))}
+    condition_markers = {_norm_label(item) for item in _as_string_list(args.get("condition_markers"))}
+    segment_markers = {_norm_label(item) for item in _as_string_list(args.get("segment_markers"))}
+    exclude_markers = {_norm_label(item) for item in _as_string_list(args.get("exclude_markers"))}
+
+    classifications: list[dict[str, Any]] = []
+    analysis_events: list[str] = []
+    excluded_events: list[str] = []
+    boundary_events: list[str] = []
+    segment_events: list[str] = []
+    impedance_events: list[str] = []
+    candidate_events: list[str] = []
+
+    for label in event_types:
+        key = _norm_label(label)
+        role = _event_role_from_semantics(label, event_descriptions)
+        reason = "heuristic fallback"
+        if key in condition_markers:
+            role = "condition"
+            reason = "listed in condition_markers"
+        elif key in exclude_markers:
+            role = "excluded"
+            reason = "listed in exclude_markers"
+        elif key in boundary_markers:
+            role = "boundary"
+            reason = "listed in boundary_markers"
+        elif key in segment_markers:
+            role = "segment_marker"
+            reason = "listed in segment_markers"
+        elif role:
+            reason = "event_descriptions mapping"
+        elif "impedance" in key:
+            role = "impedance"
+            reason = "label contains impedance"
+        elif "boundary" in key or key in {"s1000", "start", "end", "new segment"}:
+            role = "boundary"
+            reason = "common boundary/start/end marker"
+        elif key in {"sync", "pause", "resume", "calibration"}:
+            role = "qc_annotation"
+            reason = "common acquisition/QC annotation"
+        else:
+            role = "candidate_trigger"
+            reason = "not identified as boundary/QC/excluded"
+
+        count = event_counts.get(label, event_counts.get(key))
+        row = {"label": label, "role": role, "count": count, "reason": reason}
+        classifications.append(row)
+        if role == "condition":
+            analysis_events.append(label)
+        elif role == "candidate_trigger":
+            candidate_events.append(label)
+        elif role == "boundary":
+            boundary_events.append(label)
+        elif role == "segment_marker":
+            segment_events.append(label)
+        elif role == "impedance":
+            impedance_events.append(label)
+        else:
+            excluded_events.append(label)
+
+    confirmed_analysis = analysis_events[:]
+    candidate_analysis = candidate_events[:]
+    blocker: list[str] = []
+    if not confirmed_analysis and not candidate_analysis:
+        blocker.append("No condition-level ERP/time-frequency trigger remains after event semantics classification.")
+
+    segment_pair_count = None
+    if segment_events:
+        segment_total = sum(int(event_counts.get(label, 0) or 0) for label in segment_events)
+        if segment_total:
+            segment_pair_count = segment_total // 2 if segment_total % 2 == 0 else None
+
+    return workflow_success(
+        "eeglab_event_semantics_audit",
+        steps=[{"name": "classify_event_semantics", "status": "success"}],
+        parameters={
+            "event_types": event_types,
+            "event_counts": event_counts,
+            "boundary_markers": sorted(boundary_markers),
+            "condition_markers": sorted(condition_markers),
+            "segment_markers": sorted(segment_markers),
+            "exclude_markers": sorted(exclude_markers),
+        },
+        outputs={},
+        summary={
+            "classifications": classifications,
+            "confirmed_analysis_events": confirmed_analysis,
+            "candidate_analysis_events_need_confirmation": candidate_analysis,
+            "excluded_events": excluded_events,
+            "boundary_events": boundary_events,
+            "segment_events": segment_events,
+            "impedance_events": impedance_events,
+            "segment_pair_count_if_sequential": segment_pair_count,
+            "blocking_conditions": blocker,
+            "recommended_next_step": (
+                "Ask the user for condition codes or behavioral logs before ERP/time-frequency analysis."
+                if blocker
+                else "Use only confirmed_analysis_events for epoching; confirm candidate triggers before analysis claims."
+            ),
+            "not_recommended": [
+                "Do not epoch around boundary, impedance, excluded, or segment-only markers.",
+                "Do not treat experiment start/end markers as ERP triggers unless the user supplies a task-condition mapping.",
+            ],
+        },
+    )
+
+
+def project_plan(args: dict[str, Any]) -> dict[str, Any]:
+    """Create a research-grade EEG project plan without running MATLAB."""
+    event_types = _as_string_list(args.get("event_types"))
+    event_semantics = args.get("event_semantics") if isinstance(args.get("event_semantics"), dict) else {}
+    analysis_type = args.get("analysis_type", "auto")
+    project_scale = args.get("project_scale", "unknown")
+    data_shape = args.get("data_shape")
+    if data_shape == "unknown":
+        data_shape = None
+    analysis_events = _analysis_event_types(event_types, event_semantics)
+    if analysis_type == "auto":
+        if analysis_events:
+            resolved = "erp"
+        elif project_scale == "bids_study":
+            resolved = "study"
+        elif data_shape == "epoched":
+            resolved = "erp"
+        else:
+            resolved = "resting"
+    else:
+        resolved = analysis_type
+
+    has_ica = args.get("has_ica")
+    has_channel_locations = args.get("has_channel_locations")
+    has_continuous_raw = args.get("has_continuous_raw")
+    has_behavioral_log = args.get("has_behavioral_log")
+    blockers, not_recommended = _research_blockers(
+        analysis_type=resolved,
+        event_types=event_types,
+        analysis_events=analysis_events,
+        data_shape=data_shape,
+        has_channel_locations=has_channel_locations,
+        has_ica=has_ica,
+        has_continuous_raw=has_continuous_raw,
+        has_behavioral_log=has_behavioral_log,
+        project_scale=project_scale,
+    )
+
+    steps = [
+        "project_intake",
+        "raw_preservation_and_output_dir_policy",
+        "recording_provenance_audit",
+        "event_semantics_audit",
+        "plugin_doctor_if_needed",
+        "qc_gate_before_processing",
+        f"analysis_branch_{resolved}",
+        "protocol_export",
+        "report_outputs_and_limitations",
+    ]
+    if resolved in {"ica", "erp", "timefreq", "source", "study"}:
+        steps.insert(6, "preprocessing_decision_tree")
+    if resolved == "source":
+        steps.insert(7, "source_prerequisite_gate")
+    if resolved == "study":
+        steps.insert(7, "single_subject_protocol_lock_before_group_statistics")
+
+    required_user_decisions: list[str] = []
+    if not args.get("research_goal"):
+        required_user_decisions.append("primary research goal/hypothesis")
+    if resolved in {"erp", "timefreq"} and not analysis_events:
+        required_user_decisions.append("task-condition event codes or behavioral log")
+    if has_channel_locations is False:
+        required_user_decisions.append("montage/channel-location repair file or decision to avoid topography/source")
+    if project_scale == "unknown":
+        required_user_decisions.append("single-subject vs multi-subject/BIDS/STUDY scope")
+
+    quick_modes = {
+        "quick_qc": "Load/QC/events/history only; no data modification.",
+        "safe_erp": "ERP branch only after event semantics identify condition triggers.",
+        "segment_qc": "For start/end-only marker data; report segment durations and avoid ERP claims.",
+        "study_ready_check": "Multi-subject/BIDS metadata, design variables, and preprocessing protocol gate.",
+        "plugin_doctor": "Check clean_rawdata, ICLabel, DIPFIT, BIDS, LIMO, and SIFT availability before dependent steps.",
+    }
+
+    return workflow_success(
+        "eeglab_project_plan",
+        steps=[{"name": step, "status": "planned"} for step in steps],
+        parameters={
+            "research_goal": args.get("research_goal", ""),
+            "analysis_type_requested": analysis_type,
+            "analysis_type_resolved": resolved,
+            "project_scale": project_scale,
+            "data_format": args.get("data_format", ""),
+            "data_shape": data_shape,
+            "event_types": event_types,
+            "analysis_event_types": analysis_events,
+            "srate": args.get("srate"),
+            "subject_count": args.get("subject_count"),
+            "session_count": args.get("session_count"),
+            "has_channel_locations": has_channel_locations,
+            "has_behavioral_log": has_behavioral_log,
+            "has_continuous_raw": has_continuous_raw,
+            "required_outputs": _as_string_list(args.get("required_outputs")),
+        },
+        outputs={},
+        summary={
+            "product_advantage": [
+                "Uses eeglab_* tools for executable EEGLAB work instead of asking the user to write MATLAB scripts.",
+                "Uses skill/MCP policy for reproducible parameters, QC gates, event semantics, provenance, and limitations.",
+                "Keeps EEG data local and exchanges cross-MCP state only through explicit files.",
+            ],
+            "project_phases": steps,
+            "qc_gates": DEFAULT_QC_GATES,
+            "blocking_conditions": blockers,
+            "not_recommended": not_recommended,
+            "required_user_decisions": required_user_decisions,
+            "quick_modes": quick_modes,
+            "official_reference_anchors": OFFICIAL_REFERENCES,
+            "recommended_next_step": (
+                "Resolve blocking_conditions and required_user_decisions before destructive preprocessing."
+                if blockers or required_user_decisions
+                else "Run quick_qc, then export a protocol before destructive preprocessing."
+            ),
+        },
+    )
+
+
+def protocol_export_payload(args: dict[str, Any]) -> dict[str, Any]:
+    """Build and optionally write a Markdown or JSON research protocol."""
+    format_name = args.get("format", "markdown")
+    if format_name not in {"markdown", "json"}:
+        raise ValueError("format must be markdown or json")
+    parameters = args.get("parameters") if isinstance(args.get("parameters"), dict) else {}
+    outputs = args.get("outputs") if isinstance(args.get("outputs"), dict) else {}
+    qc_gates = _as_string_list(args.get("qc_gates")) or DEFAULT_QC_GATES
+    steps = _as_string_list(args.get("steps")) or ["project_intake", "quick_qc", "workflow_recommend", "analysis_branch"]
+    limitations = _as_string_list(args.get("limitations")) or LIMITATIONS
+    research_goal = str(args.get("research_goal", "")).strip()
+    analysis_type = str(args.get("analysis_type", "")).strip()
+
+    protocol = {
+        "research_goal": research_goal,
+        "analysis_type": analysis_type,
+        "steps": steps,
+        "parameters": parameters,
+        "qc_gates": qc_gates,
+        "outputs": outputs,
+        "limitations": limitations,
+        "official_reference_anchors": OFFICIAL_REFERENCES,
+    }
+
+    if format_name == "json":
+        rendered = json.dumps(protocol, ensure_ascii=False, indent=2)
+    else:
+        refs = "\n".join(f"- {ref['name']}: {ref['url']} ({ref['use']})" for ref in OFFICIAL_REFERENCES)
+        rendered = "\n".join(
+            [
+                "# EEGLAB Research Protocol",
+                "",
+                f"- Research goal: {research_goal or 'not specified'}",
+                f"- Analysis type: {analysis_type or 'not specified'}",
+                "",
+                "## Workflow Steps",
+                *[f"- {step}" for step in steps],
+                "",
+                "## QC Gates",
+                *[f"- {gate}" for gate in qc_gates],
+                "",
+                "## Parameters",
+                "```json",
+                json.dumps(parameters, ensure_ascii=False, indent=2),
+                "```",
+                "",
+                "## Outputs",
+                "```json",
+                json.dumps(outputs, ensure_ascii=False, indent=2),
+                "```",
+                "",
+                "## Limitations",
+                *[f"- {item}" for item in limitations],
+                "",
+                "## Official Reference Anchors",
+                refs,
+                "",
+            ]
+        )
+
+    written_path = ""
+    output_path = str(args.get("output_path", "")).strip()
+    if output_path:
+        path = Path(output_path).expanduser().resolve()
+        if path.suffix.lower() in {".set", ".fdt", ".eeg", ".vhdr", ".vmrk", ".edf", ".bdf", ".cnt"}:
+            raise ValueError("protocol output_path must not target EEG data or raw sidecar file extensions")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(rendered, encoding="utf-8")
+        written_path = str(path)
+
+    return workflow_success(
+        "eeglab_protocol_export",
+        steps=[{"name": "render_protocol", "status": "success"}]
+        + ([{"name": "write_protocol_file", "status": "success"}] if written_path else []),
+        parameters={
+            "format": format_name,
+            "output_path": output_path,
+            "research_goal": research_goal,
+            "analysis_type": analysis_type,
+        },
+        outputs={"protocol_text": rendered, "written_path": written_path},
+        summary={
+            "qc_gates": qc_gates,
+            "step_count": len(steps),
+            "official_reference_count": len(OFFICIAL_REFERENCES),
+            "recommended_next_step": "Attach this protocol to the project report and keep exact tool parameters synchronized after each processing change.",
         },
     )
 

@@ -56,9 +56,12 @@ try:
         workflow_tools,
     )
     from .workflows import (
+        event_semantics_audit,
         light_erp_parameters,
         parse_tool_result,
+        project_plan,
         qc_report_from_payloads,
+        protocol_export_payload,
         recommend_workflow,
         structured_payload,
         workflow_error,
@@ -89,9 +92,12 @@ except ImportError:  # pragma: no cover - direct script execution support
         workflow_tools,
     )
     from workflows import (
+        event_semantics_audit,
         light_erp_parameters,
         parse_tool_result,
+        project_plan,
         qc_report_from_payloads,
+        protocol_export_payload,
         recommend_workflow,
         structured_payload,
         workflow_error,
@@ -416,6 +422,16 @@ def matlab_numeric_array(items: list[Any]) -> str:
     return "[" + " ".join(values) + "]"
 
 
+def _matlab_identifier(value: Any) -> str:
+    """Return a conservative MATLAB struct field identifier."""
+    text = str(value or "field")
+    chars = [char if char.isalnum() or char == "_" else "_" for char in text]
+    identifier = "".join(chars).strip("_") or "field"
+    if identifier[0].isdigit():
+        identifier = f"field_{identifier}"
+    return identifier[:63]
+
+
 def _esc(path: Any) -> str:
     """Compatibility helper for legacy code that still wraps values in quotes."""
     return _matlab_text(path)
@@ -533,6 +549,7 @@ def _client_schema(schema: dict[str, Any]) -> dict[str, Any]:
 server = Server("eeglab-mcp-server")
 ROOT_DIR = Path(__file__).resolve().parents[1]
 SKILL_DIR = ROOT_DIR / "skills" / "eeglab-analysis"
+DOCS_DIR = ROOT_DIR / "docs"
 
 PROMPT_DEFINITIONS: dict[str, dict[str, str]] = {
     "eeglab_project_intake": {
@@ -575,6 +592,61 @@ PROMPT_DEFINITIONS: dict[str, dict[str, str]] = {
             "rejected data/components, and software/plugin limitations."
         ),
     },
+    "eeglab_erp_research_entry": {
+        "title": "ERP Research Entry",
+        "description": "Start ERP work with event semantics, epoch/baseline, and reporting gates.",
+        "text": (
+            "For ERP work, first confirm the research question, condition labels, event-code semantics, epoch window, "
+            "baseline window, channels/ROIs, reference, and output tables/figures. Call eeglab_project_plan or "
+            "eeglab_workflow_recommend, then eeglab_event_semantics_audit before epoching. Do not epoch around boundaries, "
+            "impedance, excluded markers, or segment-only start/end markers."
+        ),
+    },
+    "eeglab_resting_research_entry": {
+        "title": "Resting Research Entry",
+        "description": "Start resting-state spectral/connectivity work with continuous-data and artifact gates.",
+        "text": (
+            "For resting-state work, confirm continuous raw availability, eyes-open/eyes-closed/task-block context, "
+            "reference/montage, line-noise frequency, artifact policy, and spectral/connectivity outputs. Prefer quick_qc "
+            "before filtering. Do not treat epoched-only data as resting-state data unless the design explicitly supports it."
+        ),
+    },
+    "eeglab_time_frequency_entry": {
+        "title": "Time-Frequency Research Entry",
+        "description": "Start ERSP/ITC work with event, cycles, baseline, and frequency-range gates.",
+        "text": (
+            "For ERSP/ITC work, confirm condition triggers, epoch length, baseline interval, channels/ROIs, frequency range, "
+            "cycles/wavelet settings, and multiple-comparison/reporting plan. Call eeglab_event_semantics_audit before epoching "
+            "and report both ERSP/ITC parameters and limitations."
+        ),
+    },
+    "eeglab_ica_cleanup_entry": {
+        "title": "ICA Cleanup Entry",
+        "description": "Start ICA/ICLabel cleanup with rank, plugin, and review gates.",
+        "text": (
+            "For ICA cleanup, confirm continuous-data suitability, filtering/rank/reference choices, bad-channel handling, "
+            "ICA algorithm, ICLabel availability, component review policy, and save-as-new-output path. Run eeglab_plugin_check "
+            "for ICLabel/Picard-dependent work. Do not auto-remove components without reporting thresholds and rationale."
+        ),
+    },
+    "eeglab_bids_study_entry": {
+        "title": "BIDS/STUDY Research Entry",
+        "description": "Start multi-subject BIDS/STUDY work with metadata, design, and group-statistics gates.",
+        "text": (
+            "For BIDS/STUDY work, confirm subject/session layout, task/event metadata, design variables, single-subject "
+            "preprocessing protocol, output measures, alpha, correction method, and BIDS plugin availability. Use eeglab first "
+            "for STUDY creation/design/statistics; use matlab MCP only for custom computations via file handoff."
+        ),
+    },
+    "eeglab_source_connectivity_entry": {
+        "title": "Source/Connectivity Entry",
+        "description": "Start source or connectivity work with montage, ICA, DIPFIT, and interpretation gates.",
+        "text": (
+            "For source/connectivity work, confirm channel-location coverage, reference, ICA/source model availability, DIPFIT "
+            "resources, selected components/channels, frequency range, and interpretation limits. Do not claim anatomical certainty "
+            "or source-level results from missing montage, missing ICA, or unreported model assumptions."
+        ),
+    },
 }
 
 RESOURCE_FILES: dict[str, tuple[str, Path, str]] = {
@@ -598,6 +670,11 @@ RESOURCE_FILES: dict[str, tuple[str, Path, str]] = {
         SKILL_DIR / "references" / "setup.md",
         "MCP and skill setup guidance, including MATLAB MCP pairing and verification.",
     ),
+    "eeglab://official/references.md": (
+        "EEGLAB Official Research References",
+        DOCS_DIR / "research-standard.md",
+        "Official EEGLAB, SCCN, and plugin references that anchor research-level workflow policy.",
+    ),
 }
 
 REQUIRED_ARGUMENTS: dict[str, list[str]] = {
@@ -616,7 +693,15 @@ REQUIRED_ARGUMENTS: dict[str, list[str]] = {
     "eeglab_pipeline": ["pipeline_type", "data_path"],
 }
 REQUIRED_ARGUMENTS = SHARED_REQUIRED_ARGUMENTS
-WORKFLOW_TOOL_NAMES = {"eeglab_qc_report", "eeglab_erp_light_workflow", "eeglab_workflow_recommend"}
+WORKFLOW_TOOL_NAMES = {
+    "eeglab_qc_report",
+    "eeglab_erp_light_workflow",
+    "eeglab_workflow_recommend",
+    "eeglab_project_plan",
+    "eeglab_protocol_export",
+    "eeglab_plugin_check",
+    "eeglab_event_semantics_audit",
+}
 
 
 # ---------------------------------------------------------------------------
@@ -1845,6 +1930,10 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> Any:
         "eeglab_qc_report": _eeglab_qc_report,
         "eeglab_erp_light_workflow": _eeglab_erp_light_workflow,
         "eeglab_workflow_recommend": _eeglab_workflow_recommend,
+        "eeglab_project_plan": _eeglab_project_plan,
+        "eeglab_protocol_export": _eeglab_protocol_export,
+        "eeglab_plugin_check": _eeglab_plugin_check,
+        "eeglab_event_semantics_audit": _eeglab_event_semantics_audit,
     }
 
     handler = handlers.get(name)
@@ -1852,7 +1941,7 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> Any:
         return _error_response(
             "unknown_tool",
             f"未知工具: {name}",
-            next_step="调用 tools/list 查看可用的 40 个 eeglab_* 工具。",
+            next_step="调用 tools/list 查看可用的 eeglab_* 工具。旧版 40 个工具保持兼容，另有研究级规划工具可用。",
         )
 
     if arguments is None:
@@ -2302,6 +2391,140 @@ async def _eeglab_qc_report(args: dict) -> Any:
 async def _eeglab_workflow_recommend(args: dict) -> Any:
     """Recommend an EEG workflow without changing MATLAB state."""
     return structured_payload(recommend_workflow(args))
+
+
+async def _eeglab_project_plan(args: dict) -> Any:
+    """Create a research-grade project plan without changing MATLAB state."""
+    return structured_payload(project_plan(args))
+
+
+async def _eeglab_protocol_export(args: dict) -> Any:
+    """Render and optionally write a reproducible protocol file."""
+    try:
+        return structured_payload(protocol_export_payload(args))
+    except (OSError, ValueError) as exc:
+        payload = {
+            "status": "error",
+            "code": "protocol_export_failed" if isinstance(exc, OSError) else "invalid_output_path",
+            "error": str(exc),
+            "next_step": "Use a writable .md/.json/.txt output_path or omit output_path to receive protocol_text only.",
+        }
+        return structured_payload(
+            workflow_error(
+                "eeglab_protocol_export",
+                "write_protocol_file",
+                payload,
+                parameters={"output_path": args.get("output_path", ""), "format": args.get("format", "markdown")},
+                steps=[{"name": "render_protocol", "status": "success"}, {"name": "write_protocol_file", "status": "error"}],
+            )
+        )
+
+
+async def _eeglab_event_semantics_audit(args: dict) -> Any:
+    """Classify event roles before epoching."""
+    return structured_payload(event_semantics_audit(args))
+
+
+async def _eeglab_plugin_check(args: dict) -> Any:
+    """Probe local EEGLAB plugin/function availability."""
+    requested = args.get("plugins") or ["clean_rawdata", "ICLabel", "DIPFIT", "BIDS", "LIMO", "SIFT"]
+    plugins = [str(item).strip() for item in requested if str(item).strip()]
+    if not plugins:
+        plugins = ["clean_rawdata", "ICLabel", "DIPFIT", "BIDS", "LIMO", "SIFT"]
+
+    aliases = {
+        "clean_rawdata": ["pop_clean_rawdata", "clean_rawdata"],
+        "iclabel": ["pop_iclabel", "iclabel"],
+        "dipfit": ["pop_dipfit_settings", "pop_multifit"],
+        "bids": ["pop_importbids"],
+        "limo": ["pop_limo", "limo_eeg"],
+        "sift": ["eegplugin_sift", "pop_est_fitMVAR"],
+    }
+
+    matlab_checks: list[str] = []
+    for plugin in plugins:
+        key = plugin.lower()
+        functions = aliases.get(key, [plugin])
+        function_cell = "{" + ", ".join(matlab_string(fn) for fn in functions) + "}"
+        plugin_field = _matlab_identifier(f"plugin_{key}")
+        matlab_checks.append(
+            f"""
+funcs = {function_cell};
+available = false;
+found = {{}};
+for fi = 1:length(funcs)
+    if exist(funcs{{fi}}, 'file') == 2 || exist(funcs{{fi}}, 'file') == 6
+        available = true;
+        found{{end+1}} = funcs{{fi}};
+    end
+end
+result.plugins.{plugin_field}.requested = {matlab_string(plugin)};
+result.plugins.{plugin_field}.functions_checked = funcs;
+result.plugins.{plugin_field}.available = available;
+result.plugins.{plugin_field}.found_functions = found;
+"""
+        )
+
+    code = f"""
+{_maybe_init()}
+result.plugins = struct();
+{''.join(matlab_checks)}
+result.checked_plugins = fieldnames(result.plugins);
+"""
+
+    raw = await matlab.execute(code)
+    if raw.get("status") == "error":
+        payload = {
+            "status": "error",
+            "code": raw.get("code", "plugin_check_failed"),
+            "error": raw.get("error", "MATLAB/EEGLAB plugin check failed."),
+            "next_step": raw.get(
+                "next_step",
+                "Confirm MATLAB_EXEC works, EEGLAB_PATH is correct, and required plugins are on the EEGLAB path.",
+            ),
+            "details": raw,
+        }
+        return structured_payload(
+            workflow_error(
+                "eeglab_plugin_check",
+                "matlab_plugin_probe",
+                payload,
+                parameters={"plugins": plugins},
+                steps=[{"name": "matlab_plugin_probe", "status": "error"}],
+            )
+        )
+
+    plugin_payload = raw.get("plugins", {})
+    missing = []
+    available = []
+    if isinstance(plugin_payload, dict):
+        for item in plugin_payload.values():
+            if isinstance(item, dict) and item.get("available"):
+                available.append(item.get("requested"))
+            elif isinstance(item, dict):
+                missing.append(item.get("requested"))
+
+    return structured_payload(
+        workflow_success(
+            "eeglab_plugin_check",
+            steps=[{"name": "matlab_plugin_probe", "status": "success"}],
+            parameters={"plugins": plugins},
+            outputs={"plugins": plugin_payload},
+            summary={
+                "available": [item for item in available if item],
+                "missing": [item for item in missing if item],
+                "plugin_dependent_gates": {
+                    "clean_rawdata": "Required before ASR/bad-channel clean_rawdata workflows.",
+                    "ICLabel": "Required before automated ICA component classification.",
+                    "DIPFIT": "Required before source localization.",
+                    "BIDS": "Required before BIDS import/STUDY creation from BIDS.",
+                    "LIMO": "Required for LIMO statistics workflows when used.",
+                    "SIFT": "Required for SIFT-style connectivity workflows when used.",
+                },
+                "recommended_next_step": "Install or add missing plugins to EEGLAB path before dependent workflows.",
+            },
+        )
+    )
 
 
 async def _eeglab_erp_light_workflow(args: dict) -> Any:
