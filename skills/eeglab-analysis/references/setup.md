@@ -50,23 +50,13 @@ Other IDE agents that support skill-like prompt packs can import the same `SKILL
 Run lightweight checks before real EEG processing:
 
 ```powershell
-python -m py_compile .\eeglab_mcp_server\server.py
-python -c "import tomllib; tomllib.load(open('eeglab_mcp_server/pyproject.toml','rb')); print('pyproject ok')"
-python -m pip install -e .\eeglab_mcp_server
-python .\scripts\verify_skill.py
-python .\scripts\verify_research_alignment.py
-python .\scripts\verify_mcp_stdio.py
+python -B -m py_compile .\eeglab_mcp_server\server.py .\eeglab_mcp_server\schemas.py .\eeglab_mcp_server\workflows.py .\scripts\verify_framework.py
+python -B .\scripts\verify_framework.py
+powershell -ExecutionPolicy Bypass -File .\scripts\setup_eeglab_agent.ps1 -DryRun
+powershell -ExecutionPolicy Bypass -File .\scripts\doctor_eeglab_agent.ps1
 ```
 
-`verify_research_alignment.py` confirms that the MCP and skill remain synchronized around the strict research contract: missing-goal planning, project phases, QC gates, adaptive defaults, provenance reporting, and self-evolution hooks.
-
-If MATLAB and EEGLAB are configured, run the low-cost real dataset smoke test:
-
-```powershell
-python .\scripts\verify_real_dataset.py --dataset .\test_eeg.set
-```
-
-This uses a temporary work directory by default. It only calls `eeglab_init`, `eeglab_load_data`, `eeglab_info`, `eeglab_get_events`, and `eeglab_history`. It should not run filtering, ICA, source localization, or pipelines.
+`verify_framework.py` confirms that the MCP and skill remain synchronized around the strict research contract: original tool compatibility, planning tools, prompts/resources, official reference terms, config parsing, and repository cleanliness. It intentionally does not require EEG test data.
 
 MCP protocol smoke test:
 
@@ -92,18 +82,10 @@ asyncio.run(main())
 
 Expected smoke-test result:
 
-- `tool_count 40`
+- original 40 tools are present; additional research planning tools may also be listed
 - `missing_required_arguments`
 
-Full light ERP workflow smoke:
-
-```powershell
-python .\scripts\verify_light_erp_workflow.py --dataset .\test_eeg.set
-```
-
-This should save `.set/.fdt` outputs in a temporary directory and preserve the original dataset.
-
-Before a large project or multi-subject analysis, run `eeglab_workflow_recommend` with the known research goal, project scale, stage, event labels, data shape, sampling rate, ICA state, and channel-location availability. If those facts are missing, use its `clarifying_questions`, `default_assumptions`, and `qc_gates` as the first planning artifact.
+Before a large project or multi-subject analysis, run `eeglab_project_plan` or `eeglab_workflow_recommend` with the known research goal, project scale, stage, event labels, event semantics, data shape, sampling rate, ICA state, channel-location availability, continuous-raw availability, and behavioral-log status. If those facts are missing, use its `clarifying_questions`, `default_assumptions`, `blocking_conditions`, `not_recommended`, and `qc_gates` as the first planning artifact.
 
 ## First Real Dataset Check
 

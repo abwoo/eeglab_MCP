@@ -1,6 +1,6 @@
 # EEGLAB MCP Server
 
-Local-first MCP stdio server for MATLAB EEGLAB EEG research workflows. It exposes 40 `eeglab_*` tools: 37 compatible low-level tools for imported recording inspection, preprocessing, ICA, ERP/time-frequency analysis, visualization, source localization, STUDY workflows, and pipelines, plus 3 high-level research workflow tools. The high-level tools are designed as a project system: recording/provenance audit, adaptive planning, QC gates, analysis branch selection, reporting, and controlled workflow evolution.
+Local-first MCP stdio server for MATLAB EEGLAB EEG research workflows. It keeps the original 40 stable `eeglab_*` tools for imported recording inspection, preprocessing, ICA, ERP/time-frequency analysis, visualization, source localization, STUDY workflows, and pipelines, and adds research planning, protocol export, plugin check, and event-semantics audit tools. The high-level tools are designed as a project system: recording/provenance audit, adaptive planning, QC gates, analysis branch selection, reporting, and controlled workflow evolution.
 
 The repository is packaged as a standardized MCP + skill workflow:
 
@@ -128,6 +128,10 @@ High-level workflow tools also declare MCP `outputSchema` and return `structured
 - `eeglab_qc_report`: summarize loaded recording dimensions, event provenance, ICA state, channel-location coverage, processing-history availability, and QC/provenance hints without modifying data.
 - `eeglab_workflow_recommend`: recommend non-destructive project phases, clarifying questions, conservative defaults, adaptive decision rules, QC gates, self-evolution hooks, and minimum report fields from research goal, analysis type, event labels, sampling rate, ICA state, data shape, project scale, and channel-location availability.
 - `eeglab_erp_light_workflow`: run a smoke-tested ERP chain: load, inspect, bandpass filter, epoch, baseline-correct, compute ERP summary, and save a processed copy. It refuses to overwrite the input dataset, requires `output_filename` to be a leaf `.set` filename inside `output_dir`, and reports both processed `.set` and `.fdt` paths.
+- `eeglab_project_plan`: build a research-grade project plan with blocking conditions, not-recommended actions, QC gates, quick modes, and official reference anchors.
+- `eeglab_event_semantics_audit`: classify markers as condition triggers, boundaries, impedance/QC annotations, segment markers, excluded labels, or candidate triggers before epoching.
+- `eeglab_plugin_check`: probe clean_rawdata, ICLabel, DIPFIT, BIDS, LIMO, and SIFT-related functions in the local MATLAB/EEGLAB path.
+- `eeglab_protocol_export`: render Markdown/JSON protocol text and optionally write it to a local file.
 
 ## MCP Prompts And Resources
 
@@ -139,6 +143,12 @@ Prompts:
 - `eeglab_strict_qc_protocol`
 - `eeglab_dual_mcp_routing`
 - `eeglab_report_template`
+- `eeglab_erp_research_entry`
+- `eeglab_resting_research_entry`
+- `eeglab_time_frequency_entry`
+- `eeglab_ica_cleanup_entry`
+- `eeglab_bids_study_entry`
+- `eeglab_source_connectivity_entry`
 
 Resources:
 
@@ -146,6 +156,7 @@ Resources:
 - `eeglab://references/workflows.md`
 - `eeglab://references/tools.md`
 - `eeglab://references/setup.md`
+- `eeglab://official/references.md`
 
 These are guidance surfaces only; they do not modify EEG data or MATLAB state.
 
@@ -160,7 +171,7 @@ python -m pip install -e .\eeglab_mcp_server
 python -B .\scripts\verify_framework.py
 ```
 
-The framework verification asserts 40 tools, 4 prompts, 4 resources, valid config templates, skill/reference files, and no bundled EEG test data.
+The framework verification asserts the original 40 tools are still present, research tools are available, prompts/resources are exposed, config templates parse, skill/reference files contain research-standard terms, and no bundled EEG test data is present.
 
 ## MCP Inspector
 
@@ -170,7 +181,7 @@ You can also inspect the stdio server with MCP Inspector:
 npx @modelcontextprotocol/inspector python .\eeglab_mcp_server\server.py
 ```
 
-Use Inspector to confirm `tools/list` shows 40 tools, workflow tools expose `outputSchema`, and error paths return JSON text content.
+Use Inspector to confirm `tools/list` includes the original 40 tools plus research planning tools, workflow tools expose `outputSchema`, and error paths return JSON text content.
 
 MCP stdio smoke test:
 

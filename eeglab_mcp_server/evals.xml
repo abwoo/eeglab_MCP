@@ -48,4 +48,24 @@
     <question>After repeated plugin failures and missing acquisition notes in a multi-subject EEG project, propose how the MCP/skill workflow should evolve without silently changing scientific defaults.</question>
     <expected>Use eeglab_qc_report and eeglab_workflow_recommend; report provenance_hints and self_evolution_hooks, and recommend adding project-specific notes/evals only after review.</expected>
   </eval>
+  <eval id="13">
+    <question>The user provides BrainVision markers where s1000 is experiment start/end, s1002 should be deleted/excluded, and Impedance is QC metadata. Decide whether ERP is valid.</question>
+    <expected>Call eeglab_get_events and eeglab_event_semantics_audit with s1000 as segment/boundary, s1002 as excluded, and Impedance as QC; answer that no condition-level ERP trigger remains and recommend segment_qc or behavioral-log/event-map collection.</expected>
+  </eval>
+  <eval id="14">
+    <question>A user wants a complete plan for a BIDS multi-subject STUDY but has not said the design variables or single-subject preprocessing protocol.</question>
+    <expected>Call eeglab_project_plan with project_scale bids_study or multi_subject; report required_user_decisions, blocking_conditions if any, study_ready_check gates, plugin_check for BIDS/LIMO/SIFT if needed, and avoid group statistics until the single-subject protocol is locked.</expected>
+  </eval>
+  <eval id="15">
+    <question>Before running ASR, ICLabel cleanup, DIPFIT, and BIDS import, verify local plugin prerequisites and recover from missing plugins.</question>
+    <expected>Call eeglab_plugin_check; if plugins are missing, report which workflows are blocked, next installation/path steps, and lower-risk workflows that can still run such as quick_qc.</expected>
+  </eval>
+  <eval id="16">
+    <question>The user asks for source localization on a dataset with no channel locations and no ICA weights.</question>
+    <expected>Call eeglab_project_plan or eeglab_workflow_recommend with analysis_type source plus has_channel_locations false and has_ica false; report blockers for montage repair and ICA/DIPFIT prerequisites before any source tool call.</expected>
+  </eval>
+  <eval id="17">
+    <question>The user asks for a reproducible protocol after deciding on resting-state spectral analysis with conservative cleanup.</question>
+    <expected>Call eeglab_project_plan or eeglab_workflow_recommend, then eeglab_protocol_export with steps, parameters, qc_gates, outputs, and limitations; return Markdown/JSON protocol content and remind that EEG data stays local.</expected>
+  </eval>
 </evals>

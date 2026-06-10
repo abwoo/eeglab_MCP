@@ -1,0 +1,113 @@
+# EEGLAB MCP User Workflows
+
+These workflows are designed for users who want fast progress without losing research rigor.
+
+## 1. quick_qc
+
+Goal: inspect a dataset without modifying it.
+
+Use when the user says: "看看这个数据", "先检查一下", "load and QC", or gives a new file with no goal yet.
+
+Tool path:
+
+1. `eeglab_init`
+2. `eeglab_load_data`
+3. `eeglab_qc_report`
+4. `eeglab_info`
+5. `eeglab_get_events`
+6. `eeglab_history`
+
+Output: recording/provenance summary, event table, montage/channel-location status, history availability, risk hints, and recommended next step.
+
+## 2. safe_erp
+
+Goal: run ERP only when event semantics are scientifically valid.
+
+Use when the user has task events such as target/standard/condition codes and wants ERP outputs.
+
+Required gates:
+
+- condition triggers confirmed by user, event map, or behavioral log
+- boundary/impedance/segment markers excluded from epoching
+- epoch and baseline windows justified
+- output path is separate from raw files
+
+Tool path:
+
+1. `eeglab_project_plan` or `eeglab_workflow_recommend`
+2. `eeglab_event_semantics_audit`
+3. `eeglab_filter`
+4. optional `eeglab_clean_line_noise`
+5. optional ICA/ICLabel branch
+6. `eeglab_epoch`
+7. `eeglab_erp_analysis`
+8. optional `eeglab_plot_erp` or `eeglab_topoplot`
+9. `eeglab_save_data`
+10. `eeglab_protocol_export`
+
+## 3. segment_qc
+
+Goal: analyze datasets that have only start/end markers or task-block boundaries.
+
+Use when the marker file has labels like `s1000` for experiment start/end and no condition-level trigger remains.
+
+Policy:
+
+- preserve markers as boundary or segment annotations
+- pair start/end markers sequentially only if user confirms that convention
+- do not claim ERP/ERSP condition effects
+- report segment start/end samples, times, durations, and excluded markers
+
+Tool path:
+
+1. `eeglab_get_events`
+2. `eeglab_event_semantics_audit`
+3. `eeglab_qc_report`
+4. optional external marker-file parser for precise segment tables
+5. `eeglab_protocol_export`
+
+## 4. study_ready_check
+
+Goal: decide whether a multi-subject or BIDS project is ready for STUDY/group statistics.
+
+Required gates:
+
+- subject/session layout known
+- BIDS or dataset paths consistent
+- event/condition variables known
+- single-subject preprocessing protocol locked
+- plugin availability checked
+- alpha and correction policy documented
+
+Tool path:
+
+1. `eeglab_project_plan`
+2. `eeglab_plugin_check`
+3. `eeglab_import_bids` or `eeglab_study_create`
+4. `eeglab_study_design`
+5. `eeglab_study_statistics`
+6. `eeglab_protocol_export`
+
+## 5. plugin_doctor
+
+Goal: check whether the local MATLAB/EEGLAB environment can support the requested workflow.
+
+Use before:
+
+- ASR or clean_rawdata
+- ICA + ICLabel cleanup
+- DIPFIT/source localization
+- BIDS/STUDY import
+- LIMO or SIFT-dependent analysis
+
+Tool path:
+
+1. `eeglab_init`
+2. `eeglab_plugin_check`
+3. report missing plugins and next installation/path steps
+
+## Choosing eeglab MCP vs matlab MCP
+
+Use `eeglab` MCP for EEG/EEGLAB standard workflows. Use the general `matlab` MCP only for custom MATLAB scripts, external toolboxes, statistics/matrix code, or follow-up calculations outside the EEGLAB MCP surface.
+
+The two MCP servers do not share MATLAB workspace. Save `.set/.fdt`, `.mat`, `.csv`, `.png`, or protocol/report files from `eeglab`, then pass the explicit path to `matlab`.

@@ -1,13 +1,26 @@
 # EEGLAB MCP Agent
 
-Local-first EEGLAB research agent package for MCP clients. It combines:
+EEGLAB MCP Agent is a local-first research workflow product for EEG projects. It turns EEGLAB's MATLAB/GUI capabilities into model-callable `eeglab_*` tools, then pairs those tools with a strict research skill for method selection, QC gates, event semantics, provenance, parameter records, and reproducible reporting.
 
-- `eeglab_mcp_server/`: Python stdio MCP server exposing 40 stable `eeglab_*` tools.
-- `skills/eeglab-analysis/`: strict EEG research workflow skill.
+Why use it:
+
+- Faster than a generic MATLAB MCP for EEG: users ask for research actions instead of writing EEGLAB scripts.
+- More reproducible than GUI-only work: tool calls carry JSON parameters, outputs, limitations, and protocol exports.
+- Safer than an unconstrained agent: the skill requires goal/design intake, raw preservation, event semantics, montage checks, and plugin gates.
+- More reliable than a skill alone: MCP tools execute local EEGLAB; the skill governs decisions and reporting.
+- Local-first: EEG data stays on the user's machine. Cross-MCP work uses explicit file handoff only.
+
+This is for EEG signal-processing research workflows, not clinical diagnosis.
+
+## Product Layers
+
+- `eeglab_mcp_server/`: Python stdio MCP server exposing the original 40 stable `eeglab_*` tools plus research planning/audit/export tools.
+- `skills/eeglab-analysis/`: research-method guardrail skill for Codex or other skill-aware clients.
+- MCP prompts/resources: built-in project intake, QC, routing, analysis-entry prompts, skill docs, workflow docs, and official reference anchors for clients that do not support skills.
 - `configs/`: manual MCP client templates.
 - `scripts/`: setup, doctor, uninstall, and framework verification helpers.
 
-The server runs MATLAB/EEGLAB locally. EEG data is not sent to a remote service. The package is designed for reproducible EEG research workflows, not clinical diagnosis.
+The skill and MCP connect through a fixed pattern: call `eeglab_project_plan` or `eeglab_workflow_recommend` first, use returned `qc_gates` and `blocking_conditions` as the checklist, run executable `eeglab_*` tools, then export/report exact parameters and limitations.
 
 ## Quick Start
 
@@ -55,6 +68,12 @@ Built-in prompts:
 - `eeglab_strict_qc_protocol`
 - `eeglab_dual_mcp_routing`
 - `eeglab_report_template`
+- `eeglab_erp_research_entry`
+- `eeglab_resting_research_entry`
+- `eeglab_time_frequency_entry`
+- `eeglab_ica_cleanup_entry`
+- `eeglab_bids_study_entry`
+- `eeglab_source_connectivity_entry`
 
 Built-in resources:
 
@@ -62,6 +81,7 @@ Built-in resources:
 - `eeglab://references/workflows.md`
 - `eeglab://references/tools.md`
 - `eeglab://references/setup.md`
+- `eeglab://official/references.md`
 
 ## Pairing With MATLAB MCP
 
@@ -73,6 +93,18 @@ matlab = generic MATLAB scripts and custom calculations
 ```
 
 Treat the two servers as workspace-isolated sessions. Do not assume `EEG`, `ALLEEG`, or other MATLAB variables are shared. Use file handoff for cross-server work: `.set/.fdt`, `.mat`, `.csv`, `.png`, or reports.
+
+Use `eeglab` MCP first for EEG/EEGLAB work: loading, QC, event audit, preprocessing, ICA, ERP, ERSP/ITC, spectral/connectivity, STUDY, source localization, and EEGLAB figures. Use `matlab` MCP for custom MATLAB scripts, non-EEGLAB toolboxes, or follow-up calculations outside the EEGLAB MCP surface.
+
+## Research Shortcuts
+
+- `quick_qc`: load/QC/events/history only; never modifies data.
+- `safe_erp`: ERP only after condition-trigger event semantics are confirmed.
+- `segment_qc`: for datasets with start/end markers but no task-condition triggers.
+- `study_ready_check`: multi-subject/BIDS/STUDY prerequisites before group statistics.
+- `plugin_doctor`: check clean_rawdata, ICLabel, DIPFIT, BIDS, LIMO, and SIFT availability.
+
+See `docs/user-workflows.md` and `docs/research-standard.md` for the research-standard policy and official EEGLAB reference anchors.
 
 ## Manual Configuration
 

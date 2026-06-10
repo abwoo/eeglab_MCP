@@ -1,6 +1,6 @@
 # EEGLAB MCP Tool Reference
 
-The server exposes 40 tools grouped by workflow area: 37 compatible low-level tools plus 3 high-level workflow tools.
+The server keeps the original 40 stable `eeglab_*` tools and adds research planning, protocol, plugin, and event-semantics tools. Low-level tools follow the official EEGLAB pattern: user-facing `pop_` operations for data transformations/plots and `eeg_`/structure checks for consistency and metadata inspection.
 
 ## Dual MCP Routing
 
@@ -15,6 +15,10 @@ The server exposes 40 tools grouped by workflow area: 37 compatible low-level to
 - `eeglab_qc_report`: loaded-dataset QC summary, recording metadata, event/channel/ICA state, processing-history availability, provenance hints, and basic risk hints.
 - `eeglab_erp_light_workflow`: load, inspect, bandpass filter, epoch, baseline, ERP summary, and save a processed copy.
 - `eeglab_workflow_recommend`: recommend reproducible project phases, clarifying questions, default assumptions, adaptive decision rules, QC gates, self-evolution hooks, and minimum report fields without changing data.
+- `eeglab_project_plan`: create a research-grade project plan from goal/design/data/event/montage/plugin facts; returns blocking conditions, not-recommended actions, QC gates, quick modes, and official reference anchors.
+- `eeglab_protocol_export`: render Markdown/JSON protocol text and optionally write it to a local file; use for lab notebooks, handoff, or methods-section drafts.
+- `eeglab_plugin_check`: probe local MATLAB/EEGLAB path for clean_rawdata, ICLabel, DIPFIT, BIDS, LIMO, and SIFT-related functions.
+- `eeglab_event_semantics_audit`: classify markers as condition triggers, boundaries, impedance/QC annotations, segment markers, excluded labels, or candidate triggers before epoching.
 
 ## Data Management
 
@@ -27,27 +31,27 @@ The server exposes 40 tools grouped by workflow area: 37 compatible low-level to
 
 ## Preprocessing
 
-- `eeglab_filter`: bandpass, highpass, lowpass, or notch filtering.
-- `eeglab_resample`: change sampling rate.
-- `eeglab_reref`: average, channel, or REST reference.
-- `eeglab_select_channels`: include/exclude channels.
-- `eeglab_interpolate_channels`: interpolate bad channels.
-- `eeglab_edit_channels`: load channel locations or rename channels.
-- `eeglab_clean_line_noise`: remove 50/60 Hz line noise.
-- `eeglab_clean_rawdata`: ASR cleanup.
+- `eeglab_filter`: `pop_eegfiltnew`-style bandpass, highpass, lowpass, or notch filtering; records cutoffs and modifies in-memory EEG.
+- `eeglab_resample`: `pop_resample`-style sample-rate change; justify target rate before use.
+- `eeglab_reref`: `pop_reref`-style average/channel/REST reference; report rank/reference implications.
+- `eeglab_select_channels`: `pop_select`-style include/exclude channel subset.
+- `eeglab_interpolate_channels`: `pop_interp`-style bad-channel interpolation; requires usable channel locations.
+- `eeglab_edit_channels`: `pop_chanedit`-style channel-location load or channel rename.
+- `eeglab_clean_line_noise`: remove 50/60 Hz line noise; report local mains frequency.
+- `eeglab_clean_rawdata`: `clean_rawdata`/ASR cleanup; plugin-dependent and high-impact, so record thresholds and removed data.
 
 ## ICA and Artifact Handling
 
-- `eeglab_run_ica`: run `runica` or `picard`.
-- `eeglab_classify_ica`: classify components with ICLabel.
+- `eeglab_run_ica`: `pop_runica`/runica or Picard; high-risk/slow, needs rank/reference and continuous-data suitability.
+- `eeglab_classify_ica`: classify components with ICLabel; requires ICA weights and ICLabel plugin.
 - `eeglab_flag_components`: flag components by class probability ranges.
-- `eeglab_remove_components`: remove listed or auto-selected components.
+- `eeglab_remove_components`: `pop_subcomp`-style component removal; never remove without rationale and thresholds.
 - `eeglab_reject_epochs`: reject epochs by threshold or joint probability.
 - `eeglab_get_events`: summarize events.
 
 ## ERP and Epoching
 
-- `eeglab_epoch`: epoch around events and baseline-correct.
+- `eeglab_epoch`: `pop_epoch`-style epoching and baseline correction; requires confirmed condition triggers, not boundaries/impedance/segment markers.
 - `eeglab_erp_analysis`: compute ERP summaries and optional peaks.
 - `eeglab_sort_epochs`: sort epochs by condition/event.
 - `eeglab_average_erp`: average ERP by condition/channel.
@@ -67,12 +71,27 @@ The server exposes 40 tools grouped by workflow area: 37 compatible low-level to
 
 ## Source and Group Analysis
 
-- `eeglab_source_settings`: DIPFIT model setup.
-- `eeglab_source_localization`: component dipole fitting.
-- `eeglab_study_create`: create STUDY from BIDS or datasets.
-- `eeglab_study_design`: define STUDY design.
-- `eeglab_study_statistics`: configure/run STUDY statistics.
+- `eeglab_source_settings`: DIPFIT model setup; requires montage/model assumptions.
+- `eeglab_source_localization`: DIPFIT component dipole fitting; requires ICA, channel locations, and DIPFIT resources.
+- `eeglab_study_create`: create STUDY from BIDS or datasets; requires consistent subject/session metadata.
+- `eeglab_study_design`: define STUDY design variables/levels.
+- `eeglab_study_statistics`: configure/run STUDY statistics; report alpha and correction method.
 - `eeglab_pipeline`: one-click ERP/resting/time-frequency pipeline.
+
+## Official Function and Plugin Mapping
+
+- `pop_loadset`, `pop_biosig`, BrainVision import functions: data loading and import.
+- `eeg_checkset`: consistency checks after load or transformations.
+- `pop_saveset`: derivative `.set/.fdt` save.
+- `pop_eegfiltnew`, `pop_resample`, `pop_reref`, `pop_select`, `pop_interp`, `pop_chanedit`: core preprocessing.
+- `clean_rawdata`/`pop_clean_rawdata`: ASR, bad channels, and bad segments.
+- `pop_runica`, runica, Picard: ICA decomposition.
+- `pop_iclabel`, ICLabel: component classification.
+- `pop_subcomp`: component removal.
+- `pop_epoch`, baseline correction: event-locked ERP/ERSP preparation.
+- `spectopo`, `newtimef`, `topoplot`: spectral, ERSP/ITC, and topography outputs.
+- `pop_dipfit_settings`, DIPFIT, `pop_multifit`: source localization.
+- `pop_importbids`, `pop_study`, `std_makedesign`, STUDY statistics functions: BIDS/STUDY/group workflows.
 
 ## Common Parameter Defaults
 
@@ -91,4 +110,7 @@ The server exposes 40 tools grouped by workflow area: 37 compatible low-level to
 - Multi-subject work: lock the single-subject preprocessing protocol before STUDY/group statistics.
 - BIDS/STUDY work: keep sidecar metadata, subject/session identifiers, design variables, alpha, correction method, and preprocessing assumptions in the report.
 - Missing goal: ask for the hypothesis/analysis family. If unavailable, choose a conservative feasibility workflow from data shape and event availability.
+- Event ambiguity: call `eeglab_event_semantics_audit`; do not treat start/end, impedance, or segment markers as ERP triggers.
+- Missing montage: block topography/source claims until channel locations are repaired.
+- Plugin dependency: run `eeglab_plugin_check` before ASR, ICLabel, DIPFIT, BIDS/STUDY, LIMO, or SIFT-dependent workflows.
 - Self-evolution: add evals/references for repeated project patterns instead of relying on memory.
