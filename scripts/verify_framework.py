@@ -119,6 +119,61 @@ def _parse_python() -> None:
         ast.parse(path.read_text(encoding="utf-8"))
 
 
+def _check_readme_structure() -> None:
+    forbidden_fragments = (
+        "Simple Version",
+        "Detailed Version",
+        "简单版",
+        "详细版",
+    )
+    readme_specs = (
+        (
+            ROOT / "README.md",
+            "## Quick Start",
+            "## Minimal MCP Config",
+            "## First Dataset Check",
+            "## Official Alignment And Safety",
+        ),
+        (
+            ROOT / "README.zh-CN.md",
+            "## 快速开始",
+            "## 最小 MCP 配置",
+            "## 第一次数据检查",
+            "## 官方对齐与安全边界",
+        ),
+    )
+
+    for path, quick_start, config, first_check, official in readme_specs:
+        text = path.read_text(encoding="utf-8")
+        for fragment in forbidden_fragments:
+            _require(fragment not in text, f"{path.name} contains deprecated README split heading: {fragment}")
+        _require(
+            r"scripts\eeglab_agent.ps1 verify" in text,
+            f"{path.name} must reference scripts\\eeglab_agent.ps1 verify",
+        )
+
+        positions = {
+            "quick_start": text.find(quick_start),
+            "config": text.find(config),
+            "first_dataset_check": text.find(first_check),
+            "official_alignment": text.find(official),
+        }
+        missing = [name for name, position in positions.items() if position < 0]
+        _require(not missing, f"{path.name} missing README structure headings: {missing}")
+        _require(
+            positions["quick_start"] < positions["official_alignment"],
+            f"{path.name} must place quick start before official alignment details",
+        )
+        _require(
+            positions["config"] < positions["official_alignment"],
+            f"{path.name} must place MCP config before official alignment details",
+        )
+        _require(
+            positions["first_dataset_check"] < positions["official_alignment"],
+            f"{path.name} must place first dataset check before official alignment details",
+        )
+
+
 def _check_configs_and_skill() -> None:
     configs = ROOT / "configs"
     tomllib.loads((configs / "codex.config.toml").read_text(encoding="utf-8"))
@@ -972,6 +1027,7 @@ def _check_cleanliness() -> None:
 
 def main() -> None:
     _parse_python()
+    _check_readme_structure()
     _check_configs_and_skill()
     _check_registry_documentation_drift()
     _check_registry_handler_map()

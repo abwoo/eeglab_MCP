@@ -1,6 +1,6 @@
 # MCP Client Config Templates
 
-These templates register the local EEGLAB MCP server as `eeglab`. They are for manual setup or for clients not covered by `scripts\setup_eeglab_agent.ps1`.
+These templates register the local EEGLAB MCP server as `eeglab`. New users should start with `scripts\eeglab_agent.ps1 setup`; these files are for manual setup, custom MCP clients, or review before editing a client config by hand.
 
 ## Files
 
