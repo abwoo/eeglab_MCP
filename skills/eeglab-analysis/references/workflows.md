@@ -179,12 +179,13 @@ Report ICA algorithm, PCA components if used, ICLabel thresholds, and removed co
 Shortcut name: `study_ready_check`.
 
 1. Use `eeglab_project_plan`
-2. Use `eeglab_method_preflight` for `bids_metadata` and the staged BIDS/STUDY gate you are about to execute
-3. Use `eeglab_plugin_check` for BIDS/LIMO/SIFT if needed
-4. Use `eeglab_method_preflight` with `method="bids_import"` before `eeglab_import_bids`, or `method="study_create"` before `eeglab_study_create`
-5. Use `eeglab_method_preflight` with `method="study_design"` before `eeglab_study_design`
-6. Use `eeglab_method_preflight` with `method="study_statistics"` before `eeglab_study_statistics`
-7. Use `eeglab_protocol_export`
+2. Use `eeglab_method_preflight` with `method="study"` for the combined ready-check before group-level claims
+3. Use `eeglab_method_preflight` for `bids_metadata` and the staged BIDS/STUDY gate you are about to execute
+4. Use `eeglab_plugin_check` for BIDS/LIMO/SIFT if needed
+5. Use `eeglab_method_preflight` with `method="bids_import"` before `eeglab_import_bids`, or `method="study_create"` before `eeglab_study_create`
+6. Use `eeglab_method_preflight` with `method="study_design"` before `eeglab_study_design`
+7. Use `eeglab_method_preflight` with `method="study_statistics"` before `eeglab_study_statistics`
+8. Use `eeglab_protocol_export`
 
 Confirm subjects, design variables, variable levels, alpha, correction method, and the single-subject preprocessing/provenance assumptions used before group statistics.
 

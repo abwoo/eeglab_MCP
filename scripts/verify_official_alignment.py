@@ -508,6 +508,15 @@ def check_preflight_behavior() -> None:
         "STUDY statistics should still require locked single-subject protocol",
     )
 
+    study_ready = evaluate_method_preflight({"method": "study", "context": {"project_scale": "single_subject"}})
+    study_ready_missing_ids = {item["id"] for item in study_ready["critical_missing_requirements"]}
+    _require(
+        {"multi_subject_or_bids", "single_subject_protocol_locked", "design_variables_defined"}.issubset(
+            study_ready_missing_ids
+        ),
+        "STUDY ready-check should require multi-subject/BIDS organization, protocol lock, and design variables",
+    )
+
     override = evaluate_method_preflight(
         {
             "method": "source",

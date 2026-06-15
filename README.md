@@ -12,6 +12,7 @@ This project supports EEG signal-processing research workflows. It is not a clin
 
 - [What This Is](#what-this-is)
 - [Who Can Use It](#who-can-use-it)
+- [Repository Map](#repository-map)
 - [Quick Start](#quick-start)
 - [MCP Usage](#mcp-usage)
 - [Skill Usage](#skill-usage)
@@ -64,6 +65,20 @@ Practical client examples:
 - VS Code and Cursor: use the matching MCP template and reload the MCP client.
 - Other MCP clients: use the generic template and point it at the local Python server entry point.
 
+## Repository Map
+
+The repository is intentionally small at the top level:
+
+| Path | Purpose |
+| --- | --- |
+| `eeglab_mcp_server/` | The executable stdio MCP server, tool schemas, handlers, registry, and official alignment map. |
+| `skills/eeglab-analysis/` | The research workflow Skill and focused references for agent clients. |
+| `docs/` | Human-readable official coverage, support, risk, workflow, and report matrices. |
+| `configs/` | MCP client templates for Codex, Claude Desktop, Cursor, VS Code, and generic clients. |
+| `scripts/` | Setup, doctor, uninstall, and verification entrypoints. |
+
+For day-to-day use, start with `README.md`, run `scripts/eeglab_agent.ps1 setup`, then run `scripts/eeglab_agent.ps1 verify` and `scripts/eeglab_agent.ps1 doctor`. For scientific support decisions, use the official matrices in `docs/` or the matching `eeglab://official/...` MCP resources.
+
 ## Quick Start
 
 ### Simple Version
@@ -71,9 +86,10 @@ Practical client examples:
 From the repository root:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\setup_eeglab_agent.ps1 -DryRun
-powershell -ExecutionPolicy Bypass -File .\scripts\setup_eeglab_agent.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\doctor_eeglab_agent.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 setup -DryRun
+powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 setup
+powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 verify
+powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 doctor
 ```
 
 Restart your client and ask for an EEG or EEGLAB task.
@@ -81,6 +97,8 @@ Restart your client and ask for an EEG or EEGLAB task.
 ### Detailed Version
 
 The setup script is convenient for Codex-style local setup. It backs up the user config, registers the MCP server as `eeglab`, and syncs the Skill into the local Skill directory. It does not remove or overwrite a separate generic `matlab` MCP registration.
+
+The dispatcher `scripts/eeglab_agent.ps1` is the shortest user entrypoint. It forwards to the dedicated setup, verify, doctor, and uninstall scripts, so automation can still call those scripts directly.
 
 For Claude Desktop, VS Code, Cursor, or another MCP client, copy a template from the client configuration examples and adjust these values:
 
@@ -239,50 +257,52 @@ The protocol exporter must not overwrite EEG data files such as `.set`, `.fdt`, 
 
 ### Simple Version
 
-Run the two project verifiers:
+Run the unified verifier from the repository root:
 
 ```powershell
-python -B .\scripts\verify_framework.py
-python -B .\scripts\verify_official_alignment.py
+powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 verify
 ```
 
 ### Detailed Version
 
-Run release-level checks:
+The unified verifier compiles the server and verifier Python files, validates the MCP framework, and checks the official alignment contract:
 
 ```powershell
-python -B -m py_compile .\eeglab_mcp_server\workflows.py .\eeglab_mcp_server\schemas.py .\scripts\verify_framework.py .\scripts\verify_official_alignment.py
-python -B .\scripts\verify_framework.py
-python -B .\scripts\verify_official_alignment.py
-python -m ruff check eeglab_mcp_server scripts
-python -m black --check eeglab_mcp_server scripts
-python -m mypy --config-file eeglab_mcp_server\pyproject.toml eeglab_mcp_server
+powershell -ExecutionPolicy Bypass -File .\scripts\verify_eeglab_agent.ps1
 ```
 
 Optional live official-link verification:
 
 ```powershell
-python .\scripts\verify_official_alignment.py --online
+powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 verify-online
+```
+
+Optional style/type checks, when the development dependencies are installed:
+
+```powershell
+python -m ruff check eeglab_mcp_server scripts
+python -m black --check eeglab_mcp_server scripts
+python -m mypy --config-file eeglab_mcp_server\pyproject.toml eeglab_mcp_server
 ```
 
 ## Uninstall
 
 ### Simple Version
 
-Run the uninstall script with `-DryRun` first, then run it for real if the plan looks correct.
+Run uninstall with `-DryRun` first, then run it for real if the plan looks correct.
 
 ### Detailed Version
 
 Dry-run first:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\uninstall_eeglab_agent.ps1 -DryRun -RemoveSkill
+powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 uninstall -DryRun -RemoveSkill
 ```
 
 Then uninstall if desired:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\uninstall_eeglab_agent.ps1 -RemoveSkill
+powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 uninstall -RemoveSkill
 ```
 
 The uninstall script backs up the Codex config and Skill directory before removing the `eeglab` registration or Skill.

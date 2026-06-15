@@ -28,3 +28,17 @@ Treat the two MCP servers as workspace-isolated sessions. Pass data between them
 ## Skill
 
 For clients that support skills, install `skills/eeglab-analysis/`. Clients without skills can still use the MCP prompts/resources exposed by the server.
+
+## Verify Template Changes
+
+After editing any template, run the unified verifier from the repository root:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 verify
+```
+
+Then run the doctor for the client environment you actually use:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 doctor
+```

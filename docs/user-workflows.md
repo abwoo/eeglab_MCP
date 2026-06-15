@@ -85,11 +85,12 @@ Tool path:
 
 1. `eeglab_project_plan`
 2. `eeglab_plugin_check`
-3. `eeglab_method_preflight` with `method="bids_import"` before BIDS import, or `method="study_create"` before creating a STUDY from existing datasets
-4. `eeglab_import_bids` or `eeglab_study_create`
-5. `eeglab_method_preflight` with `method="study_design"`, then `eeglab_study_design`
-6. `eeglab_method_preflight` with `method="study_statistics"`, then `eeglab_study_statistics`
-7. `eeglab_protocol_export`
+3. `eeglab_method_preflight` with `method="study"` before any group-level conclusion
+4. `eeglab_method_preflight` with `method="bids_import"` before BIDS import, or `method="study_create"` before creating a STUDY from existing datasets
+5. `eeglab_import_bids` or `eeglab_study_create`
+6. `eeglab_method_preflight` with `method="study_design"`, then `eeglab_study_design`
+7. `eeglab_method_preflight` with `method="study_statistics"`, then `eeglab_study_statistics`
+8. `eeglab_protocol_export`
 
 ## 5. plugin_doctor
 
@@ -107,7 +108,7 @@ Use before:
 - BIDS export or derivative-publication readiness
 - STUDY precompute, visualization, or ICA clustering interpretation
 - AMICA or Picard ICA variants
-- LIMO, SIFT, groupSIFT, NFT, or NSGportal-dependent analysis
+- RELICA, Viewprops, get_chanlocs, ROIconnect, EEGstats, LIMO, SIFT, groupSIFT, NFT, or NSGportal-dependent analysis
 
 Tool path:
 
@@ -120,7 +121,7 @@ Policy:
 
 - `executable` and `gated_guidance` plugins still require method preflight before scientific claims.
 - `indexed_only` plugins are planning/reporting support only unless a dedicated MCP workflow exists.
-- `bids_export`, `import_plugins`, `data_export`, `hed_event_annotation`, `history_scripting`, `event_script_modification`, `study_precompute`, `ica_clustering`, `amica_ica`, and `nsg_remote` are guidance/preflight profiles, not default execution support.
+- `bids_export`, `import_plugins`, `data_export`, `hed_event_annotation`, `history_scripting`, `event_script_modification`, `study_precompute`, `ica_clustering`, `amica_ica`, `relica_reliability`, `viewprops_review`, `get_chanlocs_digitization`, `roiconnect_source_connectivity`, `eegstats_metrics`, `sift_connectivity`, and `nsg_remote` are guidance/preflight profiles, not default execution support.
 
 ## Choosing eeglab MCP vs matlab MCP
 

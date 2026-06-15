@@ -168,6 +168,20 @@ def _check_configs_and_skill() -> None:
         text = path.read_text(encoding="utf-8")
         _require("eeglab" in text.lower(), f"skill file missing eeglab term: {rel}")
 
+    skill_text = (skill / "SKILL.md").read_text(encoding="utf-8")
+    skill_body = skill_text.split("---", 2)[-1]
+    for tag in ("objective", "quick_start", "workflow", "official_gate_routing", "success_criteria"):
+        _require(
+            f"<{tag}>" in skill_body and f"</{tag}>" in skill_body,
+            f"SKILL.md missing XML tag: {tag}",
+        )
+    heading_lines = [
+        index
+        for index, line in enumerate(skill_body.splitlines(), start=1)
+        if line.startswith("#")
+    ]
+    _require(not heading_lines, f"SKILL.md body must use XML tags, found markdown headings at lines {heading_lines}")
+
     docs = ROOT / "docs"
     for rel in (
         "research-standard.md",
@@ -318,7 +332,7 @@ def _check_eval_registry_coverage() -> dict[str, int]:
     root = ET.fromstring(eval_path.read_text(encoding="utf-8"))
     eval_nodes = root.findall("eval")
     eval_ids = [node.attrib.get("id", "") for node in eval_nodes]
-    _require(len(eval_ids) >= 55, f"expected at least 55 evals, found {len(eval_ids)}")
+    _require(len(eval_ids) >= 56, f"expected at least 56 evals, found {len(eval_ids)}")
     _require(len(set(eval_ids)) == len(eval_ids), "eval ids must be unique")
     expected_ids = [str(index) for index in range(1, len(eval_nodes) + 1)]
     _require(eval_ids == expected_ids, f"eval ids must be consecutive from 1, found {eval_ids}")
@@ -444,6 +458,11 @@ def _check_eval_registry_coverage() -> dict[str, int]:
         not missing_high_risk_profiles,
         f"high-risk method profiles missing gate_assertions coverage: {missing_high_risk_profiles}",
     )
+    missing_method_profiles = sorted(set(METHOD_PROFILES) - gate_profiles)
+    _require(
+        not missing_method_profiles,
+        f"method profiles missing gate_assertions coverage: {missing_method_profiles}",
+    )
 
     _require(
         "eeglab_method_preflight" in required_tools_by_eval["18"],
@@ -463,7 +482,25 @@ def _check_eval_registry_coverage() -> dict[str, int]:
         "eeglab_study_statistics" in forbidden_tools_by_eval["21"],
         "BIDS/STUDY blocked eval must forbid direct group statistics",
     )
-    for eval_id in ("25", "36", "40", "41", "42", "44", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55"):
+    for eval_id in (
+        "25",
+        "36",
+        "40",
+        "41",
+        "42",
+        "44",
+        "46",
+        "47",
+        "48",
+        "49",
+        "50",
+        "51",
+        "52",
+        "53",
+        "54",
+        "55",
+        "56",
+    ):
         _require(
             root.find(f"eval[@id='{eval_id}']/report_assertions/report") is not None,
             f"protocol/report eval {eval_id} missing report assertion",

@@ -42,7 +42,7 @@ This matrix answers whether a specific MCP tool is officially aligned, whether i
 
 ## Guidance-Only Advanced Methods
 
-LIMO, SIFT/groupSIFT, NFT, NSGportal, AMICA, Zapline-Plus, BIDS export, BIOSIG/File-IO/MFF/NWB/BVA import/export routes, HEDTools, STUDY precompute, ICA clustering, history-derived batch scripting, scripted event modification, and other advanced plugins/topics are covered by the plugin and method matrices. They are not default execution support unless a dedicated MCP tool/workflow, method gate, report template, and eval coverage are added.
+LIMO, SIFT/groupSIFT, NFT, NSGportal, AMICA, RELICA, Viewprops, get_chanlocs, ROIconnect, EEGstats, Zapline-Plus, BIDS export, BIOSIG/File-IO/MFF/NWB/BVA import/export routes, HEDTools, STUDY precompute, ICA clustering, history-derived batch scripting, scripted event modification, plugin development, and other advanced plugins/topics are covered by the plugin and method matrices. They are not default execution support unless a dedicated MCP tool/workflow, method gate, report template, and eval coverage are added.
 
 ## Minimum Answer Format
 

@@ -1308,4 +1308,38 @@
       <report requires_protocol_export="true" requires_gate_results="true" requires_source_claim_ids="true" requires_report_fields="true" requires_report_field_matrix="true" requires_override_status="false" />
     </report_assertions>
   </eval>
+  <eval id="56" category="study_readiness">
+    <question>A user says they have several EEGLAB datasets and wants a group-level STUDY conclusion, but has not confirmed BIDS/multi-subject organization, locked single-subject preprocessing, design variables, or measure/statistics plan.</question>
+    <expected>Use eeglab_project_plan and eeglab_method_preflight with method study before any STUDY statistics; report that STUDY readiness is blocked until multi-subject/BIDS organization, single-subject preprocessing lock, and design variables are explicit, then export a protocol with source_claim_ids and report fields.</expected>
+    <required_tools>
+      <tool>eeglab_project_plan</tool>
+      <tool>eeglab_method_preflight</tool>
+      <tool>eeglab_protocol_export</tool>
+    </required_tools>
+    <forbidden_tools>
+      <tool>eeglab_study_statistics</tool>
+    </forbidden_tools>
+    <required_terms>
+      <term>blocked</term>
+      <term>gate_results</term>
+      <term>gate_status</term>
+      <term>limitations</term>
+      <term>report field matrix</term>
+      <term>report_fields</term>
+      <term>source_claim_ids</term>
+      <term>STUDY</term>
+      <term>support_level</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="study" expected_status="blocked" missing_requirements="multi_subject_or_bids,single_subject_protocol_locked,design_variables_defined" claim_ids="EEGLAB-BIDS-001,EEGLAB-STUDY-001,EEGLAB-COURSE-001" />
+    </gate_assertions>
+    <resource_assertions>
+      <resource uri="eeglab://official/topic-index.md" />
+      <resource uri="eeglab://references/bids-study-policy.md" />
+      <resource uri="eeglab://official/report-field-matrix.md" />
+    </resource_assertions>
+    <report_assertions>
+      <report requires_protocol_export="true" requires_gate_results="true" requires_source_claim_ids="true" requires_report_fields="true" requires_report_field_matrix="true" requires_override_status="false" />
+    </report_assertions>
+  </eval>
 </evals>

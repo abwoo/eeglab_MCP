@@ -7,7 +7,7 @@ The repository is packaged as a standardized MCP + skill workflow:
 - `eeglab_mcp_server/`: executable MCP server.
 - `configs/`: client configuration templates for Codex, Claude Desktop, Cursor, VS Code, and generic OpenClaw-style MCP clients.
 - `skills/eeglab-analysis/`: agent skill that teaches standardized EEG analysis workflows using the MCP tools.
-- `scripts/`: lightweight setup and verification helpers.
+- `scripts/`: one-command dispatcher plus setup, doctor, uninstall, and verification helpers.
 
 This server runs MATLAB locally. It does not send EEG data to a remote service. It analyzes imported EEG recordings; it does not acquire EEG from amplifiers or replace lab acquisition notes, so reports should preserve source paths, sampling rate, montage/channel locations, event markers, and processing history.
 
@@ -80,12 +80,13 @@ The EEGLAB MCP server is independent: it starts MATLAB/EEGLAB itself and does no
 For Codex, the product entrypoint is the repository-level setup script:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\setup_eeglab_agent.ps1 -DryRun
-powershell -ExecutionPolicy Bypass -File .\scripts\setup_eeglab_agent.ps1
-powershell -ExecutionPolicy Bypass -File .\scripts\doctor_eeglab_agent.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 setup -DryRun
+powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 setup
+powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 verify
+powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 doctor
 ```
 
-The setup script registers this server as `eeglab`, syncs the skill, and leaves any separate `matlab` MCP registration intact. Manual templates remain in `configs/`.
+The dispatcher forwards to the dedicated setup, verify, doctor, and uninstall scripts. The setup path registers this server as `eeglab`, syncs the skill, and leaves any separate `matlab` MCP registration intact. Manual templates remain in `configs/`.
 
 ## Skill Setup
 
@@ -131,7 +132,7 @@ High-level workflow tools also declare MCP `outputSchema` and return `structured
 - `eeglab_project_plan`: build a research-grade project plan with blocking conditions, not-recommended actions, QC gates, quick modes, and official reference anchors.
 - `eeglab_method_preflight`: evaluate official EEGLAB/SCCN method gates before high-risk processing without running MATLAB. It returns `gate_status`, missing requirements, `safe_next_step`, and `source_claim_ids`.
 - `eeglab_event_semantics_audit`: classify markers as condition triggers, boundaries, impedance/QC annotations, segment markers, excluded labels, or candidate triggers before epoching.
-- `eeglab_plugin_check`: probe the official plugin matrix in the local MATLAB/EEGLAB path, including clean_rawdata, ICLabel, DIPFIT, EEG-BIDS, BIOSIG, File-IO, MFF-matlab-io, NWB-io, BVA-io, HEDTools, firfilt, CleanLine, Zapline-Plus, AMICA, Picard, LIMO, SIFT, groupSIFT, NFT, and NSGportal. The response includes support level, claim IDs, dependent profiles, functions checked, and next steps for missing plugins.
+- `eeglab_plugin_check`: probe the official plugin matrix in the local MATLAB/EEGLAB path, including clean_rawdata, ICLabel, DIPFIT, EEG-BIDS, BIOSIG, File-IO, MFF-matlab-io, NWB-io, BVA-io, HEDTools, firfilt, CleanLine, Zapline-Plus, AMICA, Picard, RELICA, Viewprops, get_chanlocs, ROIconnect, EEGstats, LIMO, SIFT, groupSIFT, NFT, and NSGportal. The response includes support level, claim IDs, dependent profiles, functions checked, and next steps for missing plugins.
 - `eeglab_protocol_export`: render Markdown/JSON protocol text and optionally write it to a local file.
 
 ## MCP Prompts And Resources
@@ -183,18 +184,19 @@ These are guidance surfaces only; they do not modify EEG data or MATLAB state.
 
 ## Lightweight Verification
 
-These checks validate packaging and MCP protocol behavior without EEG test data:
+Run the unified verifier from the repository root. It validates packaging, MCP protocol behavior, eval contracts, and official alignment without EEG test data:
 
 ```powershell
-python -B -m py_compile .\eeglab_mcp_server\server.py .\eeglab_mcp_server\schemas.py .\eeglab_mcp_server\workflows.py
-python -c "import tomllib; tomllib.load(open('eeglab_mcp_server/pyproject.toml','rb')); print('pyproject ok')"
-python -m pip install -e .\eeglab_mcp_server
-python -B .\scripts\verify_framework.py
-python .\scripts\verify_official_alignment.py
-python .\scripts\verify_official_alignment.py --online
+powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 verify
 ```
 
-The framework verification asserts the registry-defined 37 legacy low-level tools and 8 research workflow tools are present, prompts/resources are exposed, config templates parse, skill/reference files contain research-standard terms, and no bundled EEG test data is present. It also treats the `evals.xml` contract as a machine-checkable workflow specification: required/forbidden tools, official gate assertions, source claim IDs, resources, and protocol report-field requirements must stay synchronized with the registry and official alignment map. Official-alignment verification checks claim/profile/tool/resource synchronization, support/plugin/report matrices, method-gate behavior, and, with `--online`, live official EEGLAB/SCCN/BIDS URLs.
+Use `-Online` when you also want live official URL checks:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 verify-online
+```
+
+The framework verification asserts the registry-defined 37 legacy low-level tools and 8 research workflow tools are present, prompts/resources are exposed, config templates parse, skill/reference files contain research-standard terms, and no bundled EEG test data is present. It also treats the `evals.xml` contract as a machine-checkable workflow specification: required/forbidden tools, official gate assertions, source claim IDs, resources, and protocol report-field requirements must stay synchronized with the registry and official alignment map. Official-alignment verification checks claim/profile/tool/resource synchronization, support/plugin/report matrices, method-gate behavior, and, with `-Online`, live official EEGLAB/SCCN/BIDS URLs.
 
 ## MCP Inspector
 

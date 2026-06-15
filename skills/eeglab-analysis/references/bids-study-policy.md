@@ -4,8 +4,9 @@ Use this reference for multi-subject, BIDS, STUDY, LIMO, or group-statistics req
 
 ## Required Gate
 
-Run `eeglab_project_plan` first, then use staged `eeglab_method_preflight`
-profiles instead of treating all STUDY work as one gate:
+Run `eeglab_project_plan` first, then use `eeglab_method_preflight`
+with `method="study"` as the combined ready-check before group-level claims.
+After that, use staged profiles for the specific operation you are about to run:
 
 - `bids_metadata` before trusting BIDS sidecars for event or acquisition
   semantics.
@@ -32,6 +33,6 @@ Required context:
 
 ## Routing
 
-Use `eeglab_method_preflight` with `method="bids_metadata"` before trusting BIDS sidecars for event semantics. Then use `eeglab_import_bids` for BIDS folders after `bids_import`, `eeglab_study_create` for BIDS or explicit dataset lists after `study_create`, `eeglab_study_design` for variables/levels after `study_design`, and `eeglab_study_statistics` only after `study_statistics` confirms the design, measure, preprocessing protocol, alpha, and correction policy.
+Use `eeglab_method_preflight` with `method="study"` before any group-level conclusion, and with `method="bids_metadata"` before trusting BIDS sidecars for event semantics. Then use `eeglab_import_bids` for BIDS folders after `bids_import`, `eeglab_study_create` for BIDS or explicit dataset lists after `study_create`, `eeglab_study_design` for variables/levels after `study_design`, and `eeglab_study_statistics` only after `study_statistics` confirms the design, measure, preprocessing protocol, alpha, and correction policy.
 
 Do not run group statistics as a substitute for unresolved single-subject preprocessing, missing design variables, or missing provenance.

@@ -101,4 +101,4 @@ if (Test-Path -LiteralPath $SkillTarget) {
 Copy-Item -LiteralPath $SkillSource -Destination $SkillTarget -Recurse -Force
 
 Write-Host "setup_status=success"
-Write-Host "next_step=Restart Codex, then run scripts\doctor_eeglab_agent.ps1"
+Write-Host "next_step=Run scripts\eeglab_agent.ps1 verify, run scripts\eeglab_agent.ps1 doctor, then restart Codex."

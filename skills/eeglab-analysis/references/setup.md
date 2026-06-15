@@ -50,15 +50,18 @@ Other IDE agents that support skill-like prompt packs can import the same `SKILL
 Run lightweight checks before real EEG processing:
 
 ```powershell
-python -B -m py_compile .\eeglab_mcp_server\server.py .\eeglab_mcp_server\schemas.py .\eeglab_mcp_server\workflows.py .\scripts\verify_framework.py
-python -B .\scripts\verify_framework.py
-python .\scripts\verify_official_alignment.py
-python .\scripts\verify_official_alignment.py --online
-powershell -ExecutionPolicy Bypass -File .\scripts\setup_eeglab_agent.ps1 -DryRun
-powershell -ExecutionPolicy Bypass -File .\scripts\doctor_eeglab_agent.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 verify
+powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 setup -DryRun
+powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 doctor
 ```
 
-`verify_framework.py` confirms that the MCP and skill remain synchronized around the strict research contract: original tool compatibility, planning tools, prompts/resources, official reference terms, eval coverage, config parsing, and repository cleanliness. `verify_official_alignment.py` confirms official claim/profile/tool/resource synchronization, method gate behavior, support/plugin/report matrices, and optionally live official URLs. These checks intentionally do not require EEG test data.
+For live official URL checks, use:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 verify-online
+```
+
+`eeglab_agent.ps1` is the shortest user entrypoint; it forwards to the dedicated setup, verify, doctor, and uninstall scripts. `verify_eeglab_agent.ps1` is the underlying verifier. It compiles the server/verifier Python files, runs `verify_framework.py`, and runs `verify_official_alignment.py`. `verify_framework.py` confirms that the MCP and skill remain synchronized around the strict research contract: original tool compatibility, planning tools, prompts/resources, official reference terms, eval coverage, config parsing, and repository cleanliness. `verify_official_alignment.py` confirms official claim/profile/tool/resource synchronization, method gate behavior, support/plugin/report matrices, and optionally live official URLs. These checks intentionally do not require EEG test data.
 Use `eeglab://official/tool-support-matrix.md` when a client or user asks whether a specific `eeglab_*` tool is executable, gated, read-only, or guidance-only.
 
 MCP protocol smoke test:
@@ -86,7 +89,7 @@ asyncio.run(main())
 Expected smoke-test result:
 
 - registry-defined 37 legacy low-level tools and 8 research workflow tools are present
-- the 55 current eval contracts validate required/forbidden tools, gate assertions, resource references, and protocol report-field requirements
+- the current eval contracts validate required/forbidden tools, gate assertions, resource references, and protocol report-field requirements
 - `missing_required_arguments`
 
 Before a large project or multi-subject analysis, run `eeglab_project_plan` or `eeglab_workflow_recommend` with the known research goal, project scale, stage, event labels, event semantics, data shape, sampling rate, ICA state, channel-location availability, continuous-raw availability, and behavioral-log status. If those facts are missing, use its `clarifying_questions`, `default_assumptions`, `blocking_conditions`, `not_recommended`, and `qc_gates` as the first planning artifact.

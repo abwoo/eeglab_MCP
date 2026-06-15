@@ -32,10 +32,10 @@ $configText = ""
 if (Test-Path -LiteralPath $ConfigPath) {
     $configText = Get-Content -Raw -LiteralPath $ConfigPath
 }
-Add-Check "codex_config_exists" (Test-Path -LiteralPath $ConfigPath) "Run scripts\setup_eeglab_agent.ps1."
-Add-Check "eeglab_mcp_registered" ($configText -match '(?m)^\[mcp_servers\.eeglab\]$') "Run scripts\setup_eeglab_agent.ps1."
+Add-Check "codex_config_exists" (Test-Path -LiteralPath $ConfigPath) "Run scripts\eeglab_agent.ps1 setup."
+Add-Check "eeglab_mcp_registered" ($configText -match '(?m)^\[mcp_servers\.eeglab\]$') "Run scripts\eeglab_agent.ps1 setup."
 Add-Check "matlab_mcp_registered" ($configText -match '(?m)^\[mcp_servers\.matlab\]$') "Optional: register a general matlab MCP if you need custom MATLAB scripts."
-Add-Check "skill_installed" (Test-Path -LiteralPath $SkillTarget) "Run scripts\setup_eeglab_agent.ps1 to sync the skill."
+Add-Check "skill_installed" (Test-Path -LiteralPath $SkillTarget) "Run scripts\eeglab_agent.ps1 setup to sync the skill."
 
 try {
     $mcpCheck = @'
@@ -75,7 +75,7 @@ asyncio.run(main())
 '@
     $output = $mcpCheck | python -B -
     $ok = ($LASTEXITCODE -eq 0) -and ($output -match 'legacy_tools_present=True') -and ($output -match 'research_tools_present=True') -and ($output -match 'official_resource_present=True')
-    Add-Check "mcp_stdio_smoke" $ok "Inspect Python dependencies and run python -B scripts\verify_framework.py."
+    Add-Check "mcp_stdio_smoke" $ok "Inspect Python dependencies and run scripts\eeglab_agent.ps1 verify."
     $output | ForEach-Object { Write-Host $_ }
 }
 catch {
