@@ -43,6 +43,12 @@ This map connects MCP methods to official EEGLAB/SCCN references. It is a local 
 | `amica_ica` | guidance-only | `EEGLAB-AMICA-001`, `EEGLAB-ICA-001`, `EEGLAB-PLUGIN-001` | AMICA plugin, continuous data, rank/PCA/reference review, compute strategy, derivative output |
 | `sift_connectivity` | guidance-only | `EEGLAB-SIFT-001` | SIFT plugin, MVAR/source model validation, correction policy |
 | `nsg_remote` | guidance-only/out-of-local-scope | `EEGLAB-NSG-001`, `EEGLAB-PLUGIN-001`, `EEGLAB-COURSE-001` | NSG plugin, remote-compute approval, upload/credential policy, job provenance |
+| `plugin_development` | guidance-only/contribution planning | `EEGLAB-PLUGIN-DEV-001`, `EEGLAB-PLUGIN-001` | plugin goal, EEGLAB function family, GUI/command-line boundary, validation plan |
+| `relica_reliability` | guidance-only | `EEGLAB-RELICA-001`, `EEGLAB-ICA-001`, `EEGLAB-PLUGIN-001` | RELICA plugin, existing ICA, bootstrap settings, component review |
+| `viewprops_review` | guidance-only | `EEGLAB-VIEWPROPS-001`, `EEGLAB-ICLABEL-001`, `EEGLAB-ICA-001` | Viewprops plugin, existing ICA, reviewed component set and classifier/source evidence |
+| `get_chanlocs_digitization` | guidance-only | `EEGLAB-GETCHANLOCS-001`, `EEGLAB-CHANLOC-001` | get_chanlocs plugin, head image/digitization source, fiducials, channel-location repair plan |
+| `roiconnect_source_connectivity` | guidance-only | `EEGLAB-ROICONNECT-001`, `EEGLAB-DIPFIT-001`, `EEGLAB-SPECTRAL-001` | ROIconnect plugin, source model, ROI atlas, connectivity metric and interpretation limits |
+| `eegstats_metrics` | guidance-only | `EEGLAB-EEGSTATS-001`, `EEGLAB-SPECTRAL-001`, `EEGLAB-STUDY-001` | EEGstats plugin, band/frequency settings, channels/ROIs or STUDY scope, artifact policy |
 | `pipeline` | `eeglab_pipeline` | `EEGLAB-ASR-001`, `EEGLAB-ICA-001`, `EEGLAB-EVENT-001` | raw preservation, derivative output, explicit default acceptance |
 
 ## Agent Rule

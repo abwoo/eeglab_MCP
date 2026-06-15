@@ -83,6 +83,12 @@ def check_claim_map() -> None:
         "event_script_modification",
         "amica_ica",
         "nsg_remote",
+        "plugin_development",
+        "relica_reliability",
+        "viewprops_review",
+        "get_chanlocs_digitization",
+        "roiconnect_source_connectivity",
+        "eegstats_metrics",
     ):
         _require(profile_id in METHOD_PROFILES, f"missing staged STUDY profile: {profile_id}")
 
@@ -250,6 +256,23 @@ def check_docs_and_skill() -> None:
         "EEGLAB-BVA-001",
         "EEGLAB-STUDY-PRECOMP-001",
         "EEGLAB-ICCLUSTER-001",
+        "EEGLAB-PLUGIN-DEV-001",
+        "EEGLAB-RELICA-001",
+        "EEGLAB-VIEWPROPS-001",
+        "EEGLAB-GETCHANLOCS-001",
+        "EEGLAB-ROICONNECT-001",
+        "EEGLAB-EEGSTATS-001",
+        "relica_reliability",
+        "viewprops_review",
+        "get_chanlocs_digitization",
+        "roiconnect_source_connectivity",
+        "eegstats_metrics",
+        "plugin_development",
+        "RELICA",
+        "Viewprops",
+        "get_chanlocs",
+        "ROIconnect",
+        "EEGstats",
         "EEGLAB-AMICA-001",
         "EEGLAB-NSG-001",
     ]
@@ -696,6 +719,69 @@ def check_preflight_behavior() -> None:
         "urevent_preserved_or_relinked" in event_script_missing_ids,
         "event script modification should require urevent preservation or relinking",
     )
+
+    plugin_dev = evaluate_method_preflight(
+        {
+            "method": "plugin_development",
+            "context": {"plugin_goal": "custom ERP import helper"},
+        }
+    )
+    plugin_dev_missing_ids = {item["id"] for item in plugin_dev["critical_missing_requirements"]}
+    _require(
+        "eeglab_function_family_recorded" in plugin_dev_missing_ids,
+        "plugin development should require function-family/interface boundary",
+    )
+
+    relica = evaluate_method_preflight(
+        {
+            "method": "relica_reliability",
+            "context": {"plugins_available": ["RELICA"], "has_ica": True},
+        }
+    )
+    relica_missing_ids = {item["id"] for item in relica["critical_missing_requirements"]}
+    _require(
+        "bootstrap_settings_recorded" in relica_missing_ids,
+        "RELICA should require bootstrap/settings provenance",
+    )
+
+    viewprops = evaluate_method_preflight(
+        {
+            "method": "viewprops_review",
+            "context": {"plugins_available": ["Viewprops"]},
+        }
+    )
+    viewprops_missing_ids = {item["id"] for item in viewprops["critical_missing_requirements"]}
+    _require("has_ica" in viewprops_missing_ids, "Viewprops review should require ICA")
+
+    get_chanlocs = evaluate_method_preflight(
+        {
+            "method": "get_chanlocs_digitization",
+            "context": {"plugins_available": ["get_chanlocs"], "head_image": "sub-01-head.obj"},
+        }
+    )
+    get_chanlocs_missing_ids = {item["id"] for item in get_chanlocs["critical_missing_requirements"]}
+    _require("fiducials_recorded" in get_chanlocs_missing_ids, "get_chanlocs should require fiducials")
+
+    roiconnect = evaluate_method_preflight(
+        {
+            "method": "roiconnect_source_connectivity",
+            "context": {"plugins_available": ["ROIconnect"], "source_model": "dipfit"},
+        }
+    )
+    roiconnect_missing_ids = {item["id"] for item in roiconnect["critical_missing_requirements"]}
+    _require(
+        {"roi_atlas_recorded", "connectivity_metric_recorded"}.issubset(roiconnect_missing_ids),
+        "ROIconnect should require ROI atlas and connectivity metric",
+    )
+
+    eegstats = evaluate_method_preflight(
+        {
+            "method": "eegstats_metrics",
+            "context": {"plugins_available": ["EEGstats"], "freq_range": [1, 40]},
+        }
+    )
+    eegstats_missing_ids = {item["id"] for item in eegstats["critical_missing_requirements"]}
+    _require("channels_recorded" in eegstats_missing_ids, "EEGstats should require channels/ROIs")
 
 
 def check_online_sources() -> None:

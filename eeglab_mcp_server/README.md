@@ -194,7 +194,7 @@ python .\scripts\verify_official_alignment.py
 python .\scripts\verify_official_alignment.py --online
 ```
 
-The framework verification asserts the registry-defined 37 legacy low-level tools and 8 research workflow tools are present, prompts/resources are exposed, config templates parse, skill/reference files contain research-standard terms, and no bundled EEG test data is present. It also treats the 44 `evals.xml` entries as a machine-checkable workflow contract: required/forbidden tools, official gate assertions, source claim IDs, resources, and protocol report-field requirements must stay synchronized with the registry and official alignment map. Official-alignment verification checks claim/profile/tool/resource synchronization, support/plugin/report matrices, method-gate behavior, and, with `--online`, live official EEGLAB/SCCN/BIDS URLs.
+The framework verification asserts the registry-defined 37 legacy low-level tools and 8 research workflow tools are present, prompts/resources are exposed, config templates parse, skill/reference files contain research-standard terms, and no bundled EEG test data is present. It also treats the `evals.xml` contract as a machine-checkable workflow specification: required/forbidden tools, official gate assertions, source claim IDs, resources, and protocol report-field requirements must stay synchronized with the registry and official alignment map. Official-alignment verification checks claim/profile/tool/resource synchronization, support/plugin/report matrices, method-gate behavior, and, with `--online`, live official EEGLAB/SCCN/BIDS URLs.
 
 ## MCP Inspector
 

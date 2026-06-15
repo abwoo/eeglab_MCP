@@ -17,7 +17,7 @@ The server exposes registry-defined 37 legacy low-level `eeglab_*` tools plus 8 
 - `eeglab_workflow_recommend`: recommend reproducible project phases, clarifying questions, default assumptions, adaptive decision rules, QC gates, self-evolution hooks, and minimum report fields without changing data.
 - `eeglab_project_plan`: create a research-grade project plan from goal/design/data/event/montage/plugin facts; returns blocking conditions, not-recommended actions, QC gates, quick modes, and official reference anchors.
 - `eeglab_protocol_export`: render Markdown/JSON protocol text and optionally write it to a local file; pass upstream `gate_results`, `source_claim_ids`, `report_fields`, and override fields for lab notebooks, handoff, or methods-section drafts.
-- `eeglab_plugin_check`: probe local MATLAB/EEGLAB path for the official plugin matrix: clean_rawdata, ICLabel, DIPFIT, EEG-BIDS, BIOSIG, File-IO, MFF-matlab-io, NWB-io, BVA-io, HEDTools, firfilt, CleanLine, Zapline-Plus, AMICA, Picard, LIMO, SIFT, groupSIFT, NFT, and NSGportal. It returns availability, `support_level`, claim IDs, dependent profiles such as `import_plugins`, `data_export`, `hed_event_annotation`, `bids_export`, `study_precompute`, `ica_clustering`, `amica_ica`, and `nsg_remote`, checked functions, found functions, and next steps.
+- `eeglab_plugin_check`: probe local MATLAB/EEGLAB path for the official plugin matrix: clean_rawdata, ICLabel, DIPFIT, EEG-BIDS, BIOSIG, File-IO, MFF-matlab-io, NWB-io, BVA-io, HEDTools, firfilt, CleanLine, Zapline-Plus, AMICA, Picard, RELICA, Viewprops, get_chanlocs, ROIconnect, EEGstats, LIMO, SIFT, groupSIFT, NFT, and NSGportal. It returns availability, `support_level`, claim IDs, dependent profiles such as `import_plugins`, `data_export`, `hed_event_annotation`, `bids_export`, `study_precompute`, `ica_clustering`, `amica_ica`, `relica_reliability`, `viewprops_review`, `get_chanlocs_digitization`, `roiconnect_source_connectivity`, `eegstats_metrics`, and `nsg_remote`, checked functions, found functions, and next steps.
 - `eeglab_event_semantics_audit`: classify markers as condition triggers, boundaries, impedance/QC annotations, segment markers, excluded labels, or candidate triggers before epoching.
 - `eeglab_method_preflight`: evaluate official EEGLAB/SCCN method gates before high-risk processing; returns `gate_status`, missing requirements, `source_claim_ids`, and safe next step.
 
@@ -103,7 +103,7 @@ These tools require explicit frequency range and artifact policy before interpre
 - `spectopo`, `newtimef`, `topoplot`: spectral, ERSP/ITC, and topography outputs.
 - `pop_dipfit_settings`, DIPFIT, `pop_multifit`: source localization.
 - `pop_importbids`, `pop_exportbids`, `bids_export`, `pop_study`, `std_makedesign`, STUDY precompute/statistics functions: BIDS/STUDY/group workflows.
-- AMICA and NSGportal functions are indexed for plugin checks, but execution remains guidance-only unless a dedicated workflow exists.
+- AMICA, RELICA, Viewprops, get_chanlocs, ROIconnect, EEGstats, and NSGportal functions are indexed for plugin checks, but execution remains guidance-only unless a dedicated workflow exists.
 
 ## Common Parameter Defaults
 
@@ -124,6 +124,6 @@ These tools require explicit frequency range and artifact policy before interpre
 - Missing goal: ask for the hypothesis/analysis family. If unavailable, choose a conservative feasibility workflow from data shape and event availability.
 - Event ambiguity: call `eeglab_event_semantics_audit`; do not treat start/end, impedance, or segment markers as ERP triggers.
 - Missing montage: block topography/source claims until channel locations are repaired.
-- Plugin dependency: run `eeglab_plugin_check` before ASR, ICLabel, DIPFIT, EEG-BIDS/STUDY, BIDS export, BIOSIG/File-IO/MFF/NWB/BVA import/export, HEDTools event annotation, STUDY precompute/clustering, firfilt/CleanLine/Zapline, AMICA/Picard, LIMO, SIFT, groupSIFT, NFT, or NSGportal-dependent workflows. Treat `indexed_only` plugins and profiles as guidance-only unless a dedicated workflow exists.
+- Plugin dependency: run `eeglab_plugin_check` before ASR, ICLabel, DIPFIT, EEG-BIDS/STUDY, BIDS export, BIOSIG/File-IO/MFF/NWB/BVA import/export, HEDTools event annotation, STUDY precompute/clustering, firfilt/CleanLine/Zapline, AMICA/Picard, RELICA, Viewprops, get_chanlocs, ROIconnect, EEGstats, LIMO, SIFT, groupSIFT, NFT, or NSGportal-dependent workflows. Treat `indexed_only` plugins and profiles as guidance-only unless a dedicated workflow exists.
 - Official gate blocked: stop, report missing requirements and `source_claim_ids`, then ask for missing facts or explicit override.
 - Self-evolution: add evals/references for repeated project patterns instead of relying on memory.

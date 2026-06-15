@@ -86,7 +86,7 @@ asyncio.run(main())
 Expected smoke-test result:
 
 - registry-defined 37 legacy low-level tools and 8 research workflow tools are present
-- the 44 eval contracts validate required/forbidden tools, gate assertions, resource references, and protocol report-field requirements
+- the 55 current eval contracts validate required/forbidden tools, gate assertions, resource references, and protocol report-field requirements
 - `missing_required_arguments`
 
 Before a large project or multi-subject analysis, run `eeglab_project_plan` or `eeglab_workflow_recommend` with the known research goal, project scale, stage, event labels, event semantics, data shape, sampling rate, ICA state, channel-location availability, continuous-raw availability, and behavioral-log status. If those facts are missing, use its `clarifying_questions`, `default_assumptions`, `blocking_conditions`, `not_recommended`, and `qc_gates` as the first planning artifact.

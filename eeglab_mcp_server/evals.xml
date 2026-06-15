@@ -1099,4 +1099,213 @@
       <report requires_protocol_export="true" requires_gate_results="true" requires_source_claim_ids="true" requires_report_fields="true" requires_report_field_matrix="true" requires_override_status="false" />
     </report_assertions>
   </eval>
+  <eval id="50" category="plugin_development">
+    <question>A user wants this MCP to support a new EEGLAB plugin they plan to write, but has not defined the plugin goal, pop_/eeg_ function family, GUI boundary, validation data, or eval coverage.</question>
+    <expected>Use eeglab_project_plan and eeglab_method_preflight with method plugin_development; keep the request as plugin-authoring guidance, block executable analysis-support claims until the plugin goal, EEGLAB function family, interface boundary, validation plan, docs, and eval coverage are explicit; export a protocol if needed.</expected>
+    <required_tools>
+      <tool>eeglab_project_plan</tool>
+      <tool>eeglab_method_preflight</tool>
+      <tool>eeglab_protocol_export</tool>
+    </required_tools>
+    <forbidden_tools>
+      <tool>eeglab_pipeline</tool>
+    </forbidden_tools>
+    <required_terms>
+      <term>blocked</term>
+      <term>gate_results</term>
+      <term>gate_status</term>
+      <term>limitations</term>
+      <term>plugin_development</term>
+      <term>report field matrix</term>
+      <term>report_fields</term>
+      <term>source_claim_ids</term>
+      <term>support_level</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="plugin_development" expected_status="blocked" missing_requirements="plugin_goal_defined,eeglab_function_family_recorded" claim_ids="EEGLAB-PLUGIN-DEV-001,EEGLAB-PLUGIN-001" />
+    </gate_assertions>
+    <resource_assertions>
+      <resource uri="eeglab://official/topic-index.md" />
+      <resource uri="eeglab://official/method-map.md" />
+    </resource_assertions>
+    <report_assertions>
+      <report requires_protocol_export="true" requires_gate_results="true" requires_source_claim_ids="true" requires_report_fields="true" requires_report_field_matrix="true" requires_override_status="false" />
+    </report_assertions>
+  </eval>
+  <eval id="51" category="ica_reliability">
+    <question>A user asks for RELICA ICA reliability analysis on a dataset, but has not confirmed RELICA availability, ICA state, bootstrap settings, or component review policy.</question>
+    <expected>Use eeglab_plugin_check for RELICA and eeglab_method_preflight for relica_reliability; keep RELICA guidance-only, block reliability claims until plugin availability, existing ICA, bootstrap settings, and component review policy are recorded; export a protocol/report instead of running unsupported plugin logic.</expected>
+    <required_tools>
+      <tool>eeglab_plugin_check</tool>
+      <tool>eeglab_method_preflight</tool>
+      <tool>eeglab_protocol_export</tool>
+    </required_tools>
+    <forbidden_tools>
+      <tool>eeglab_run_ica</tool>
+    </forbidden_tools>
+    <required_terms>
+      <term>blocked</term>
+      <term>gate_results</term>
+      <term>gate_status</term>
+      <term>limitations</term>
+      <term>plugin matrix</term>
+      <term>RELICA</term>
+      <term>report field matrix</term>
+      <term>report_fields</term>
+      <term>source_claim_ids</term>
+      <term>support_level</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="relica_reliability" expected_status="blocked" missing_requirements="plugin_relica_available,has_ica,bootstrap_settings_recorded" claim_ids="EEGLAB-RELICA-001,EEGLAB-ICA-001,EEGLAB-PLUGIN-001" />
+    </gate_assertions>
+    <resource_assertions>
+      <resource uri="eeglab://official/plugin-map.md" />
+      <resource uri="eeglab://official/report-field-matrix.md" />
+    </resource_assertions>
+    <report_assertions>
+      <report requires_protocol_export="true" requires_gate_results="true" requires_source_claim_ids="true" requires_report_fields="true" requires_report_field_matrix="true" requires_override_status="false" />
+    </report_assertions>
+  </eval>
+  <eval id="52" category="ica_review">
+    <question>A user wants to use Viewprops to decide which ICA components to remove, but the dataset has no confirmed ICA weights and no component review thresholds or rationale.</question>
+    <expected>Use eeglab_plugin_check for Viewprops/ICLabel and eeglab_method_preflight for viewprops_review and remove_components as appropriate; explain that Viewprops is an inspection aid, block component-removal claims until ICA exists and review/removal policy is explicit, and export a protocol rather than removing components.</expected>
+    <required_tools>
+      <tool>eeglab_plugin_check</tool>
+      <tool>eeglab_method_preflight</tool>
+      <tool>eeglab_protocol_export</tool>
+    </required_tools>
+    <forbidden_tools>
+      <tool>eeglab_remove_components</tool>
+    </forbidden_tools>
+    <required_terms>
+      <term>blocked</term>
+      <term>gate_results</term>
+      <term>gate_status</term>
+      <term>limitations</term>
+      <term>plugin matrix</term>
+      <term>Viewprops</term>
+      <term>report field matrix</term>
+      <term>report_fields</term>
+      <term>source_claim_ids</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="viewprops_review" expected_status="blocked" missing_requirements="plugin_viewprops_available,has_ica" claim_ids="EEGLAB-VIEWPROPS-001,EEGLAB-ICLABEL-001,EEGLAB-ICA-001" />
+      <gate method="remove_components" expected_status="blocked" missing_requirements="has_ica,component_reviewed,derivative_output_planned" claim_ids="EEGLAB-ICLABEL-001" />
+    </gate_assertions>
+    <resource_assertions>
+      <resource uri="eeglab://official/plugin-map.md" />
+      <resource uri="eeglab://references/ica-iclabel-policy.md" />
+    </resource_assertions>
+    <report_assertions>
+      <report requires_protocol_export="true" requires_gate_results="true" requires_source_claim_ids="true" requires_report_fields="true" requires_report_field_matrix="true" requires_override_status="false" />
+    </report_assertions>
+  </eval>
+  <eval id="53" category="channel_locations">
+    <question>A user has 3-D head photos and wants get_chanlocs to create channel locations, then immediately run topoplot and source localization, but has not recorded fiducials or reviewed EEG.chanlocs.</question>
+    <expected>Use eeglab_plugin_check for get_chanlocs and eeglab_method_preflight for get_chanlocs_digitization, channel_locations, topography, and source as needed; block topography/source claims until digitization source, fiducials, channel-location repair/review, ICA, and head model prerequisites are complete.</expected>
+    <required_tools>
+      <tool>eeglab_plugin_check</tool>
+      <tool>eeglab_method_preflight</tool>
+      <tool>eeglab_protocol_export</tool>
+    </required_tools>
+    <forbidden_tools>
+      <tool>eeglab_topoplot</tool>
+      <tool>eeglab_source_localization</tool>
+    </forbidden_tools>
+    <required_terms>
+      <term>blocked</term>
+      <term>gate_results</term>
+      <term>gate_status</term>
+      <term>get_chanlocs</term>
+      <term>limitations</term>
+      <term>plugin matrix</term>
+      <term>report field matrix</term>
+      <term>report_fields</term>
+      <term>source_claim_ids</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="get_chanlocs_digitization" expected_status="blocked" missing_requirements="plugin_get_chanlocs_available,head_image_or_digitization_source_recorded,fiducials_recorded" claim_ids="EEGLAB-GETCHANLOCS-001,EEGLAB-CHANLOC-001" />
+      <gate method="topography" expected_status="blocked" missing_requirements="has_channel_locations" claim_ids="EEGLAB-TOPO-001,EEGLAB-CHANLOC-001" />
+      <gate method="source" expected_status="blocked" missing_requirements="has_ica,has_channel_locations,head_model_defined" claim_ids="EEGLAB-DIPFIT-001,EEGLAB-CHANLOC-001" />
+    </gate_assertions>
+    <resource_assertions>
+      <resource uri="eeglab://official/plugin-map.md" />
+      <resource uri="eeglab://references/source-policy.md" />
+    </resource_assertions>
+    <report_assertions>
+      <report requires_protocol_export="true" requires_gate_results="true" requires_source_claim_ids="true" requires_report_fields="true" requires_report_field_matrix="true" requires_override_status="false" />
+    </report_assertions>
+  </eval>
+  <eval id="54" category="source_connectivity">
+    <question>A user asks for ROIconnect source-level ROI connectivity but has no source model, ROI atlas, connectivity metric, or statistics/correction policy documented.</question>
+    <expected>Use eeglab_project_plan, eeglab_plugin_check for ROIconnect, and eeglab_method_preflight for roiconnect_source_connectivity; keep ROIconnect guidance-only, block source-connectivity claims until source model, ROI atlas, connectivity metric, frequency/time window, and interpretation limits are recorded.</expected>
+    <required_tools>
+      <tool>eeglab_project_plan</tool>
+      <tool>eeglab_plugin_check</tool>
+      <tool>eeglab_method_preflight</tool>
+      <tool>eeglab_protocol_export</tool>
+    </required_tools>
+    <forbidden_tools>
+      <tool>eeglab_connectivity</tool>
+      <tool>eeglab_source_localization</tool>
+    </forbidden_tools>
+    <required_terms>
+      <term>blocked</term>
+      <term>gate_results</term>
+      <term>gate_status</term>
+      <term>limitations</term>
+      <term>plugin matrix</term>
+      <term>ROIconnect</term>
+      <term>report field matrix</term>
+      <term>report_fields</term>
+      <term>source_claim_ids</term>
+      <term>support_level</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="roiconnect_source_connectivity" expected_status="blocked" missing_requirements="plugin_roiconnect_available,source_model_available,roi_atlas_recorded,connectivity_metric_recorded" claim_ids="EEGLAB-ROICONNECT-001,EEGLAB-DIPFIT-001,EEGLAB-SPECTRAL-001" />
+    </gate_assertions>
+    <resource_assertions>
+      <resource uri="eeglab://official/plugin-map.md" />
+      <resource uri="eeglab://official/risk-matrix.md" />
+    </resource_assertions>
+    <report_assertions>
+      <report requires_protocol_export="true" requires_gate_results="true" requires_source_claim_ids="true" requires_report_fields="true" requires_report_field_matrix="true" requires_override_status="false" />
+    </report_assertions>
+  </eval>
+  <eval id="55" category="spectral_statistics">
+    <question>A user wants EEGstats band power, alpha peak frequency, and alpha asymmetry for a STUDY, but has not confirmed plugin availability, band definitions, channels/ROIs, artifact policy, or STUDY scope.</question>
+    <expected>Use eeglab_project_plan, eeglab_plugin_check for EEGstats, and eeglab_method_preflight for eegstats_metrics; keep EEGstats guidance-only, block metric claims until plugin availability, frequency/band definitions, channels or ROI/STUDY scope, artifact policy, and report fields are recorded.</expected>
+    <required_tools>
+      <tool>eeglab_project_plan</tool>
+      <tool>eeglab_plugin_check</tool>
+      <tool>eeglab_method_preflight</tool>
+      <tool>eeglab_protocol_export</tool>
+    </required_tools>
+    <forbidden_tools>
+      <tool>eeglab_spectral</tool>
+      <tool>eeglab_study_statistics</tool>
+    </forbidden_tools>
+    <required_terms>
+      <term>blocked</term>
+      <term>EEGstats</term>
+      <term>gate_results</term>
+      <term>gate_status</term>
+      <term>limitations</term>
+      <term>plugin matrix</term>
+      <term>report field matrix</term>
+      <term>report_fields</term>
+      <term>source_claim_ids</term>
+      <term>support_level</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="eegstats_metrics" expected_status="blocked" missing_requirements="plugin_eegstats_available,frequency_settings_recorded,channels_recorded" claim_ids="EEGLAB-EEGSTATS-001,EEGLAB-SPECTRAL-001,EEGLAB-STUDY-001" />
+    </gate_assertions>
+    <resource_assertions>
+      <resource uri="eeglab://official/plugin-map.md" />
+      <resource uri="eeglab://official/report-field-matrix.md" />
+    </resource_assertions>
+    <report_assertions>
+      <report requires_protocol_export="true" requires_gate_results="true" requires_source_claim_ids="true" requires_report_fields="true" requires_report_field_matrix="true" requires_override_status="false" />
+    </report_assertions>
+  </eval>
 </evals>

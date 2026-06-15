@@ -35,6 +35,12 @@ Support levels:
 | LIMO statistics | `indexed_only` | LIMO plugin | `EEGLAB-LIMO-001`, `EEGLAB-STUDY-001` | planning, plugin check, report guidance only |
 | SIFT and groupSIFT | `indexed_only` | SIFT/groupSIFT plugin pages | `EEGLAB-SIFT-001` | planning, plugin check, model-validation guidance only |
 | NFT, NSGportal, AMICA, Picard, advanced plugins | `indexed_only` | EEGLAB plugin index and course | `EEGLAB-PLUGIN-001`, `EEGLAB-COURSE-001`, `EEGLAB-AMICA-001`, `EEGLAB-NSG-001` | plugin matrix, no default execution promise |
+| EEGLAB plugin development | `indexed_only` | plugin development tutorial | `EEGLAB-PLUGIN-DEV-001`, `EEGLAB-PLUGIN-001` | `plugin_development` preflight and protocol planning only |
+| RELICA ICA reliability | `indexed_only` | RELICA plugin page/repository | `EEGLAB-RELICA-001`, `EEGLAB-ICA-001`, `EEGLAB-PLUGIN-001` | `relica_reliability` guidance via plugin check, preflight, and protocol export |
+| Viewprops component review | `indexed_only` | Viewprops plugin page/repository | `EEGLAB-VIEWPROPS-001`, `EEGLAB-ICLABEL-001`, `EEGLAB-ICA-001` | `viewprops_review` guidance via plugin check, IC/ICLabel review policy, and protocol export |
+| get_chanlocs digitization | `indexed_only` | get_chanlocs plugin page/repository | `EEGLAB-GETCHANLOCS-001`, `EEGLAB-CHANLOC-001` | `get_chanlocs_digitization` guidance before channel-location repair/source claims |
+| ROIconnect source connectivity | `indexed_only` | ROIconnect plugin page/repository | `EEGLAB-ROICONNECT-001`, `EEGLAB-DIPFIT-001`, `EEGLAB-SPECTRAL-001` | `roiconnect_source_connectivity` guidance; requires source model, ROI atlas, and metric |
+| EEGstats spectral metrics | `indexed_only` | EEGstats plugin page/repository | `EEGLAB-EEGSTATS-001`, `EEGLAB-SPECTRAL-001`, `EEGLAB-STUDY-001` | `eegstats_metrics` guidance for band power, alpha peak, and alpha asymmetry |
 | BIDS/HED reporting | `gated_guidance` | BIDS import/tutorial material plus BIDS EEG/events metadata | `EEGLAB-BIDS-001`, `EEGLAB-COURSE-001`, `BIDS-EEG-001`, `BIDS-EVENTS-001` | report field matrix, sidecar/event-code gates |
 | Acquisition hardware and lab notebook facts | `out_of_scope` | EEGLAB tutorial context plus BIDS EEG metadata | `BIDS-EEG-001` for documentation only | audit imported metadata only; use `acquisition_metadata` preflight for analysis-ready provenance |
 

@@ -318,7 +318,7 @@ def _check_eval_registry_coverage() -> dict[str, int]:
     root = ET.fromstring(eval_path.read_text(encoding="utf-8"))
     eval_nodes = root.findall("eval")
     eval_ids = [node.attrib.get("id", "") for node in eval_nodes]
-    _require(len(eval_ids) >= 44, f"expected at least 44 evals, found {len(eval_ids)}")
+    _require(len(eval_ids) >= 55, f"expected at least 55 evals, found {len(eval_ids)}")
     _require(len(set(eval_ids)) == len(eval_ids), "eval ids must be unique")
     expected_ids = [str(index) for index in range(1, len(eval_nodes) + 1)]
     _require(eval_ids == expected_ids, f"eval ids must be consecutive from 1, found {eval_ids}")
@@ -463,7 +463,7 @@ def _check_eval_registry_coverage() -> dict[str, int]:
         "eeglab_study_statistics" in forbidden_tools_by_eval["21"],
         "BIDS/STUDY blocked eval must forbid direct group statistics",
     )
-    for eval_id in ("25", "36", "40", "41", "42", "44", "46", "47", "48", "49"):
+    for eval_id in ("25", "36", "40", "41", "42", "44", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55"):
         _require(
             root.find(f"eval[@id='{eval_id}']/report_assertions/report") is not None,
             f"protocol/report eval {eval_id} missing report assertion",

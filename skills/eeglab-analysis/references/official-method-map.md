@@ -36,6 +36,12 @@ Use this reference to route an EEG request to an official-gated MCP method profi
 | `amica_ica` | guidance-only | AMICA plugin, continuous data, rank/PCA/reference review, compute strategy, derivative output |
 | `sift_connectivity` | guidance-only | SIFT plugin, model order, stationarity, validation, correction |
 | `nsg_remote` | guidance-only/out-of-local-scope | NSG plugin, user approval, credentials/upload policy, remote job provenance |
+| `plugin_development` | guidance-only/contribution planning | plugin goal, EEGLAB function family, GUI/command-line boundary, validation plan |
+| `relica_reliability` | guidance-only | RELICA plugin, existing ICA, bootstrap settings, component review |
+| `viewprops_review` | guidance-only | Viewprops plugin, existing ICA, reviewed component set and classifier/source evidence |
+| `get_chanlocs_digitization` | guidance-only | get_chanlocs plugin, head image/digitization source, fiducials, channel-location repair plan |
+| `roiconnect_source_connectivity` | guidance-only | ROIconnect plugin, source model, ROI atlas, connectivity metric and interpretation limits |
+| `eegstats_metrics` | guidance-only | EEGstats plugin, band/frequency settings, channels/ROIs or STUDY scope, artifact policy |
 | `pipeline` | `eeglab_pipeline` | raw preservation, derivative output, explicit default acceptance |
 
 Always preserve `method_profile_id`, `source_claim_ids`, gate status, and override status in the report/protocol.

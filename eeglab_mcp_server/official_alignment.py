@@ -72,6 +72,26 @@ OFFICIAL_SOURCE_SNAPSHOT: dict[str, Any] = {
             "commit": "d5fe22f",
             "url": "https://github.com/sccn/BVA-io",
         },
+        "sccn/relica": {
+            "commit": "b3292d0",
+            "url": "https://github.com/sccn/relica",
+        },
+        "sccn/viewprops": {
+            "commit": "efafbc1",
+            "url": "https://github.com/sccn/viewprops",
+        },
+        "sccn/get_chanlocs": {
+            "commit": "25b2a34",
+            "url": "https://github.com/sccn/get_chanlocs",
+        },
+        "sccn/roiconnect": {
+            "commit": "3310ab6",
+            "url": "https://github.com/sccn/roiconnect",
+        },
+        "arnodelorme/eegstats": {
+            "commit": "fc0ff47",
+            "url": "https://github.com/arnodelorme/eegstats",
+        },
     },
 }
 
@@ -341,6 +361,48 @@ OFFICIAL_CLAIMS: dict[str, dict[str, Any]] = {
         "url": "https://eeglab.org/plugins/",
         "applies_to": ["plugin_check", "plugin_matrix", "advanced_project"],
         "requirement": "Probe plugin/function availability and report support level before plugin-dependent workflows.",
+        "cited_on": CITED_ON,
+    },
+    "EEGLAB-PLUGIN-DEV-001": {
+        "title": "EEGLAB plugin tutorials explain how to write functions, GUIs, and eegplugin_ extensions.",
+        "url": "https://eeglab.org/tutorials/contribute/design_plugin.html",
+        "applies_to": ["plugin_development", "advanced_project", "skill"],
+        "requirement": "Use the plugin tutorial and extension pages to scope new EEGLAB extensions, but do not treat them as executable analysis workflows.",
+        "cited_on": CITED_ON,
+    },
+    "EEGLAB-RELICA-001": {
+        "title": "RELICA estimates the reliability of ICA decompositions and can optionally run on NSG.",
+        "url": "https://eeglab.org/plugins/relica/",
+        "applies_to": ["relica", "ica", "advanced_project"],
+        "requirement": "Treat RELICA as an ICA-reliability planning workflow that depends on an existing ICA decomposition and bootstrap settings.",
+        "cited_on": CITED_ON,
+    },
+    "EEGLAB-VIEWPROPS-001": {
+        "title": "Viewprops extends pop_prop for component and channel inspection with ICLabel-aware display.",
+        "url": "https://eeglab.org/plugins/viewprops/",
+        "applies_to": ["viewprops", "ica", "iclabel"],
+        "requirement": "Use Viewprops as a review and visualization aid after ICA, not as a substitute for ICA or component review.",
+        "cited_on": CITED_ON,
+    },
+    "EEGLAB-GETCHANLOCS-001": {
+        "title": "get_chanlocs digitizes 3-D head images into EEG.chanlocs for plotting and source localization.",
+        "url": "https://eeglab.org/plugins/get_chanlocs/",
+        "applies_to": ["get_chanlocs", "channel_locations", "source"],
+        "requirement": "Use get_chanlocs when 3-D head images and fiducials exist and the goal is to populate or repair channel locations.",
+        "cited_on": CITED_ON,
+    },
+    "EEGLAB-ROICONNECT-001": {
+        "title": "ROIconnect performs source-level ROI connectivity analysis with atlas-defined regions.",
+        "url": "https://eeglab.org/plugins/roiconnect/",
+        "applies_to": ["roiconnect", "connectivity", "source"],
+        "requirement": "Use ROIconnect only when a source model, ROI atlas, and connectivity metric are defined.",
+        "cited_on": CITED_ON,
+    },
+    "EEGLAB-EEGSTATS-001": {
+        "title": "EEGstats computes band power, alpha peak frequency, and alpha asymmetry for EEGLAB datasets and STUDYs.",
+        "url": "https://eeglab.org/plugins/eegstats/",
+        "applies_to": ["eegstats", "spectral", "study"],
+        "requirement": "Use EEGstats when frequency-band definitions, channel selections, and dataset or STUDY scope are recorded.",
         "cited_on": CITED_ON,
     },
     "EEGLAB-AMICA-001": {
@@ -659,6 +721,8 @@ OFFICIAL_TOPIC_INDEX: dict[str, dict[str, Any]] = {
         "claim_ids": [
             "EEGLAB-PLUGIN-001",
             "EEGLAB-COURSE-001",
+            "EEGLAB-RELICA-001",
+            "EEGLAB-VIEWPROPS-001",
             "EEGLAB-AMICA-001",
             "EEGLAB-NSG-001",
         ],
@@ -666,6 +730,65 @@ OFFICIAL_TOPIC_INDEX: dict[str, dict[str, Any]] = {
         "resource_uri": "eeglab://official/plugin-matrix.md",
         "url": "https://eeglab.org/plugins/",
         "notes": "Plugin availability is checked and reported, but execution is guidance-only unless an MCP tool exists.",
+    },
+    "plugin_development": {
+        "title": "EEGLAB plugin development and extension authoring",
+        "support_level": "indexed_only",
+        "claim_ids": ["EEGLAB-PLUGIN-DEV-001", "EEGLAB-PLUGIN-001"],
+        "tool_names": ["eeglab_project_plan", "eeglab_protocol_export"],
+        "resource_uri": "eeglab://official/topic-index.md",
+        "url": "https://eeglab.org/tutorials/contribute/design_plugin.html",
+        "notes": "Plugin authoring is indexed as contributing guidance, not as a data-analysis execution workflow.",
+    },
+    "relica_reliability": {
+        "title": "RELICA ICA reliability and bootstrap review",
+        "support_level": "indexed_only",
+        "claim_ids": ["EEGLAB-RELICA-001", "EEGLAB-ICA-001", "EEGLAB-PLUGIN-001"],
+        "tool_names": ["eeglab_plugin_check", "eeglab_method_preflight", "eeglab_protocol_export"],
+        "resource_uri": "eeglab://official/plugin-matrix.md",
+        "url": "https://eeglab.org/plugins/relica/",
+        "notes": "RELICA is indexed as ICA-reliability guidance; bootstrap compute remains plugin-dependent and outside local execution support.",
+    },
+    "viewprops_review": {
+        "title": "Viewprops component and channel inspection",
+        "support_level": "indexed_only",
+        "claim_ids": ["EEGLAB-VIEWPROPS-001", "EEGLAB-ICLABEL-001", "EEGLAB-ICA-001"],
+        "tool_names": ["eeglab_plugin_check", "eeglab_method_preflight", "eeglab_protocol_export"],
+        "resource_uri": "eeglab://official/plugin-matrix.md",
+        "url": "https://eeglab.org/plugins/viewprops/",
+        "notes": "Viewprops is an ICLabel-aware inspection aid and remains guidance-only without a dedicated MCP execution tool.",
+    },
+    "get_chanlocs_digitization": {
+        "title": "get_chanlocs 3-D electrode digitization",
+        "support_level": "indexed_only",
+        "claim_ids": ["EEGLAB-GETCHANLOCS-001", "EEGLAB-CHANLOC-001"],
+        "tool_names": ["eeglab_edit_channels", "eeglab_plugin_check", "eeglab_method_preflight"],
+        "resource_uri": "eeglab://official/plugin-matrix.md",
+        "url": "https://eeglab.org/plugins/get_chanlocs/",
+        "notes": "get_chanlocs is a channel-location digitization aid; the MCP can only audit prerequisite metadata and channel-location repair plans.",
+    },
+    "roiconnect_source_connectivity": {
+        "title": "ROIconnect source-level ROI connectivity",
+        "support_level": "indexed_only",
+        "claim_ids": ["EEGLAB-ROICONNECT-001", "EEGLAB-DIPFIT-001", "EEGLAB-SPECTRAL-001"],
+        "tool_names": [
+            "eeglab_source_localization",
+            "eeglab_connectivity",
+            "eeglab_plugin_check",
+            "eeglab_method_preflight",
+        ],
+        "resource_uri": "eeglab://official/plugin-matrix.md",
+        "url": "https://eeglab.org/plugins/roiconnect/",
+        "notes": "ROIconnect is a source-level ROI connectivity topic; local MCP support is guidance-only and depends on source model and atlas metadata.",
+    },
+    "eegstats_metrics": {
+        "title": "EEGstats band power, alpha peak, and alpha asymmetry",
+        "support_level": "indexed_only",
+        "claim_ids": ["EEGLAB-EEGSTATS-001", "EEGLAB-SPECTRAL-001", "EEGLAB-STUDY-001"],
+        "tool_names": ["eeglab_spectral", "eeglab_project_plan", "eeglab_plugin_check", "eeglab_method_preflight"],
+        "resource_uri": "eeglab://official/plugin-matrix.md",
+        "url": "https://eeglab.org/plugins/eegstats/",
+        "notes": "EEGstats is a spectral/statistics plugin for band power and alpha metrics; the MCP indexes it for planning and reporting only.",
     },
     "bids_hed_reporting": {
         "title": "BIDS/HED metadata and research reporting",
@@ -778,6 +901,46 @@ OFFICIAL_PLUGIN_MATRIX: dict[str, dict[str, Any]] = {
         "dependent_profiles": ["hed_event_annotation", "bids_metadata"],
         "url": "https://github.com/sccn/HEDTools",
         "next_step_if_missing": "Use events.json or a validated lab codebook until HEDTools/HED schema support is available and recorded.",
+    },
+    "RELICA": {
+        "support_level": "indexed_only",
+        "functions": ["pop_relica", "relica", "eegplugin_relica"],
+        "claim_ids": ["EEGLAB-RELICA-001", "EEGLAB-ICA-001", "EEGLAB-PLUGIN-001"],
+        "dependent_profiles": ["relica_reliability", "run_ica", "nsg_remote"],
+        "url": "https://eeglab.org/plugins/relica/",
+        "next_step_if_missing": "Install RELICA and confirm ICA/bootstrap settings before claiming ICA reliability analysis support.",
+    },
+    "Viewprops": {
+        "support_level": "indexed_only",
+        "functions": ["pop_viewprops", "pop_prop_extended", "viewprops"],
+        "claim_ids": ["EEGLAB-VIEWPROPS-001", "EEGLAB-ICLABEL-001"],
+        "dependent_profiles": ["viewprops_review", "iclabel"],
+        "url": "https://eeglab.org/plugins/viewprops/",
+        "next_step_if_missing": "Install Viewprops alongside ICLabel before component-review claims.",
+    },
+    "get_chanlocs": {
+        "support_level": "indexed_only",
+        "functions": ["eegplugin_getchanlocs", "get_chanlocs"],
+        "claim_ids": ["EEGLAB-GETCHANLOCS-001", "EEGLAB-CHANLOC-001"],
+        "dependent_profiles": ["get_chanlocs_digitization", "channel_locations"],
+        "url": "https://eeglab.org/plugins/get_chanlocs/",
+        "next_step_if_missing": "Install get_chanlocs and ensure head images/fiducials exist before channel-digitization claims.",
+    },
+    "ROIconnect": {
+        "support_level": "indexed_only",
+        "functions": ["pop_roi_activity", "pop_roi_connect", "roiconnect"],
+        "claim_ids": ["EEGLAB-ROICONNECT-001", "EEGLAB-DIPFIT-001", "EEGLAB-SPECTRAL-001"],
+        "dependent_profiles": ["roiconnect_source_connectivity", "source", "connectivity"],
+        "url": "https://eeglab.org/plugins/roiconnect/",
+        "next_step_if_missing": "Install ROIconnect and document source model, atlas, and connectivity metric before ROI connectivity claims.",
+    },
+    "EEGstats": {
+        "support_level": "indexed_only",
+        "functions": ["pop_eegstats", "eegstats", "eegplugin_eegstats"],
+        "claim_ids": ["EEGLAB-EEGSTATS-001", "EEGLAB-SPECTRAL-001", "EEGLAB-STUDY-001"],
+        "dependent_profiles": ["eegstats_metrics", "spectral", "study_precompute"],
+        "url": "https://eeglab.org/plugins/eegstats/",
+        "next_step_if_missing": "Install EEGstats and record frequency bands, channels, and STUDY scope before spectral-statistics claims.",
     },
     "firfilt": {
         "support_level": "gated_guidance",
@@ -909,6 +1072,11 @@ REPORT_FIELD_MATRIX: dict[str, list[str]] = {
         "study_design_variables_levels_alpha_correction",
         "external_export_format_and_metadata_mapping",
         "limo_or_sift_model_if_used",
+        "relica_bootstrap_settings_and_ica_reliability",
+        "viewprops_component_set_and_classifier",
+        "get_chanlocs_scan_fiducials_and_head_image",
+        "roiconnect_roi_atlas_source_model_and_connectivity_metric",
+        "eegstats_band_power_alpha_peak_and_asymmetry_settings",
     ],
     "outputs_and_limits": [
         "output_paths",
@@ -2099,6 +2267,209 @@ METHOD_PROFILES: dict[str, dict[str, Any]] = {
             "Do not execute remote NSG jobs through this local MCP unless a dedicated secure integration is implemented."
         ],
     },
+    "plugin_development": {
+        "aliases": [
+            "plugin_development",
+            "design_plugin",
+            "eegplugin",
+            "eegplugin_authoring",
+            "extension_authoring",
+        ],
+        "tool_names": [],
+        "source_claim_ids": ["EEGLAB-PLUGIN-DEV-001", "EEGLAB-PLUGIN-001"],
+        "requirements": [
+            {
+                "id": "plugin_goal_defined",
+                "severity": "critical",
+                "check": "plugin_goal_defined",
+                "text": "The plugin goal, target user operation, and intended EEGLAB integration point must be defined.",
+            },
+            {
+                "id": "eeglab_function_family_recorded",
+                "severity": "critical",
+                "check": "eeglab_function_family_recorded",
+                "text": "The intended pop_/eeg_/low-level function family and GUI/command-line boundary must be recorded.",
+            },
+            {
+                "id": "validation_plan_recorded",
+                "severity": "advisory",
+                "check": "validation_plan_recorded",
+                "text": "A plugin validation, sample-data, and documentation plan should be recorded before claiming research support.",
+            },
+        ],
+        "not_recommended": [
+            "Do not treat plugin authoring guidance as support for executing a new analysis plugin through this MCP."
+        ],
+    },
+    "relica_reliability": {
+        "aliases": ["relica", "relica_reliability", "ica_reliability", "bootstrap_ica"],
+        "tool_names": [],
+        "source_claim_ids": ["EEGLAB-RELICA-001", "EEGLAB-ICA-001", "EEGLAB-PLUGIN-001"],
+        "requirements": [
+            {
+                "id": "plugin_relica_available",
+                "severity": "critical",
+                "check": "plugin_relica_available",
+                "text": "RELICA plugin/functions must be available before ICA reliability claims.",
+            },
+            {
+                "id": "has_ica",
+                "severity": "critical",
+                "check": "has_ica",
+                "text": "A subject-level ICA decomposition must exist before RELICA reliability review.",
+            },
+            {
+                "id": "bootstrap_settings_recorded",
+                "severity": "critical",
+                "check": "bootstrap_settings_recorded",
+                "text": "Bootstrap/resampling settings, number of decompositions, and compute strategy must be recorded.",
+            },
+            {
+                "id": "component_reviewed",
+                "severity": "advisory",
+                "check": "component_reviewed",
+                "text": "Components and reliability summaries should be reviewed before interpretation.",
+            },
+        ],
+        "not_recommended": [
+            "Do not claim RELICA reliability support unless plugin availability, ICA state, and bootstrap settings are explicit."
+        ],
+    },
+    "viewprops_review": {
+        "aliases": ["viewprops", "pop_viewprops", "component_properties", "component_review_view"],
+        "tool_names": [],
+        "source_claim_ids": ["EEGLAB-VIEWPROPS-001", "EEGLAB-ICLABEL-001", "EEGLAB-ICA-001"],
+        "requirements": [
+            {
+                "id": "plugin_viewprops_available",
+                "severity": "critical",
+                "check": "plugin_viewprops_available",
+                "text": "Viewprops plugin/functions must be available for Viewprops-specific review claims.",
+            },
+            {
+                "id": "has_ica",
+                "severity": "critical",
+                "check": "has_ica",
+                "text": "ICA weights must exist before component-property review.",
+            },
+            {
+                "id": "component_reviewed",
+                "severity": "advisory",
+                "check": "component_reviewed",
+                "text": "The reviewed component set and classifier/source evidence should be documented.",
+            },
+        ],
+        "not_recommended": [
+            "Do not substitute Viewprops availability for an ICA/ICLabel/component-removal review policy."
+        ],
+    },
+    "get_chanlocs_digitization": {
+        "aliases": [
+            "get_chanlocs",
+            "get_chanlocs_digitization",
+            "electrode_digitization",
+            "head_image_chanlocs",
+        ],
+        "tool_names": [],
+        "source_claim_ids": ["EEGLAB-GETCHANLOCS-001", "EEGLAB-CHANLOC-001"],
+        "requirements": [
+            {
+                "id": "plugin_get_chanlocs_available",
+                "severity": "critical",
+                "check": "plugin_get_chanlocs_available",
+                "text": "get_chanlocs plugin/functions must be available before digitization claims.",
+            },
+            {
+                "id": "head_image_or_digitization_source_recorded",
+                "severity": "critical",
+                "check": "head_image_or_digitization_source_recorded",
+                "text": "3-D head images, electrode photos, or digitization source files must be recorded.",
+            },
+            {
+                "id": "fiducials_recorded",
+                "severity": "critical",
+                "check": "fiducials_recorded",
+                "text": "Fiducials and coordinate/reference assumptions must be recorded before channel-location repair claims.",
+            },
+            {
+                "id": "channel_location_repair_planned",
+                "severity": "advisory",
+                "check": "channel_location_repair_planned",
+                "text": "A plan for writing/reviewing EEG.chanlocs should be documented.",
+            },
+        ],
+        "not_recommended": [
+            "Do not claim source/topography readiness from get_chanlocs until channel coordinates are reviewed in EEG.chanlocs."
+        ],
+    },
+    "roiconnect_source_connectivity": {
+        "aliases": ["roiconnect", "roi_connectivity", "source_roi_connectivity", "roi_connect"],
+        "tool_names": [],
+        "source_claim_ids": ["EEGLAB-ROICONNECT-001", "EEGLAB-DIPFIT-001", "EEGLAB-SPECTRAL-001"],
+        "requirements": [
+            {
+                "id": "plugin_roiconnect_available",
+                "severity": "critical",
+                "check": "plugin_roiconnect_available",
+                "text": "ROIconnect plugin/functions must be available before ROIconnect-specific claims.",
+            },
+            {
+                "id": "source_model_available",
+                "severity": "critical",
+                "check": "source_model_available",
+                "text": "A source model or source-level ROI activity representation must be available.",
+            },
+            {
+                "id": "roi_atlas_recorded",
+                "severity": "critical",
+                "check": "roi_atlas_recorded",
+                "text": "ROI atlas/parcellation and region selection must be recorded.",
+            },
+            {
+                "id": "connectivity_metric_recorded",
+                "severity": "critical",
+                "check": "connectivity_metric_recorded",
+                "text": "Connectivity metric, frequency/time window, and statistical interpretation limits must be recorded.",
+            },
+        ],
+        "not_recommended": [
+            "Do not interpret ROIconnect outputs as anatomical connectivity without source-model, atlas, and statistics validation."
+        ],
+    },
+    "eegstats_metrics": {
+        "aliases": ["eegstats", "eegstats_metrics", "band_power_stats", "alpha_peak", "alpha_asymmetry"],
+        "tool_names": [],
+        "source_claim_ids": ["EEGLAB-EEGSTATS-001", "EEGLAB-SPECTRAL-001", "EEGLAB-STUDY-001"],
+        "requirements": [
+            {
+                "id": "plugin_eegstats_available",
+                "severity": "critical",
+                "check": "plugin_eegstats_available",
+                "text": "EEGstats plugin/functions must be available before EEGstats-specific claims.",
+            },
+            {
+                "id": "frequency_settings_recorded",
+                "severity": "critical",
+                "check": "frequency_settings_recorded",
+                "text": "Band definitions, alpha-peak search range, or frequency settings must be recorded.",
+            },
+            {
+                "id": "channels_recorded",
+                "severity": "critical",
+                "check": "channels_recorded",
+                "text": "Channels, ROIs, or STUDY component sets must be recorded for band-power/asymmetry metrics.",
+            },
+            {
+                "id": "artifact_policy_recorded",
+                "severity": "advisory",
+                "check": "artifact_policy_recorded",
+                "text": "Artifact policy and cleaned-data scope should be recorded before interpreting summary metrics.",
+            },
+        ],
+        "not_recommended": [
+            "Do not claim EEGstats results through this MCP unless plugin availability and metric settings are documented."
+        ],
+    },
     "pipeline": {
         "aliases": ["pipeline", "eeglab_pipeline"],
         "tool_names": ["eeglab_pipeline"],
@@ -2595,6 +2966,16 @@ def _check_requirement(check: str, context: dict[str, Any]) -> bool:
         return _plugins_include(context, "amica", "runamica15", "pop_runamica")
     if check == "plugin_nsg_available":
         return _plugins_include(context, "nsgportal", "pop_nsg", "nsgportal")
+    if check == "plugin_relica_available":
+        return _plugins_include(context, "relica", "pop_relica", "eegplugin_relica")
+    if check == "plugin_viewprops_available":
+        return _plugins_include(context, "viewprops", "pop_viewprops", "pop_prop_extended")
+    if check == "plugin_get_chanlocs_available":
+        return _plugins_include(context, "get_chanlocs", "eegplugin_getchanlocs")
+    if check == "plugin_roiconnect_available":
+        return _plugins_include(context, "roiconnect", "pop_roi_connect", "pop_roi_activity")
+    if check == "plugin_eegstats_available":
+        return _plugins_include(context, "eegstats", "pop_eegstats", "eegplugin_eegstats")
     if check == "statistical_design_defined":
         return _ctx_truthy(
             context,
@@ -2616,6 +2997,59 @@ def _check_requirement(check: str, context: dict[str, Any]) -> bool:
             "validation",
             "whiteness_test",
             "stability_test",
+        )
+    if check == "bootstrap_settings_recorded":
+        return _ctx_truthy(
+            context,
+            "bootstrap_settings_recorded",
+            "bootstrap",
+            "bootstrap_samples",
+            "n_bootstrap",
+            "reliability_settings",
+        )
+    if check == "plugin_goal_defined":
+        return _ctx_truthy(context, "plugin_goal_defined", "plugin_goal", "extension_goal", "user_story")
+    if check == "eeglab_function_family_recorded":
+        return _ctx_truthy(
+            context,
+            "eeglab_function_family_recorded",
+            "function_family",
+            "gui_boundary",
+            "command_line_boundary",
+            "pop_function",
+        )
+    if check == "validation_plan_recorded":
+        return _ctx_truthy(
+            context,
+            "validation_plan_recorded",
+            "validation_plan",
+            "sample_data_plan",
+            "documentation_plan",
+            "test_plan",
+        )
+    if check == "head_image_or_digitization_source_recorded":
+        return _ctx_truthy(
+            context,
+            "head_image_or_digitization_source_recorded",
+            "head_image",
+            "digitization_file",
+            "fiducial_file",
+            "electrode_photo",
+        )
+    if check == "fiducials_recorded":
+        return _ctx_truthy(context, "fiducials_recorded", "fiducials", "nasion", "lpa", "rpa")
+    if check == "source_model_available":
+        return _ctx_truthy(context, "source_model_available", "source_model", "dipfit", "source_solution")
+    if check == "roi_atlas_recorded":
+        return _ctx_truthy(context, "roi_atlas_recorded", "roi_atlas", "atlas", "parcellation")
+    if check == "connectivity_metric_recorded":
+        return _ctx_truthy(
+            context,
+            "connectivity_metric_recorded",
+            "connectivity_metric",
+            "roi_connectivity_metric",
+            "roi_metric",
+            "method",
         )
     if check == "software_versions_recorded":
         return _ctx_truthy(

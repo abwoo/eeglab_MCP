@@ -284,6 +284,58 @@ AMICA is indexed and plugin-checkable, but this MCP does not expose a dedicated 
 
 Do not run AMICA through generic ICA assumptions unless an AMICA-specific workflow and eval coverage are added.
 
+## RELICA Guidance
+
+RELICA is indexed and plugin-checkable, but this MCP does not expose a dedicated RELICA execution workflow by default.
+
+1. Use `eeglab_plugin_check` for RELICA.
+2. Use `eeglab_method_preflight` for `relica_reliability` with existing ICA state, RELICA plugin availability, bootstrap settings, compute strategy, and component review policy.
+3. Use `eeglab_protocol_export` to record reliability-analysis blockers and why no local RELICA execution claim is made.
+
+Do not claim ICA reliability analysis unless RELICA availability, ICA state, and bootstrap/review settings are explicit.
+
+## Viewprops Guidance
+
+Viewprops is indexed and plugin-checkable as a component/channel review aid. It is not a substitute for ICA or ICLabel review decisions.
+
+1. Use `eeglab_plugin_check` for Viewprops and ICLabel.
+2. Use `eeglab_method_preflight` for `viewprops_review` with ICA state, reviewed component set, classifier/source evidence, and reporting plan.
+3. Use `eeglab_protocol_export` when component decisions need a reproducible review record.
+
+Do not remove components merely because Viewprops is available; component-removal gates still require explicit thresholds/rationale and derivative output.
+
+## get_chanlocs Guidance
+
+get_chanlocs is indexed and plugin-checkable for channel-location digitization from head images or digitization sources.
+
+1. Use `eeglab_plugin_check` for get_chanlocs.
+2. Use `eeglab_method_preflight` for `get_chanlocs_digitization` with head image/digitization source, fiducials, coordinate assumptions, and channel-location repair plan.
+3. Use `eeglab_protocol_export` to document why topography/source claims remain blocked until `EEG.chanlocs` are reviewed.
+
+Do not treat digitization plans as completed channel-location coverage until the resulting coordinates are loaded and inspected.
+
+## ROIconnect Guidance
+
+ROIconnect is indexed and plugin-checkable for source-level ROI connectivity, but this MCP does not expose a dedicated ROIconnect execution workflow by default.
+
+1. Use `eeglab_project_plan` for source/connectivity goals and inference limits.
+2. Use `eeglab_plugin_check` for ROIconnect.
+3. Use `eeglab_method_preflight` for `roiconnect_source_connectivity` with source model, ROI atlas, connectivity metric, frequency/time window, and statistics/correction policy.
+4. Use `eeglab_protocol_export` to document guidance-only status and blockers.
+
+Do not interpret ROIconnect outputs as anatomical connectivity without source-model, atlas, and statistical validation.
+
+## EEGstats Guidance
+
+EEGstats is indexed and plugin-checkable for band power, alpha peak frequency, and alpha asymmetry metrics across datasets or STUDYs.
+
+1. Use `eeglab_project_plan` for metric scope, dataset/STUDY structure, and intended inference.
+2. Use `eeglab_plugin_check` for EEGstats.
+3. Use `eeglab_method_preflight` for `eegstats_metrics` with band/frequency definitions, channels/ROIs or STUDY scope, artifact policy, and report fields.
+4. Use `eeglab_protocol_export` to record parameters and limitations.
+
+Do not claim EEGstats-derived results unless plugin availability, metric definitions, and artifact/data scope are documented.
+
 ## SIFT Guidance
 
 SIFT/groupSIFT are indexed and plugin-checkable, but source/MVAR connectivity remains guidance-only by default.
@@ -304,6 +356,16 @@ NSGportal is indexed and plugin-checkable, but remote/HPC execution is outside t
 3. Use `eeglab_protocol_export` for the remote-job provenance plan.
 
 Do not execute or claim NSG remote compute support unless a dedicated secure integration is added.
+
+## Plugin Development Guidance
+
+EEGLAB plugin development is indexed from official contribution tutorials. It is engineering guidance, not a data-analysis workflow.
+
+1. Use `eeglab_project_plan` to scope the plugin goal, target user operation, and expected research workflow.
+2. Use `eeglab_method_preflight` for `plugin_development` with function family, GUI/command-line boundary, and validation plan.
+3. Use `eeglab_protocol_export` to document the proposed extension and why no current MCP analysis support is implied.
+
+Do not treat a planned plugin as an official executable analysis path until implementation, validation, documentation, and eval coverage exist.
 
 ## Source Localization
 

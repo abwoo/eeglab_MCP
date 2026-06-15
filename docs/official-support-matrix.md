@@ -19,7 +19,7 @@ This matrix is the decision surface for MCP support. A topic is "covered" when i
 
 ## Guidance-Only or Indexed Families
 
-- BIDS export, plugin-dependent import/export formats, HEDTools event annotation, history-derived batch scripting, scripted event modification, STUDY precompute, STUDY ICA clustering, LIMO, SIFT, groupSIFT, NFT, NSGportal, AMICA, Zapline-Plus, and other advanced plugins are indexed through the plugin matrix and method map.
+- BIDS export, plugin-dependent import/export formats, HEDTools event annotation, history-derived batch scripting, scripted event modification, STUDY precompute, STUDY ICA clustering, LIMO, SIFT, groupSIFT, NFT, NSGportal, AMICA, RELICA, Viewprops, get_chanlocs, ROIconnect, EEGstats, Zapline-Plus, plugin development, and other advanced plugins are indexed through the plugin matrix and method map.
 - The MCP may check functions and write a plan, but it must not claim analysis support unless an explicit tool/workflow and eval coverage exist.
 - BIDS/HED sidecars are treated as provenance evidence. Missing sidecars block condition-level event semantics unless a validated lab codebook exists.
 

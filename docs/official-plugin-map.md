@@ -61,13 +61,22 @@ Support levels:
 
 - `AMICA`: `indexed_only`; probes `runamica15`, `pop_runamica`; profile `amica_ica`; requires plugin availability, rank/PCA/reference review, compute strategy, and derivative output; no default execution promise.
 - `Picard`: `gated_guidance`; probes `picard`, `runica_nsg`; fallback must record the actual ICA algorithm used.
+- `RELICA`: `indexed_only`; probes `pop_relica`, `relica`, `eegplugin_relica`; profile `relica_reliability`; requires existing ICA, RELICA availability, bootstrap settings, and component review.
+- `Viewprops`: `indexed_only`; probes `pop_viewprops`, `pop_prop_extended`, `viewprops`; profile `viewprops_review`; supports component/channel review after ICA/ICLabel but is not a removal rule by itself.
 - `NSGportal`: `indexed_only`; probes `pop_nsg`, `nsgportal`; profile `nsg_remote`; remote NSG execution is outside the local-first MCP surface unless a dedicated secure integration is added.
 
-## LIMO / SIFT / NFT
+## LIMO / SIFT / NFT / ROI / Spectral Stats
 
 - `LIMO`: `indexed_only`; probes `pop_limo`, `limo_eeg`, `limo_random_select`; requires model/design/correction policy before claims.
 - `SIFT`: `indexed_only`; probes `eegplugin_sift`, `pop_est_fitMVAR`, `pop_est_mvarConnectivity`; requires MVAR/source model validation and statistics policy.
 - `groupSIFT`: `indexed_only`; probes `eegplugin_groupSIFT`; group connectivity remains guidance-only.
 - `NFT`: `indexed_only`; probes `eegplugin_nft`, `NFT`; custom head-model generation remains guidance-only unless installed and documented.
+- `get_chanlocs`: `indexed_only`; probes `eegplugin_getchanlocs`, `get_chanlocs`; profile `get_chanlocs_digitization`; requires head images/digitization source, fiducials, and channel-location repair review.
+- `ROIconnect`: `indexed_only`; probes `pop_roi_activity`, `pop_roi_connect`, `roiconnect`; profile `roiconnect_source_connectivity`; requires source model, ROI atlas, connectivity metric, and interpretation limits.
+- `EEGstats`: `indexed_only`; probes `pop_eegstats`, `eegstats`, `eegplugin_eegstats`; profile `eegstats_metrics`; requires band/frequency settings, channels/ROIs or STUDY scope, and artifact policy.
+
+## Plugin Development
+
+- `plugin_development`: `indexed_only`; official tutorial guidance for writing EEGLAB functions, GUIs, and `eegplugin_` extensions; requires a plugin goal, EEGLAB function family, interface boundary, and validation plan before any research-support claim.
 
 `eeglab_plugin_check` returns this matrix as `outputs.plugin_matrix` with availability, `support_level`, claim IDs, dependent profiles, functions checked, found functions, and next steps.
