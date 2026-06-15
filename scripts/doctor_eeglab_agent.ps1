@@ -42,6 +42,10 @@ try {
 import asyncio
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
+from eeglab_mcp_server.tool_registry import (
+    LEGACY_LOW_LEVEL_TOOL_NAMES,
+    RESEARCH_WORKFLOW_TOOL_NAMES,
+)
 
 async def main():
     params = StdioServerParameters(command="python", args=["-B", "eeglab_mcp_server/server.py"])
@@ -52,30 +56,20 @@ async def main():
             prompts = await session.list_prompts()
             resources = await session.list_resources()
             tool_names = {tool.name for tool in tools.tools}
-            legacy = {
-                "eeglab_init", "eeglab_load_data", "eeglab_save_data", "eeglab_import_bids",
-                "eeglab_info", "eeglab_history", "eeglab_filter", "eeglab_resample",
-                "eeglab_reref", "eeglab_select_channels", "eeglab_interpolate_channels",
-                "eeglab_edit_channels", "eeglab_clean_line_noise", "eeglab_clean_rawdata",
-                "eeglab_run_ica", "eeglab_classify_ica", "eeglab_flag_components",
-                "eeglab_remove_components", "eeglab_reject_epochs", "eeglab_get_events",
-                "eeglab_epoch", "eeglab_erp_analysis", "eeglab_sort_epochs",
-                "eeglab_average_erp", "eeglab_spectral", "eeglab_timefreq",
-                "eeglab_connectivity", "eeglab_topoplot", "eeglab_plot_erp",
-                "eeglab_plot_timefreq", "eeglab_plot_components", "eeglab_source_localization",
-                "eeglab_source_settings", "eeglab_study_create", "eeglab_study_design",
-                "eeglab_study_statistics", "eeglab_pipeline", "eeglab_qc_report",
-                "eeglab_erp_light_workflow", "eeglab_workflow_recommend"
-            }
-            research = {"eeglab_project_plan", "eeglab_protocol_export", "eeglab_plugin_check", "eeglab_event_semantics_audit"}
             prompt_names = {prompt.name for prompt in prompts.prompts}
             resource_uris = {str(resource.uri) for resource in resources.resources}
             print(f"tool_count={len(tools.tools)}")
-            print(f"legacy_tools_present={legacy.issubset(tool_names)}")
-            print(f"research_tools_present={research.issubset(tool_names)}")
+            print(f"legacy_tools_present={LEGACY_LOW_LEVEL_TOOL_NAMES.issubset(tool_names)}")
+            print(f"research_tools_present={RESEARCH_WORKFLOW_TOOL_NAMES.issubset(tool_names)}")
             print(f"prompt_count={len(prompts.prompts)}")
             print(f"resource_count={len(resources.resources)}")
-            print(f"official_resource_present={'eeglab://official/references.md' in resource_uris}")
+            official_resources = {
+                "eeglab://official/references.md",
+                "eeglab://official/method-map.md",
+                "eeglab://official/gate-policy.md",
+                "eeglab://official/plugin-map.md",
+            }
+            print(f"official_resource_present={official_resources.issubset(resource_uris)}")
 
 asyncio.run(main())
 '@

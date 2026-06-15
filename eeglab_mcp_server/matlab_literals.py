@@ -10,12 +10,7 @@ from typing import Any
 def _matlab_text(value: Any) -> str:
     """Return text safe to place inside an already-quoted MATLAB char literal."""
     text = "" if value is None else str(value)
-    return (
-        text.replace("\\", "/")
-        .replace("'", "''")
-        .replace("\r", "\\r")
-        .replace("\n", "\\n")
-    )
+    return text.replace("\\", "/").replace("'", "''").replace("\r", "\\r").replace("\n", "\\n")
 
 
 def matlab_string(value: Any) -> str:

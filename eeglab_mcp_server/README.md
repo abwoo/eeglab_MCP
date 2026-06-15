@@ -1,6 +1,6 @@
 # EEGLAB MCP Server
 
-Local-first MCP stdio server for MATLAB EEGLAB EEG research workflows. It keeps the original 40 stable `eeglab_*` tools for imported recording inspection, preprocessing, ICA, ERP/time-frequency analysis, visualization, source localization, STUDY workflows, and pipelines, and adds research planning, protocol export, plugin check, and event-semantics audit tools. The high-level tools are designed as a project system: recording/provenance audit, adaptive planning, QC gates, analysis branch selection, reporting, and controlled workflow evolution.
+Local-first MCP stdio server for MATLAB EEGLAB EEG research workflows. It exposes 37 legacy low-level `eeglab_*` tools for imported recording inspection, preprocessing, ICA, ERP/time-frequency analysis, visualization, source localization, STUDY workflows, and pipelines, plus 8 research workflow tools for planning, official method preflight, protocol export, plugin checks, QC, and event-semantics audit. The high-level tools are designed as a project system: recording/provenance audit, adaptive planning, official gates, QC gates, analysis branch selection, reporting, and controlled workflow evolution.
 
 The repository is packaged as a standardized MCP + skill workflow:
 
@@ -121,7 +121,7 @@ Examples include `unknown_tool`, `missing_required_arguments`, `invalid_argument
 
 Required-argument, type, enum, array-length, cross-field contract, and analysis-window checks are handled inside `call_tool` so MCP clients receive the same JSON error shape instead of SDK-generated plain-text validation errors. Public tool schemas are intentionally description-oriented; the server keeps stricter internal schemas for validation. Contract checks catch dependent or mutually exclusive arguments before MATLAB runs, for example bandpass filters without valid low/high cutoffs, channel rereference without `ref_channel`, unsafe light-workflow output filenames, and workflow windows outside the requested epoch.
 
-High-level workflow tools also declare MCP `outputSchema` and return `structuredContent` while preserving the same JSON inside text content for older clients.
+High-level workflow tools also declare MCP `outputSchema` and return `structuredContent` while preserving the same JSON inside text content for older clients. High-risk processing tools evaluate the local EEGLAB/SCCN official claim map before MATLAB execution; blocked gates return JSON error code `official_gate_blocked` unless the user supplies an explicit override reason.
 
 ## Research Workflow Tools
 
@@ -129,8 +129,9 @@ High-level workflow tools also declare MCP `outputSchema` and return `structured
 - `eeglab_workflow_recommend`: recommend non-destructive project phases, clarifying questions, conservative defaults, adaptive decision rules, QC gates, self-evolution hooks, and minimum report fields from research goal, analysis type, event labels, sampling rate, ICA state, data shape, project scale, and channel-location availability.
 - `eeglab_erp_light_workflow`: run a smoke-tested ERP chain: load, inspect, bandpass filter, epoch, baseline-correct, compute ERP summary, and save a processed copy. It refuses to overwrite the input dataset, requires `output_filename` to be a leaf `.set` filename inside `output_dir`, and reports both processed `.set` and `.fdt` paths.
 - `eeglab_project_plan`: build a research-grade project plan with blocking conditions, not-recommended actions, QC gates, quick modes, and official reference anchors.
+- `eeglab_method_preflight`: evaluate official EEGLAB/SCCN method gates before high-risk processing without running MATLAB. It returns `gate_status`, missing requirements, `safe_next_step`, and `source_claim_ids`.
 - `eeglab_event_semantics_audit`: classify markers as condition triggers, boundaries, impedance/QC annotations, segment markers, excluded labels, or candidate triggers before epoching.
-- `eeglab_plugin_check`: probe clean_rawdata, ICLabel, DIPFIT, BIDS, LIMO, and SIFT-related functions in the local MATLAB/EEGLAB path.
+- `eeglab_plugin_check`: probe the official plugin matrix in the local MATLAB/EEGLAB path, including clean_rawdata, ICLabel, DIPFIT, EEG-BIDS, BIOSIG, File-IO, MFF-matlab-io, NWB-io, BVA-io, HEDTools, firfilt, CleanLine, Zapline-Plus, AMICA, Picard, LIMO, SIFT, groupSIFT, NFT, and NSGportal. The response includes support level, claim IDs, dependent profiles, functions checked, and next steps for missing plugins.
 - `eeglab_protocol_export`: render Markdown/JSON protocol text and optionally write it to a local file.
 
 ## MCP Prompts And Resources
@@ -156,7 +157,27 @@ Resources:
 - `eeglab://references/workflows.md`
 - `eeglab://references/tools.md`
 - `eeglab://references/setup.md`
+- `eeglab://references/official-method-map.md`
+- `eeglab://references/gate-policy.md`
+- `eeglab://references/method-gates.md`
+- `eeglab://references/acquisition-to-derivatives.md`
+- `eeglab://references/event-semantics.md`
+- `eeglab://references/preprocessing-decision-tree.md`
+- `eeglab://references/ica-iclabel-policy.md`
+- `eeglab://references/bids-study-policy.md`
+- `eeglab://references/source-policy.md`
+- `eeglab://references/report-protocol-templates.md`
+- `eeglab://references/statistics-reporting.md`
 - `eeglab://official/references.md`
+- `eeglab://official/topic-index.md`
+- `eeglab://official/support-matrix.md`
+- `eeglab://official/tool-support-matrix.md`
+- `eeglab://official/method-map.md`
+- `eeglab://official/gate-policy.md`
+- `eeglab://official/plugin-map.md`
+- `eeglab://official/plugin-matrix.md`
+- `eeglab://official/risk-matrix.md`
+- `eeglab://official/report-field-matrix.md`
 
 These are guidance surfaces only; they do not modify EEG data or MATLAB state.
 
@@ -169,9 +190,11 @@ python -B -m py_compile .\eeglab_mcp_server\server.py .\eeglab_mcp_server\schema
 python -c "import tomllib; tomllib.load(open('eeglab_mcp_server/pyproject.toml','rb')); print('pyproject ok')"
 python -m pip install -e .\eeglab_mcp_server
 python -B .\scripts\verify_framework.py
+python .\scripts\verify_official_alignment.py
+python .\scripts\verify_official_alignment.py --online
 ```
 
-The framework verification asserts the original 40 tools are still present, research tools are available, prompts/resources are exposed, config templates parse, skill/reference files contain research-standard terms, and no bundled EEG test data is present.
+The framework verification asserts the registry-defined 37 legacy low-level tools and 8 research workflow tools are present, prompts/resources are exposed, config templates parse, skill/reference files contain research-standard terms, and no bundled EEG test data is present. It also treats the 44 `evals.xml` entries as a machine-checkable workflow contract: required/forbidden tools, official gate assertions, source claim IDs, resources, and protocol report-field requirements must stay synchronized with the registry and official alignment map. Official-alignment verification checks claim/profile/tool/resource synchronization, support/plugin/report matrices, method-gate behavior, and, with `--online`, live official EEGLAB/SCCN/BIDS URLs.
 
 ## MCP Inspector
 
@@ -181,7 +204,7 @@ You can also inspect the stdio server with MCP Inspector:
 npx @modelcontextprotocol/inspector python .\eeglab_mcp_server\server.py
 ```
 
-Use Inspector to confirm `tools/list` includes the original 40 tools plus research planning tools, workflow tools expose `outputSchema`, and error paths return JSON text content.
+Use Inspector to confirm `tools/list` matches the registry-defined 45 exposed tools, workflow tools expose `outputSchema`, and error paths return JSON text content.
 
 MCP stdio smoke test:
 

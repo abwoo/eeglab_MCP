@@ -30,7 +30,12 @@ class Config:
 
 
 cfg = Config()
-DEBUG_ERRORS = os.environ.get("EEGLAB_MCP_DEBUG", "").lower() in {"1", "true", "yes", "on"}
+DEBUG_ERRORS = os.environ.get("EEGLAB_MCP_DEBUG", "").lower() in {
+    "1",
+    "true",
+    "yes",
+    "on",
+}
 
 
 def matlab_json_sanitize_code() -> str:
@@ -155,6 +160,16 @@ def _backend_details(mode: str, *, stdout: str = "", stderr: str = "", returncod
     return details
 
 
+def _best_effort_unlink(path: str) -> None:
+    """Remove a temporary file when possible without leaking cleanup noise to stdio."""
+    try:
+        os.unlink(path)
+    except FileNotFoundError:
+        return
+    except OSError:
+        return
+
+
 class MatlabBackend:
     """MATLAB backend supporting Engine API and CLI fallback."""
 
@@ -184,7 +199,7 @@ class MatlabBackend:
             if result.returncode == 0:
                 return "cli"
         except Exception:
-            pass
+            return "none"
 
         return "none"
 
@@ -291,10 +306,7 @@ fclose(fid);
                 "details": _backend_details("engine"),
             }
         finally:
-            try:
-                os.unlink(result_file)
-            except Exception:
-                pass
+            _best_effort_unlink(result_file)
 
     async def _execute_cli(self, code: str, project_path: str) -> dict[str, Any]:
         """Execute MATLAB code through CLI, persisting EEG state across calls."""
@@ -408,15 +420,8 @@ exit;
                 "details": _backend_details("cli"),
             }
         finally:
-            try:
-                os.unlink(script_path)
-            except Exception:
-                pass
-            try:
-                if os.path.exists(result_file):
-                    os.unlink(result_file)
-            except Exception:
-                pass
+            _best_effort_unlink(script_path)
+            _best_effort_unlink(result_file)
 
     def _save_eeg_state(self) -> str:
         """Generate MATLAB code to save EEG state in CLI mode."""

@@ -1,71 +1,1102 @@
 <evals>
-  <!-- These are task-level MCP evaluation prompts for model tool-use behavior, not an automated test runner. -->
-  <eval id="1">
+  <eval id="1" category="recording_qc">
     <question>Inspect a local EEGLAB .set dataset as a research recording: summarize source path, data shape, channel count, sampling rate, duration, channel-location coverage, event labels/counts, event latency range, processing-history availability, and whether ICA weights are present.</question>
     <expected>Call eeglab_init, eeglab_load_data, eeglab_info, eeglab_get_events, and eeglab_history or eeglab_qc_report; answer with recording/provenance metadata before analysis interpretation.</expected>
+    <required_tools>
+      <tool>eeglab_init</tool>
+      <tool>eeglab_load_data</tool>
+      <tool>eeglab_info</tool>
+      <tool>eeglab_history</tool>
+      <tool>eeglab_get_events</tool>
+      <tool>eeglab_qc_report</tool>
+    </required_tools>
+    <forbidden_tools />
+    <required_terms>
+      <term>provenance</term>
+    </required_terms>
+    <gate_assertions />
+    <resource_assertions />
+    <report_assertions />
   </eval>
-  <eval id="2">
+  <eval id="2" category="preprocessing">
     <question>Prepare an ERP preprocessing plan for target and standard events, starting from recording/event provenance, then run the minimum safe tool sequence on the loaded dataset.</question>
-    <expected>Use eeglab_info or eeglab_qc_report, eeglab_get_events, eeglab_filter, eeglab_clean_line_noise, eeglab_reref, eeglab_epoch, and eeglab_erp_analysis; report recording metadata, event counts, epoch/baseline windows, and filtering choices.</expected>
+    <expected>Use eeglab_info or eeglab_qc_report, eeglab_get_events, eeglab_event_semantics_audit, then eeglab_method_preflight for epoch and derivative processing before eeglab_filter, eeglab_clean_line_noise, eeglab_reref, eeglab_epoch, and eeglab_erp_analysis; report recording metadata, confirmed event semantics, event counts, epoch/baseline windows, filtering choices, gate status, and source_claim_ids.</expected>
+    <required_tools>
+      <tool>eeglab_filter</tool>
+      <tool>eeglab_reref</tool>
+      <tool>eeglab_clean_line_noise</tool>
+      <tool>eeglab_epoch</tool>
+      <tool>eeglab_erp_analysis</tool>
+      <tool>eeglab_erp_light_workflow</tool>
+      <tool>eeglab_event_semantics_audit</tool>
+      <tool>eeglab_method_preflight</tool>
+    </required_tools>
+    <forbidden_tools />
+    <required_terms>
+      <term>gate_status</term>
+      <term>source_claim_ids</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="derivative_processing" expected_status="blocked" missing_requirements="derivative_output_planned,parameters_recorded" claim_ids="EEGLAB-FILT-001,EEGLAB-REREF-001" />
+      <gate method="epoch" expected_status="blocked" missing_requirements="confirmed_condition_events,epoch_windows_recorded" claim_ids="EEGLAB-EVENT-001,EEGLAB-STRUCT-001" />
+    </gate_assertions>
+    <resource_assertions />
+    <report_assertions />
   </eval>
-  <eval id="3">
+  <eval id="3" category="preprocessing">
     <question>Run a resting-state spectral analysis for alpha and beta power after conservative cleanup.</question>
-    <expected>Use eeglab_filter, eeglab_clean_line_noise, eeglab_clean_rawdata, eeglab_reref, and eeglab_spectral; report frequency range and band power summary.</expected>
+    <expected>Start with quick_qc, then use eeglab_method_preflight for derivative_processing and clean_rawdata with continuous-data, plugin, threshold, raw-preservation, and derivative-output context before eeglab_filter, eeglab_clean_line_noise, eeglab_clean_rawdata, eeglab_reref, and eeglab_spectral; report frequency range, band power summary, gate status, and limitations.</expected>
+    <required_tools>
+      <tool>eeglab_filter</tool>
+      <tool>eeglab_reref</tool>
+      <tool>eeglab_clean_line_noise</tool>
+      <tool>eeglab_clean_rawdata</tool>
+      <tool>eeglab_spectral</tool>
+      <tool>eeglab_method_preflight</tool>
+    </required_tools>
+    <forbidden_tools />
+    <required_terms>
+      <term>gate_status</term>
+      <term>source_claim_ids</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="clean_rawdata" expected_status="blocked" missing_requirements="plugin_clean_rawdata_available,thresholds_recorded,derivative_output_planned" claim_ids="EEGLAB-ASR-001" />
+      <gate method="spectral" expected_status="blocked" missing_requirements="artifact_policy_recorded,channels_recorded" claim_ids="EEGLAB-SPECTRAL-001" />
+    </gate_assertions>
+    <resource_assertions />
+    <report_assertions />
   </eval>
-  <eval id="4">
+  <eval id="4" category="error_recovery">
     <question>The first load attempt fails because the path is missing. Recover and continue with a valid absolute path.</question>
     <expected>Observe the missing_required_arguments error, retry eeglab_load_data with filepath, then call eeglab_info.</expected>
+    <required_tools>
+      <tool>eeglab_load_data</tool>
+    </required_tools>
+    <forbidden_tools />
+    <required_terms>
+      <term>error_recovery</term>
+    </required_terms>
+    <gate_assertions />
+    <resource_assertions />
+    <report_assertions />
   </eval>
-  <eval id="5">
+  <eval id="5" category="artifact_ica">
     <question>Classify ICA components, decide which eye and muscle components should be removed, and save a processed copy.</question>
-    <expected>Call eeglab_run_ica if ICA is absent, then eeglab_classify_ica, eeglab_flag_components or eeglab_remove_components, and eeglab_save_data with a new output path.</expected>
+    <expected>Call eeglab_method_preflight for run_ica before eeglab_run_ica when ICA is absent, then eeglab_plugin_check and eeglab_method_preflight for iclabel/remove_components before eeglab_classify_ica, eeglab_flag_components or eeglab_remove_components, and eeglab_save_data with a new output path; report gate status, component-review rationale, and derivative output.</expected>
+    <required_tools>
+      <tool>eeglab_save_data</tool>
+      <tool>eeglab_run_ica</tool>
+      <tool>eeglab_classify_ica</tool>
+      <tool>eeglab_flag_components</tool>
+      <tool>eeglab_remove_components</tool>
+      <tool>eeglab_method_preflight</tool>
+    </required_tools>
+    <forbidden_tools />
+    <required_terms>
+      <term>gate_status</term>
+      <term>source_claim_ids</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="run_ica" expected_status="blocked" missing_requirements="continuous_data,rank_reference_reviewed,bad_channel_policy_defined" claim_ids="EEGLAB-ICA-001" />
+      <gate method="iclabel" expected_status="blocked" missing_requirements="has_ica,plugin_iclabel_available" claim_ids="EEGLAB-ICLABEL-001" />
+      <gate method="remove_components" expected_status="blocked" missing_requirements="component_reviewed,derivative_output_planned" claim_ids="EEGLAB-ICLABEL-001" />
+    </gate_assertions>
+    <resource_assertions />
+    <report_assertions />
   </eval>
-  <eval id="6">
+  <eval id="6" category="event_semantics">
     <question>Create an ERSP and ITC time-frequency result for channel Cz around a stimulus event and save a figure.</question>
-    <expected>Use eeglab_get_events, eeglab_epoch, eeglab_timefreq, and eeglab_plot_timefreq; include baseline, frequency range, and output path.</expected>
+    <expected>Use eeglab_get_events and eeglab_event_semantics_audit to confirm the stimulus is a condition trigger, then eeglab_method_preflight for epoch/timefreq before eeglab_epoch, eeglab_timefreq, and eeglab_plot_timefreq; include baseline, frequency range, cycles/settings, output path, source_claim_ids, and limitations.</expected>
+    <required_tools>
+      <tool>eeglab_get_events</tool>
+      <tool>eeglab_epoch</tool>
+      <tool>eeglab_timefreq</tool>
+      <tool>eeglab_plot_timefreq</tool>
+      <tool>eeglab_event_semantics_audit</tool>
+      <tool>eeglab_method_preflight</tool>
+    </required_tools>
+    <forbidden_tools />
+    <required_terms>
+      <term>gate_status</term>
+      <term>source_claim_ids</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="timefreq" expected_status="blocked" missing_requirements="confirmed_condition_events,baseline_recorded,frequency_settings_recorded" claim_ids="EEGLAB-TF-001,EEGLAB-EVENT-001" />
+    </gate_assertions>
+    <resource_assertions />
+    <report_assertions />
   </eval>
-  <eval id="7">
+  <eval id="7" category="visualization">
     <question>Generate a P300 topography around 300 ms after confirming the dataset has event-locked epochs.</question>
     <expected>Call eeglab_info, epoch if needed, then eeglab_topoplot with a 250-350 ms window or 300 ms point; report output_path.</expected>
+    <required_tools>
+      <tool>eeglab_topoplot</tool>
+    </required_tools>
+    <forbidden_tools />
+    <required_terms>
+      <term>visualization</term>
+    </required_terms>
+    <gate_assertions />
+    <resource_assertions />
+    <report_assertions />
   </eval>
-  <eval id="8">
+  <eval id="8" category="bids_study">
     <question>Build a STUDY from a BIDS directory and configure a condition design for group-level ERP statistics while preserving recording/provenance assumptions.</question>
-    <expected>Call eeglab_import_bids or eeglab_study_create, eeglab_study_design, and eeglab_study_statistics; report subjects, design levels, alpha, correction, and the required single-subject preprocessing/provenance assumptions.</expected>
+    <expected>Call eeglab_project_plan first, then staged eeglab_method_preflight calls for bids_import, study_create, study_design, and study_statistics before eeglab_import_bids, eeglab_study_create, eeglab_study_design, and eeglab_study_statistics; report BIDS sidecars, project structure, design levels, measure, alpha, correction, gate status, and preprocessing/provenance assumptions.</expected>
+    <required_tools>
+      <tool>eeglab_import_bids</tool>
+      <tool>eeglab_study_create</tool>
+      <tool>eeglab_study_design</tool>
+      <tool>eeglab_study_statistics</tool>
+      <tool>eeglab_method_preflight</tool>
+    </required_tools>
+    <forbidden_tools />
+    <required_terms>
+      <term>gate_status</term>
+      <term>source_claim_ids</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="bids_import" expected_status="blocked" missing_requirements="bids_or_sidecars_available,plugin_eegbids_available,bids_events_have_onset_duration" claim_ids="EEGLAB-BIDS-001,BIDS-EEG-001,BIDS-EVENTS-001" />
+      <gate method="study_create" expected_status="advisory" missing_requirements="single_subject_protocol_locked" claim_ids="EEGLAB-STUDY-001" />
+      <gate method="study_design" expected_status="advisory" missing_requirements="design_variables_defined,single_subject_protocol_locked" claim_ids="EEGLAB-STUDY-001" />
+      <gate method="study_statistics" expected_status="blocked" missing_requirements="design_variables_defined,study_measure_recorded,correction_policy_recorded" claim_ids="EEGLAB-STUDY-001" />
+    </gate_assertions>
+    <resource_assertions />
+    <report_assertions />
   </eval>
-  <eval id="9">
+  <eval id="9" category="source">
     <question>A user asks for source localization before ICA exists. Recover correctly.</question>
-    <expected>Call eeglab_source_localization, interpret the prerequisite error, then run eeglab_run_ica before retrying source localization.</expected>
+    <expected>Call eeglab_method_preflight with method source and the known missing ICA state; report official_gate_blocked and missing ICA/channel-location/DIPFIT/model prerequisites, then plan eeglab_run_ica only after its own preflight is satisfied instead of retrying source localization blindly.</expected>
+    <required_tools>
+      <tool>eeglab_run_ica</tool>
+      <tool>eeglab_source_localization</tool>
+      <tool>eeglab_source_settings</tool>
+      <tool>eeglab_method_preflight</tool>
+    </required_tools>
+    <forbidden_tools />
+    <required_terms>
+      <term>gate_status</term>
+      <term>limitations</term>
+      <term>source_claim_ids</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="source" expected_status="blocked" missing_requirements="has_ica,has_channel_locations,plugin_dipfit_available,head_model_defined" claim_ids="EEGLAB-DIPFIT-001,EEGLAB-CHANLOC-001" />
+    </gate_assertions>
+    <resource_assertions />
+    <report_assertions />
   </eval>
-  <eval id="10">
+  <eval id="10" category="pipeline">
     <question>Use the one-click ERP pipeline, then inspect the result and explain recording metadata, processing steps, outputs, and limitations without making clinical claims.</question>
-    <expected>Call eeglab_pipeline with pipeline_type erp, then eeglab_info, eeglab_qc_report, and eeglab_history; summarize recording/provenance fields, steps, output files, parameters, and limitations.</expected>
+    <expected>Call eeglab_method_preflight for pipeline and require raw preservation, derivative output, explicit default acceptance, and valid event semantics before eeglab_pipeline; after it runs, call eeglab_info, eeglab_qc_report, and eeglab_history, then summarize recording/provenance fields, steps, output files, parameters, official gate metadata, and limitations.</expected>
+    <required_tools>
+      <tool>eeglab_pipeline</tool>
+      <tool>eeglab_qc_report</tool>
+      <tool>eeglab_method_preflight</tool>
+    </required_tools>
+    <forbidden_tools />
+    <required_terms>
+      <term>gate_status</term>
+      <term>source_claim_ids</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="pipeline" expected_status="blocked" missing_requirements="raw_input_preserved,derivative_output_planned,pipeline_defaults_accepted" claim_ids="EEGLAB-PIPELINE-001,EEGLAB-ASR-001,EEGLAB-ICA-001" />
+    </gate_assertions>
+    <resource_assertions />
+    <report_assertions />
   </eval>
-  <eval id="11">
+  <eval id="11" category="planning">
     <question>The user provides a dataset but no research goal. Produce a strict research plan that identifies what to ask, what conservative default to use if answers are unavailable, and what QC gates must pass before processing.</question>
     <expected>Call eeglab_info and eeglab_workflow_recommend with available metadata or analysis_type auto; report clarifying_questions, default_assumptions, project_phases, qc_gates, and adaptive_decision_rules before recommending a branch.</expected>
+    <required_tools>
+      <tool>eeglab_info</tool>
+      <tool>eeglab_workflow_recommend</tool>
+      <tool>eeglab_project_plan</tool>
+    </required_tools>
+    <forbidden_tools />
+    <required_terms>
+      <term>planning</term>
+    </required_terms>
+    <gate_assertions />
+    <resource_assertions />
+    <report_assertions />
   </eval>
-  <eval id="12">
+  <eval id="12" category="workflow_evolution">
     <question>After repeated plugin failures and missing acquisition notes in a multi-subject EEG project, propose how the MCP/skill workflow should evolve without silently changing scientific defaults.</question>
     <expected>Use eeglab_qc_report and eeglab_workflow_recommend; report provenance_hints and self_evolution_hooks, and recommend adding project-specific notes/evals only after review.</expected>
+    <required_tools>
+      <tool>eeglab_qc_report</tool>
+      <tool>eeglab_workflow_recommend</tool>
+    </required_tools>
+    <forbidden_tools />
+    <required_terms>
+      <term>workflow_evolution</term>
+    </required_terms>
+    <gate_assertions />
+    <resource_assertions />
+    <report_assertions />
   </eval>
-  <eval id="13">
+  <eval id="13" category="event_semantics">
     <question>The user provides BrainVision markers where s1000 is experiment start/end, s1002 should be deleted/excluded, and Impedance is QC metadata. Decide whether ERP is valid.</question>
     <expected>Call eeglab_get_events and eeglab_event_semantics_audit with s1000 as segment/boundary, s1002 as excluded, and Impedance as QC; answer that no condition-level ERP trigger remains and recommend segment_qc or behavioral-log/event-map collection.</expected>
+    <required_tools>
+      <tool>eeglab_get_events</tool>
+      <tool>eeglab_event_semantics_audit</tool>
+    </required_tools>
+    <forbidden_tools />
+    <required_terms>
+      <term>event_semantics</term>
+    </required_terms>
+    <gate_assertions />
+    <resource_assertions />
+    <report_assertions />
   </eval>
-  <eval id="14">
+  <eval id="14" category="bids_study">
     <question>A user wants a complete plan for a BIDS multi-subject STUDY but has not said the design variables or single-subject preprocessing protocol.</question>
     <expected>Call eeglab_project_plan with project_scale bids_study or multi_subject; report required_user_decisions, blocking_conditions if any, study_ready_check gates, plugin_check for BIDS/LIMO/SIFT if needed, and avoid group statistics until the single-subject protocol is locked.</expected>
+    <required_tools>
+      <tool>eeglab_import_bids</tool>
+      <tool>eeglab_study_create</tool>
+      <tool>eeglab_project_plan</tool>
+    </required_tools>
+    <forbidden_tools />
+    <required_terms>
+      <term>gate_status</term>
+      <term>source_claim_ids</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="study_create" expected_status="advisory" missing_requirements="single_subject_protocol_locked" claim_ids="EEGLAB-STUDY-001" />
+      <gate method="study_design" expected_status="blocked" missing_requirements="design_variables_defined,single_subject_protocol_locked" claim_ids="EEGLAB-STUDY-001" />
+    </gate_assertions>
+    <resource_assertions />
+    <report_assertions />
   </eval>
-  <eval id="15">
+  <eval id="15" category="plugin_prerequisites">
     <question>Before running ASR, ICLabel cleanup, DIPFIT, and BIDS import, verify local plugin prerequisites and recover from missing plugins.</question>
     <expected>Call eeglab_plugin_check; if plugins are missing, report which workflows are blocked, next installation/path steps, and lower-risk workflows that can still run such as quick_qc.</expected>
+    <required_tools>
+      <tool>eeglab_clean_rawdata</tool>
+      <tool>eeglab_classify_ica</tool>
+      <tool>eeglab_plugin_check</tool>
+    </required_tools>
+    <forbidden_tools />
+    <required_terms>
+      <term>plugin matrix</term>
+      <term>support_level</term>
+    </required_terms>
+    <gate_assertions />
+    <resource_assertions />
+    <report_assertions />
   </eval>
-  <eval id="16">
+  <eval id="16" category="source">
     <question>The user asks for source localization on a dataset with no channel locations and no ICA weights.</question>
     <expected>Call eeglab_project_plan or eeglab_workflow_recommend with analysis_type source plus has_channel_locations false and has_ica false; report blockers for montage repair and ICA/DIPFIT prerequisites before any source tool call.</expected>
+    <required_tools>
+      <tool>eeglab_source_localization</tool>
+      <tool>eeglab_source_settings</tool>
+      <tool>eeglab_project_plan</tool>
+    </required_tools>
+    <forbidden_tools />
+    <required_terms>
+      <term>limitations</term>
+    </required_terms>
+    <gate_assertions />
+    <resource_assertions />
+    <report_assertions />
   </eval>
-  <eval id="17">
+  <eval id="17" category="reporting">
     <question>The user asks for a reproducible protocol after deciding on resting-state spectral analysis with conservative cleanup.</question>
     <expected>Call eeglab_project_plan or eeglab_workflow_recommend, then eeglab_protocol_export with steps, parameters, qc_gates, outputs, and limitations; return Markdown/JSON protocol content and remind that EEG data stays local.</expected>
+    <required_tools>
+      <tool>eeglab_spectral</tool>
+      <tool>eeglab_workflow_recommend</tool>
+      <tool>eeglab_project_plan</tool>
+      <tool>eeglab_protocol_export</tool>
+    </required_tools>
+    <forbidden_tools />
+    <required_terms>
+      <term>gate_results</term>
+      <term>limitations</term>
+      <term>report field matrix</term>
+      <term>report_fields</term>
+      <term>source_claim_ids</term>
+    </required_terms>
+    <gate_assertions />
+    <resource_assertions />
+    <report_assertions>
+      <report requires_protocol_export="true" requires_gate_results="true" requires_source_claim_ids="true" requires_report_fields="true" requires_report_field_matrix="true" requires_override_status="false" />
+    </report_assertions>
+  </eval>
+  <eval id="18" category="event_semantics">
+    <question>A user tries to epoch only around boundary markers and asks for ERP results.</question>
+    <expected>Call eeglab_method_preflight with method epoch and event_roles boundary; report official_gate_blocked, cite EEGLAB-EVENT-001/source_claim_ids, and do not call eeglab_epoch unless the user supplies valid condition triggers or an explicit override.</expected>
+    <required_tools>
+      <tool>eeglab_event_semantics_audit</tool>
+      <tool>eeglab_method_preflight</tool>
+    </required_tools>
+    <forbidden_tools>
+      <tool>eeglab_epoch</tool>
+      <tool>eeglab_erp_analysis</tool>
+    </forbidden_tools>
+    <required_terms>
+      <term>blocked</term>
+      <term>gate_status</term>
+      <term>safe_next_step</term>
+      <term>source_claim_ids</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="epoch" expected_status="blocked" missing_requirements="confirmed_condition_events,no_boundary_epoching" claim_ids="EEGLAB-EVENT-001" />
+    </gate_assertions>
+    <resource_assertions />
+    <report_assertions />
+  </eval>
+  <eval id="19" category="artifact_ica">
+    <question>A user asks to run clean_rawdata/ASR on epoched-only data with no plugin check and no threshold report.</question>
+    <expected>Call eeglab_method_preflight with method clean_rawdata and data_shape epoched; report missing continuous-data/plugin/threshold/derivative-output requirements and recommend quick_qc or plugin_doctor first.</expected>
+    <required_tools>
+      <tool>eeglab_plugin_check</tool>
+      <tool>eeglab_method_preflight</tool>
+    </required_tools>
+    <forbidden_tools>
+      <tool>eeglab_clean_rawdata</tool>
+    </forbidden_tools>
+    <required_terms>
+      <term>blocked</term>
+      <term>gate_status</term>
+      <term>safe_next_step</term>
+      <term>source_claim_ids</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="clean_rawdata" expected_status="blocked" missing_requirements="continuous_data,plugin_clean_rawdata_available,thresholds_recorded,derivative_output_planned" claim_ids="EEGLAB-ASR-001" />
+    </gate_assertions>
+    <resource_assertions />
+    <report_assertions />
+  </eval>
+  <eval id="20" category="source">
+    <question>The user explicitly approves an exploratory source-localization dry-run despite missing ICA and channel locations.</question>
+    <expected>Require override_gate=true and override_reason on the source call or preflight; report override_used, blocked_requirements_acknowledged, source_claim_ids, and state that no scientific/anatomical source claims should be made.</expected>
+    <required_tools>
+      <tool>eeglab_source_localization</tool>
+      <tool>eeglab_method_preflight</tool>
+    </required_tools>
+    <forbidden_tools />
+    <required_terms>
+      <term>blocked_requirements_acknowledged</term>
+      <term>gate_status</term>
+      <term>limitations</term>
+      <term>override_reason</term>
+      <term>override_used</term>
+      <term>source_claim_ids</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="source" expected_status="override_accepted" missing_requirements="has_ica,has_channel_locations,head_model_defined" claim_ids="EEGLAB-DIPFIT-001,EEGLAB-CHANLOC-001" />
+    </gate_assertions>
+    <resource_assertions />
+    <report_assertions />
+  </eval>
+  <eval id="21" category="bids_study">
+    <question>A multi-subject BIDS/STUDY project lacks design variables and a locked single-subject preprocessing protocol.</question>
+    <expected>Call eeglab_method_preflight with method study_statistics; block STUDY statistics, report EEGLAB-STUDY-001/source_claim_ids, ask for design variables, measure, alpha/correction, and protocol lock, and do not run group statistics.</expected>
+    <required_tools>
+      <tool>eeglab_study_design</tool>
+      <tool>eeglab_method_preflight</tool>
+    </required_tools>
+    <forbidden_tools>
+      <tool>eeglab_study_statistics</tool>
+    </forbidden_tools>
+    <required_terms>
+      <term>blocked</term>
+      <term>gate_status</term>
+      <term>safe_next_step</term>
+      <term>source_claim_ids</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="study_statistics" expected_status="blocked" missing_requirements="single_subject_protocol_locked,design_variables_defined,study_measure_recorded,correction_policy_recorded" claim_ids="EEGLAB-STUDY-001" />
+    </gate_assertions>
+    <resource_assertions />
+    <report_assertions />
+  </eval>
+  <eval id="22" category="recording_qc">
+    <question>A dataset loads but acquisition metadata is incomplete: no reference, no power-line frequency, no hardware/software filter notes, and no impedance or quality notes.</question>
+    <expected>Use eeglab_qc_report or eeglab_project_plan to report missing acquisition/provenance fields, require raw preservation and a derivative output policy before destructive processing, recommend recording BIDS-style *_eeg.json metadata, and avoid analysis-ready claims until the gaps are documented.</expected>
+    <required_tools>
+      <tool>eeglab_qc_report</tool>
+      <tool>eeglab_project_plan</tool>
+      <tool>eeglab_method_preflight</tool>
+    </required_tools>
+    <forbidden_tools />
+    <required_terms>
+      <term>gate_status</term>
+      <term>provenance</term>
+      <term>source_claim_ids</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="acquisition_provenance" expected_status="blocked" missing_requirements="reference_or_montage_recorded,power_line_frequency_recorded,acquisition_filters_recorded,impedance_or_quality_recorded" claim_ids="EEGLAB-IMPORT-001,BIDS-EEG-001" />
+    </gate_assertions>
+    <resource_assertions />
+    <report_assertions />
+  </eval>
+  <eval id="23" category="bids_events">
+    <question>A BIDS EEG dataset has events.tsv with onset and duration but no trial_type sidecar descriptions for condition columns.</question>
+    <expected>Use eeglab_project_plan and eeglab_event_semantics_audit with available event labels, report that condition semantics need events.json sidecar descriptions or a validated event-code map, and block ERP/ERSP epoching until condition triggers are confirmed.</expected>
+    <required_tools>
+      <tool>eeglab_project_plan</tool>
+      <tool>eeglab_event_semantics_audit</tool>
+      <tool>eeglab_method_preflight</tool>
+    </required_tools>
+    <forbidden_tools>
+      <tool>eeglab_epoch</tool>
+      <tool>eeglab_timefreq</tool>
+    </forbidden_tools>
+    <required_terms>
+      <term>blocked</term>
+      <term>gate_status</term>
+      <term>provenance</term>
+      <term>safe_next_step</term>
+      <term>source_claim_ids</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="bids_metadata" expected_status="blocked" missing_requirements="event_metadata_described,bids_event_columns_described" claim_ids="BIDS-EVENTS-001,EEGLAB-BIDS-001" />
+      <gate method="epoch" expected_status="blocked" missing_requirements="confirmed_condition_events" claim_ids="EEGLAB-EVENT-001" />
+    </gate_assertions>
+    <resource_assertions />
+    <report_assertions />
+  </eval>
+  <eval id="24" category="artifact_ica">
+    <question>The user wants resting-state ICA cleanup from an epoched-only derivative and does not have the original continuous raw recording.</question>
+    <expected>Use eeglab_workflow_recommend or eeglab_method_preflight for run_ica with data_shape epoched and has_continuous_raw false; report that resting/ICA suitability is blocked or requires explicit design justification, and recommend locating continuous raw data or limiting work to QC/reporting.</expected>
+    <required_tools>
+      <tool>eeglab_workflow_recommend</tool>
+      <tool>eeglab_method_preflight</tool>
+    </required_tools>
+    <forbidden_tools>
+      <tool>eeglab_run_ica</tool>
+    </forbidden_tools>
+    <required_terms>
+      <term>blocked</term>
+      <term>gate_status</term>
+      <term>safe_next_step</term>
+      <term>source_claim_ids</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="run_ica" expected_status="blocked" missing_requirements="continuous_data" claim_ids="EEGLAB-ICA-001" />
+    </gate_assertions>
+    <resource_assertions />
+    <report_assertions />
+  </eval>
+  <eval id="25" category="reporting">
+    <question>After completing a conservative ERP branch, produce a reproducible methods report with exact gates, parameters, outputs, and limitations.</question>
+    <expected>Call eeglab_protocol_export with research_goal, analysis_type, steps, parameters, qc_gates, outputs, limitations, and gate_results/source_claim_ids; include input/output paths, event semantics, filter/rereference/epoch/baseline settings, rejected components or epochs if any, software/plugin limits, and no clinical claims.</expected>
+    <required_tools>
+      <tool>eeglab_protocol_export</tool>
+      <tool>eeglab_method_preflight</tool>
+    </required_tools>
+    <forbidden_tools />
+    <required_terms>
+      <term>gate_results</term>
+      <term>limitations</term>
+      <term>report field matrix</term>
+      <term>report_fields</term>
+      <term>source_claim_ids</term>
+    </required_terms>
+    <gate_assertions />
+    <resource_assertions />
+    <report_assertions>
+      <report requires_protocol_export="true" requires_gate_results="true" requires_source_claim_ids="true" requires_report_fields="true" requires_report_field_matrix="true" requires_override_status="true" />
+    </report_assertions>
+  </eval>
+  <eval id="26" category="official_coverage">
+    <question>A user asks whether every official EEGLAB tutorial/plugin topic is covered by this MCP and which ones are executable versus guidance-only.</question>
+    <expected>Read the official topic index and support matrix resources; answer with support_level for executable, gated_guidance, indexed_only, and out_of_scope topics, and explain that indexed-only plugins are not execution support.</expected>
+    <required_tools>
+      <tool>eeglab_workflow_recommend</tool>
+      <tool>eeglab_project_plan</tool>
+    </required_tools>
+    <forbidden_tools />
+    <required_terms>
+      <term>support_level</term>
+      <term>tool support matrix</term>
+    </required_terms>
+    <gate_assertions />
+    <resource_assertions>
+      <resource uri="eeglab://official/topic-index.md" />
+      <resource uri="eeglab://official/support-matrix.md" />
+    </resource_assertions>
+    <report_assertions />
+  </eval>
+  <eval id="27" category="visualization">
+    <question>A user wants to load channel locations from a .ced file, then plot a topography, but current channel-location coverage is missing.</question>
+    <expected>Use eeglab_method_preflight for channel_locations with a repair plan before eeglab_edit_channels; then require topography preflight with has_channel_locations true before eeglab_topoplot, otherwise block interpretation.</expected>
+    <required_tools>
+      <tool>eeglab_edit_channels</tool>
+      <tool>eeglab_topoplot</tool>
+      <tool>eeglab_method_preflight</tool>
+    </required_tools>
+    <forbidden_tools />
+    <required_terms>
+      <term>gate_status</term>
+      <term>source_claim_ids</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="channel_locations" expected_status="blocked" missing_requirements="has_channel_locations_or_repair_plan,parameters_recorded" claim_ids="EEGLAB-CHANLOC-001" />
+      <gate method="topography" expected_status="blocked" missing_requirements="has_channel_locations,parameters_recorded" claim_ids="EEGLAB-TOPO-001,EEGLAB-CHANLOC-001" />
+    </gate_assertions>
+    <resource_assertions />
+    <report_assertions />
+  </eval>
+  <eval id="28" category="preprocessing">
+    <question>A user asks for 60 Hz line-noise cleanup but does not provide output/derivative policy or method parameters beyond frequency.</question>
+    <expected>Call eeglab_method_preflight for line_noise or pass method_context to eeglab_clean_line_noise; block or request derivative output and method parameters before execution, and report EEGLAB-LINE-001.</expected>
+    <required_tools>
+      <tool>eeglab_clean_line_noise</tool>
+      <tool>eeglab_method_preflight</tool>
+    </required_tools>
+    <forbidden_tools />
+    <required_terms>
+      <term>gate_status</term>
+      <term>source_claim_ids</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="line_noise" expected_status="blocked" missing_requirements="line_noise_parameters_recorded,derivative_output_planned" claim_ids="EEGLAB-LINE-001" />
+    </gate_assertions>
+    <resource_assertions />
+    <report_assertions />
+  </eval>
+  <eval id="29" category="spectral">
+    <question>A user asks for resting spectral band power from continuous data but has not documented artifact handling or channels/ROIs.</question>
+    <expected>Call eeglab_method_preflight for spectral; request artifact policy and channel/ROI plan before interpreting eeglab_spectral outputs, then report frequency range, artifact policy, and limitations.</expected>
+    <required_tools>
+      <tool>eeglab_spectral</tool>
+      <tool>eeglab_method_preflight</tool>
+    </required_tools>
+    <forbidden_tools />
+    <required_terms>
+      <term>gate_status</term>
+      <term>source_claim_ids</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="spectral" expected_status="blocked" missing_requirements="artifact_policy_recorded,channels_recorded" claim_ids="EEGLAB-SPECTRAL-001" />
+    </gate_assertions>
+    <resource_assertions />
+    <report_assertions />
+  </eval>
+  <eval id="30" category="connectivity">
+    <question>A user asks for coherence connectivity and wants to interpret it as anatomical connectivity from sensor EEG.</question>
+    <expected>Call eeglab_method_preflight for connectivity; require method, frequency range, artifact policy, and connectivity_limits_recorded, then state that sensor-level coherence/PLV is not anatomical connectivity without source/model validation.</expected>
+    <required_tools>
+      <tool>eeglab_connectivity</tool>
+      <tool>eeglab_method_preflight</tool>
+    </required_tools>
+    <forbidden_tools>
+      <tool>eeglab_source_localization</tool>
+    </forbidden_tools>
+    <required_terms>
+      <term>blocked</term>
+      <term>gate_status</term>
+      <term>limitations</term>
+      <term>safe_next_step</term>
+      <term>source_claim_ids</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="connectivity" expected_status="blocked" missing_requirements="frequency_settings_recorded,artifact_policy_recorded,connectivity_limits_recorded" claim_ids="EEGLAB-SIFT-001,EEGLAB-SPECTRAL-001" />
+    </gate_assertions>
+    <resource_assertions />
+    <report_assertions />
+  </eval>
+  <eval id="31" category="statistics">
+    <question>A user asks for LIMO group statistics from a STUDY but has not defined first/second-level models, contrasts, or multiple-comparison policy.</question>
+    <expected>Use eeglab_plugin_check for LIMO and eeglab_method_preflight for limo_statistics; keep the workflow guidance-only, block claims until design/model/correction policy is explicit, and export a protocol if needed.</expected>
+    <required_tools>
+      <tool>eeglab_protocol_export</tool>
+      <tool>eeglab_plugin_check</tool>
+      <tool>eeglab_method_preflight</tool>
+    </required_tools>
+    <forbidden_tools>
+      <tool>eeglab_study_statistics</tool>
+    </forbidden_tools>
+    <required_terms>
+      <term>blocked</term>
+      <term>gate_results</term>
+      <term>gate_status</term>
+      <term>limitations</term>
+      <term>report field matrix</term>
+      <term>report_fields</term>
+      <term>safe_next_step</term>
+      <term>source_claim_ids</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="limo_statistics" expected_status="blocked" missing_requirements="plugin_limo_available,statistical_design_defined,correction_policy_recorded" claim_ids="EEGLAB-LIMO-001,EEGLAB-STUDY-001" />
+    </gate_assertions>
+    <resource_assertions>
+      <resource uri="eeglab://official/plugin-map.md" />
+      <resource uri="eeglab://references/statistics-reporting.md" />
+    </resource_assertions>
+    <report_assertions>
+      <report requires_protocol_export="true" requires_gate_results="true" requires_source_claim_ids="true" requires_report_fields="true" requires_report_field_matrix="true" requires_override_status="false" />
+    </report_assertions>
+  </eval>
+  <eval id="32" category="connectivity">
+    <question>A user asks to run SIFT Granger connectivity through this MCP after installing SIFT.</question>
+    <expected>Use eeglab_plugin_check for SIFT/groupSIFT and eeglab_method_preflight for sift_connectivity; explain indexed_only/guidance-only support unless a dedicated SIFT workflow exists, and require model order, stationarity, validation, and correction policy.</expected>
+    <required_tools>
+      <tool>eeglab_protocol_export</tool>
+      <tool>eeglab_plugin_check</tool>
+      <tool>eeglab_method_preflight</tool>
+    </required_tools>
+    <forbidden_tools />
+    <required_terms>
+      <term>gate_results</term>
+      <term>gate_status</term>
+      <term>limitations</term>
+      <term>report field matrix</term>
+      <term>report_fields</term>
+      <term>source_claim_ids</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="sift_connectivity" expected_status="blocked" missing_requirements="plugin_sift_available,model_validation_recorded,correction_policy_recorded" claim_ids="EEGLAB-SIFT-001" />
+    </gate_assertions>
+    <resource_assertions>
+      <resource uri="eeglab://official/plugin-map.md" />
+      <resource uri="eeglab://references/source-policy.md" />
+    </resource_assertions>
+    <report_assertions>
+      <report requires_protocol_export="true" requires_gate_results="true" requires_source_claim_ids="true" requires_report_fields="true" requires_report_field_matrix="true" requires_override_status="false" />
+    </report_assertions>
+  </eval>
+  <eval id="33" category="plugin_prerequisites">
+    <question>A plugin-doctor request asks for all official EEGLAB plugin dependencies and the next step for missing ones.</question>
+    <expected>Call eeglab_plugin_check without narrowing plugins; return the plugin matrix with support_level, functions_checked, claim_ids, dependent_profiles, available/missing lists, and next_step_if_missing for clean_rawdata, ICLabel, DIPFIT, EEG-BIDS, BIOSIG, File-IO, MFF-matlab-io, NWB-io, BVA-io, HEDTools, firfilt, CleanLine, Zapline-Plus, AMICA, Picard, LIMO, SIFT, groupSIFT, NFT, and NSGportal.</expected>
+    <required_tools>
+      <tool>eeglab_plugin_check</tool>
+    </required_tools>
+    <forbidden_tools />
+    <required_terms>
+      <term>plugin matrix</term>
+      <term>support_level</term>
+    </required_terms>
+    <gate_assertions />
+    <resource_assertions />
+    <report_assertions />
+  </eval>
+  <eval id="34" category="bids_events">
+    <question>A BIDS/HED report request has events.tsv and HED tags but no validated condition-code map for ERP.</question>
+    <expected>Use bids_metadata preflight or project planning plus event_semantics_audit; accept HED/sidecar metadata as provenance but block ERP epoching until condition triggers are confirmed, then include BIDS/HED fields in the report.</expected>
+    <required_tools>
+      <tool>eeglab_project_plan</tool>
+      <tool>eeglab_event_semantics_audit</tool>
+      <tool>eeglab_method_preflight</tool>
+    </required_tools>
+    <forbidden_tools />
+    <required_terms>
+      <term>gate_status</term>
+      <term>provenance</term>
+      <term>source_claim_ids</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="bids_metadata" expected_status="blocked" missing_requirements="event_metadata_described,bids_event_columns_described" claim_ids="BIDS-EVENTS-001" />
+      <gate method="epoch" expected_status="blocked" missing_requirements="confirmed_condition_events" claim_ids="EEGLAB-EVENT-001" />
+    </gate_assertions>
+    <resource_assertions />
+    <report_assertions />
+  </eval>
+  <eval id="35" category="source">
+    <question>A source-localization report has channel locations and DIPFIT installed but no ICA weights or head model/template assumptions.</question>
+    <expected>Call eeglab_method_preflight for source; block source localization, list missing has_ica/head_model_defined requirements, source_claim_ids, and report that no anatomical certainty claims can be made.</expected>
+    <required_tools>
+      <tool>eeglab_source_settings</tool>
+      <tool>eeglab_method_preflight</tool>
+    </required_tools>
+    <forbidden_tools>
+      <tool>eeglab_source_localization</tool>
+    </forbidden_tools>
+    <required_terms>
+      <term>blocked</term>
+      <term>gate_status</term>
+      <term>limitations</term>
+      <term>safe_next_step</term>
+      <term>source_claim_ids</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="source" expected_status="blocked" missing_requirements="has_ica,head_model_defined" claim_ids="EEGLAB-DIPFIT-001,EEGLAB-CHANLOC-001" />
+    </gate_assertions>
+    <resource_assertions />
+    <report_assertions />
+  </eval>
+  <eval id="36" category="reporting">
+    <question>A completed ERSP/ITC branch needs a report that follows the official report field matrix.</question>
+    <expected>Read or follow the report field matrix; call eeglab_protocol_export with recording/acquisition, event/design, preprocessing, time-frequency parameters, outputs, official gate status, source_claim_ids, software/plugins, and limitations.</expected>
+    <required_tools>
+      <tool>eeglab_protocol_export</tool>
+      <tool>eeglab_method_preflight</tool>
+    </required_tools>
+    <forbidden_tools />
+    <required_terms>
+      <term>gate_results</term>
+      <term>limitations</term>
+      <term>report field matrix</term>
+      <term>report_fields</term>
+      <term>source_claim_ids</term>
+    </required_terms>
+    <gate_assertions />
+    <resource_assertions>
+      <resource uri="eeglab://official/report-field-matrix.md" />
+      <resource uri="eeglab://references/report-protocol-templates.md" />
+    </resource_assertions>
+    <report_assertions>
+      <report requires_protocol_export="true" requires_gate_results="true" requires_source_claim_ids="true" requires_report_fields="true" requires_report_field_matrix="true" requires_override_status="true" />
+    </report_assertions>
+  </eval>
+  <eval id="37" category="workflow_evolution">
+    <question>After a failed project, the user wants the tool to learn from the failure without silently changing scientific defaults.</question>
+    <expected>Use eeglab_project_plan or eeglab_protocol_export to record failed steps, missing metadata/plugins, recovery path, and self-evolution hooks; update skill/evals only for repeated patterns or explicit user-approved project rules.</expected>
+    <required_tools>
+      <tool>eeglab_workflow_recommend</tool>
+      <tool>eeglab_project_plan</tool>
+      <tool>eeglab_protocol_export</tool>
+    </required_tools>
+    <forbidden_tools />
+    <required_terms>
+      <term>gate_results</term>
+      <term>limitations</term>
+      <term>report field matrix</term>
+      <term>report_fields</term>
+      <term>source_claim_ids</term>
+    </required_terms>
+    <gate_assertions />
+    <resource_assertions />
+    <report_assertions>
+      <report requires_protocol_export="true" requires_gate_results="true" requires_source_claim_ids="true" requires_report_fields="true" requires_report_field_matrix="true" requires_override_status="false" />
+    </report_assertions>
+  </eval>
+  <eval id="38" category="official_coverage">
+    <question>A user asks whether eeglab_clean_line_noise is officially aligned and safe to execute on the current dataset.</question>
+    <expected>Read or follow the tool support matrix, identify eeglab_clean_line_noise as gated_executable with line_noise and derivative-processing requirements, then call eeglab_method_preflight with line frequency, method parameters, raw-preservation, derivative-output, and plugin/method context before execution; report function family, source claim IDs, read/write effect, and limitations.</expected>
+    <required_tools>
+      <tool>eeglab_clean_line_noise</tool>
+      <tool>eeglab_method_preflight</tool>
+    </required_tools>
+    <forbidden_tools />
+    <required_terms>
+      <term>gate_status</term>
+      <term>source_claim_ids</term>
+      <term>support_level</term>
+      <term>tool support matrix</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="line_noise" expected_status="blocked" missing_requirements="line_noise_parameters_recorded,derivative_output_planned" claim_ids="EEGLAB-LINE-001,EEGLAB-FILT-001" />
+    </gate_assertions>
+    <resource_assertions>
+      <resource uri="eeglab://official/tool-support-matrix.md" />
+      <resource uri="eeglab://official/method-map.md" />
+    </resource_assertions>
+    <report_assertions />
+  </eval>
+  <eval id="39" category="maintenance">
+    <question>A maintainer asks how to verify that official coverage, MCP resources, evals, and online official links are synchronized after changing the EEGLAB alignment map.</question>
+    <expected>Run py_compile on edited modules, python scripts/verify_official_alignment.py, python scripts/verify_framework.py, and optionally python scripts/verify_official_alignment.py --online; report claim/profile/high-risk counts, total exposed tool count, resource count, and any official URL failures.</expected>
+    <required_tools>
+      <tool>eeglab_workflow_recommend</tool>
+      <tool>eeglab_method_preflight</tool>
+    </required_tools>
+    <forbidden_tools />
+    <required_terms>
+      <term>support_level</term>
+      <term>tool support matrix</term>
+    </required_terms>
+    <gate_assertions />
+    <resource_assertions>
+      <resource uri="eeglab://official/topic-index.md" />
+      <resource uri="eeglab://official/support-matrix.md" />
+      <resource uri="eeglab://official/tool-support-matrix.md" />
+      <resource uri="eeglab://official/report-field-matrix.md" />
+    </resource_assertions>
+    <report_assertions />
+  </eval>
+  <eval id="40" category="bids_study">
+    <question>A user asks to export a cleaned dataset as BIDS derivatives and publish the event metadata, but only has a .set file and no events.json or electrode coordinate sidecars.</question>
+    <expected>Use eeglab_project_plan or the official method map, run eeglab_plugin_check for EEG-BIDS, then call eeglab_method_preflight with method bids_export; keep export guidance-only, block BIDS export claims until sidecars, onset/duration events, event descriptions, derivative output, and software/plugin provenance are complete; offer eeglab_protocol_export for a readiness report.</expected>
+    <required_tools>
+      <tool>eeglab_project_plan</tool>
+      <tool>eeglab_protocol_export</tool>
+      <tool>eeglab_plugin_check</tool>
+      <tool>eeglab_method_preflight</tool>
+    </required_tools>
+    <forbidden_tools>
+      <tool>eeglab_import_bids</tool>
+    </forbidden_tools>
+    <required_terms>
+      <term>blocked</term>
+      <term>gate_results</term>
+      <term>gate_status</term>
+      <term>limitations</term>
+      <term>report field matrix</term>
+      <term>report_fields</term>
+      <term>safe_next_step</term>
+      <term>source_claim_ids</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="bids_export" expected_status="blocked" missing_requirements="bids_eeg_sidecar_complete,event_metadata_described,derivative_output_planned,software_versions_recorded" claim_ids="EEGLAB-BIDSEXPORT-001,EEGLAB-BIDS-001,BIDS-EVENTS-001" />
+    </gate_assertions>
+    <resource_assertions>
+      <resource uri="eeglab://official/method-map.md" />
+      <resource uri="eeglab://references/bids-study-policy.md" />
+    </resource_assertions>
+    <report_assertions>
+      <report requires_protocol_export="true" requires_gate_results="true" requires_source_claim_ids="true" requires_report_fields="true" requires_report_field_matrix="true" requires_override_status="true" />
+    </report_assertions>
+  </eval>
+  <eval id="41" category="bids_study">
+    <question>A STUDY is created and designed, and the user wants group ERSP plots without recording which measures were precomputed or where derivatives will be saved.</question>
+    <expected>Call eeglab_method_preflight with method study_precompute; block interpretation until the single-subject protocol is locked, measure family/precompute parameters are recorded, and derivative output is planned; report EEGLAB-STUDY-PRECOMP-001/source_claim_ids and use eeglab_protocol_export if needed.</expected>
+    <required_tools>
+      <tool>eeglab_protocol_export</tool>
+      <tool>eeglab_method_preflight</tool>
+    </required_tools>
+    <forbidden_tools>
+      <tool>eeglab_study_statistics</tool>
+    </forbidden_tools>
+    <required_terms>
+      <term>blocked</term>
+      <term>gate_results</term>
+      <term>gate_status</term>
+      <term>limitations</term>
+      <term>report field matrix</term>
+      <term>report_fields</term>
+      <term>safe_next_step</term>
+      <term>source_claim_ids</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="study_precompute" expected_status="blocked" missing_requirements="single_subject_protocol_locked,study_measure_recorded,derivative_output_planned" claim_ids="EEGLAB-STUDY-PRECOMP-001,EEGLAB-STUDY-001" />
+    </gate_assertions>
+    <resource_assertions />
+    <report_assertions>
+      <report requires_protocol_export="true" requires_gate_results="true" requires_source_claim_ids="true" requires_report_fields="true" requires_report_field_matrix="true" requires_override_status="true" />
+    </report_assertions>
+  </eval>
+  <eval id="42" category="bids_study">
+    <question>A user asks for ICA clustering across subjects but has not specified clustering features, distance metric, outlier policy, or review criteria.</question>
+    <expected>Use eeglab_project_plan and eeglab_method_preflight with method ica_clustering; treat clustering as guidance-only, require subject ICA, STUDY measure records, clustering policy, and review criteria before cluster interpretation, and avoid anatomical/source claims unless source/head-model assumptions are documented.</expected>
+    <required_tools>
+      <tool>eeglab_project_plan</tool>
+      <tool>eeglab_protocol_export</tool>
+      <tool>eeglab_method_preflight</tool>
+    </required_tools>
+    <forbidden_tools />
+    <required_terms>
+      <term>gate_results</term>
+      <term>gate_status</term>
+      <term>limitations</term>
+      <term>report field matrix</term>
+      <term>report_fields</term>
+      <term>source_claim_ids</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="ica_clustering" expected_status="blocked" missing_requirements="has_ica,study_measure_recorded,clustering_policy_recorded,component_reviewed" claim_ids="EEGLAB-ICCLUSTER-001,EEGLAB-STUDY-001,EEGLAB-ICA-001" />
+    </gate_assertions>
+    <resource_assertions />
+    <report_assertions>
+      <report requires_protocol_export="true" requires_gate_results="true" requires_source_claim_ids="true" requires_report_fields="true" requires_report_field_matrix="true" requires_override_status="true" />
+    </report_assertions>
+  </eval>
+  <eval id="43" category="artifact_ica">
+    <question>A user wants AMICA instead of runica because it is more advanced, but has not installed AMICA or defined rank/PCA settings, compute strategy, or output directory.</question>
+    <expected>Call eeglab_plugin_check for AMICA and eeglab_method_preflight with method amica_ica; keep AMICA guidance-only, block AMICA-specific claims until plugin availability, continuous-data suitability, rank/PCA/reference review, compute strategy, and derivative output are explicit; recommend supported runica/Picard planning if appropriate.</expected>
+    <required_tools>
+      <tool>eeglab_workflow_recommend</tool>
+      <tool>eeglab_project_plan</tool>
+      <tool>eeglab_plugin_check</tool>
+      <tool>eeglab_method_preflight</tool>
+    </required_tools>
+    <forbidden_tools />
+    <required_terms>
+      <term>gate_status</term>
+      <term>source_claim_ids</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="amica_ica" expected_status="blocked" missing_requirements="plugin_amica_available,rank_reference_reviewed,compute_strategy_recorded,derivative_output_planned" claim_ids="EEGLAB-AMICA-001,EEGLAB-ICA-001" />
+    </gate_assertions>
+    <resource_assertions />
+    <report_assertions />
+  </eval>
+  <eval id="44" category="remote_compute">
+    <question>A user asks this local MCP to run an NSGportal remote job and upload EEG data, but gives no credential policy, approval, upload manifest, or job provenance plan.</question>
+    <expected>Call eeglab_plugin_check for NSGportal and eeglab_method_preflight with method nsg_remote; explain indexed_only/out-of-local-scope support, block remote execution claims until user approval, credentials/data-upload policy, job parameters, upload/download paths, and provenance are documented, then export a protocol rather than executing a remote job.</expected>
+    <required_tools>
+      <tool>eeglab_workflow_recommend</tool>
+      <tool>eeglab_project_plan</tool>
+      <tool>eeglab_protocol_export</tool>
+      <tool>eeglab_plugin_check</tool>
+      <tool>eeglab_method_preflight</tool>
+    </required_tools>
+    <forbidden_tools />
+    <required_terms>
+      <term>gate_results</term>
+      <term>gate_status</term>
+      <term>limitations</term>
+      <term>plugin matrix</term>
+      <term>report field matrix</term>
+      <term>report_fields</term>
+      <term>source_claim_ids</term>
+      <term>support_level</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="nsg_remote" expected_status="blocked" missing_requirements="remote_compute_approved,job_provenance_recorded" claim_ids="EEGLAB-NSG-001,EEGLAB-PLUGIN-001" />
+    </gate_assertions>
+    <resource_assertions />
+    <report_assertions>
+      <report requires_protocol_export="true" requires_gate_results="true" requires_source_claim_ids="true" requires_report_fields="true" requires_report_field_matrix="true" requires_override_status="true" />
+    </report_assertions>
+  </eval>
+  <eval id="45" category="import_plugins">
+    <question>A user wants to import EDF/BDF and EGI MFF files and immediately run ERP analysis, but has not confirmed importer plugins, event mapping, channel mapping, or raw-file preservation.</question>
+    <expected>Use eeglab_project_plan, eeglab_plugin_check for BIOSIG and MFF-matlab-io, and eeglab_method_preflight with method import_plugins; keep the workflow as import-readiness guidance, block analysis-ready import claims until source format, plugin availability, event/channel mapping, and raw preservation are documented.</expected>
+    <required_tools>
+      <tool>eeglab_project_plan</tool>
+      <tool>eeglab_plugin_check</tool>
+      <tool>eeglab_method_preflight</tool>
+    </required_tools>
+    <forbidden_tools>
+      <tool>eeglab_epoch</tool>
+    </forbidden_tools>
+    <required_terms>
+      <term>blocked</term>
+      <term>gate_status</term>
+      <term>plugin matrix</term>
+      <term>safe_next_step</term>
+      <term>source_claim_ids</term>
+      <term>support_level</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="import_plugins" expected_status="blocked" missing_requirements="plugin_import_available,import_event_channel_mapping_recorded,raw_input_preserved" claim_ids="EEGLAB-IMPORT-PLUGINS-001,EEGLAB-IMPORT-001,EEGLAB-MFF-001" />
+    </gate_assertions>
+    <resource_assertions>
+      <resource uri="eeglab://official/plugin-map.md" />
+      <resource uri="eeglab://official/method-map.md" />
+    </resource_assertions>
+    <report_assertions />
+  </eval>
+  <eval id="46" category="event_metadata">
+    <question>A user has HED tags from HEDTools and wants to treat them as ERP condition triggers, but has not recorded the HED schema version or validated the condition-code map.</question>
+    <expected>Use eeglab_event_semantics_audit, eeglab_plugin_check for HEDTools, and eeglab_method_preflight for hed_event_annotation; report that HED is event-metadata evidence but does not by itself authorize ERP epoching until schema/version and condition-code validation are recorded, then export a protocol if needed.</expected>
+    <required_tools>
+      <tool>eeglab_event_semantics_audit</tool>
+      <tool>eeglab_plugin_check</tool>
+      <tool>eeglab_method_preflight</tool>
+      <tool>eeglab_protocol_export</tool>
+    </required_tools>
+    <forbidden_tools>
+      <tool>eeglab_epoch</tool>
+    </forbidden_tools>
+    <required_terms>
+      <term>gate_results</term>
+      <term>gate_status</term>
+      <term>HED</term>
+      <term>limitations</term>
+      <term>report field matrix</term>
+      <term>report_fields</term>
+      <term>source_claim_ids</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="hed_event_annotation" expected_status="blocked" missing_requirements="hed_schema_recorded,event_code_map_validated" claim_ids="EEGLAB-HED-001,BIDS-EVENTS-001" />
+    </gate_assertions>
+    <resource_assertions>
+      <resource uri="eeglab://references/event-semantics.md" />
+      <resource uri="eeglab://official/report-field-matrix.md" />
+    </resource_assertions>
+    <report_assertions>
+      <report requires_protocol_export="true" requires_gate_results="true" requires_source_claim_ids="true" requires_report_fields="true" requires_report_field_matrix="true" requires_override_status="false" />
+    </report_assertions>
+  </eval>
+  <eval id="47" category="scripting">
+    <question>A user copied EEGLAB GUI history and asks this MCP to treat it as a reusable batch preprocessing script without reviewing paths, hidden defaults, or output policy.</question>
+    <expected>Call eeglab_history, then eeglab_method_preflight with method history_scripting; block batch-protocol claims until processing history exists, the history-derived script is reviewed, parameters are explicit, and derivative output policy is recorded; use eeglab_protocol_export for a reviewed handoff.</expected>
+    <required_tools>
+      <tool>eeglab_history</tool>
+      <tool>eeglab_method_preflight</tool>
+      <tool>eeglab_protocol_export</tool>
+    </required_tools>
+    <forbidden_tools>
+      <tool>eeglab_pipeline</tool>
+    </forbidden_tools>
+    <required_terms>
+      <term>gate_results</term>
+      <term>gate_status</term>
+      <term>limitations</term>
+      <term>report field matrix</term>
+      <term>report_fields</term>
+      <term>source_claim_ids</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="history_scripting" expected_status="blocked" missing_requirements="processing_history_recorded,script_from_history_reviewed" claim_ids="EEGLAB-HISTORY-001,EEGLAB-FUNC-001" />
+    </gate_assertions>
+    <resource_assertions>
+      <resource uri="eeglab://official/gate-policy.md" />
+      <resource uri="eeglab://official/method-map.md" />
+    </resource_assertions>
+    <report_assertions>
+      <report requires_protocol_export="true" requires_gate_results="true" requires_source_claim_ids="true" requires_report_fields="true" requires_report_field_matrix="true" requires_override_status="false" />
+    </report_assertions>
+  </eval>
+  <eval id="48" category="event_semantics">
+    <question>A user wants to delete some events, recode others as conditions, and shift latencies through a script, but has not supplied the recode table, latency units, or urevent repair plan.</question>
+    <expected>Use eeglab_event_semantics_audit and eeglab_method_preflight with method event_script_modification; keep event mutation guidance-only, block analysis claims until modification rules, latency units, urevent preservation/relinking, and semantic evidence are recorded, then export a protocol rather than executing a generic mutation.</expected>
+    <required_tools>
+      <tool>eeglab_event_semantics_audit</tool>
+      <tool>eeglab_method_preflight</tool>
+      <tool>eeglab_protocol_export</tool>
+    </required_tools>
+    <forbidden_tools>
+      <tool>eeglab_epoch</tool>
+    </forbidden_tools>
+    <required_terms>
+      <term>blocked</term>
+      <term>gate_results</term>
+      <term>gate_status</term>
+      <term>limitations</term>
+      <term>report field matrix</term>
+      <term>report_fields</term>
+      <term>safe_next_step</term>
+      <term>source_claim_ids</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="event_script_modification" expected_status="blocked" missing_requirements="event_modification_rule_recorded,event_latency_units_recorded,urevent_preserved_or_relinked" claim_ids="EEGLAB-EVENTSCRIPT-001,EEGLAB-STRUCT-001,EEGLAB-EVENT-001" />
+    </gate_assertions>
+    <resource_assertions>
+      <resource uri="eeglab://references/event-semantics.md" />
+    </resource_assertions>
+    <report_assertions>
+      <report requires_protocol_export="true" requires_gate_results="true" requires_source_claim_ids="true" requires_report_fields="true" requires_report_field_matrix="true" requires_override_status="false" />
+    </report_assertions>
+  </eval>
+  <eval id="49" category="data_export">
+    <question>A user asks to export cleaned data as BrainVision and NWB derivatives for sharing, but has not confirmed exporter plugins, metadata completeness, output directory, or software provenance.</question>
+    <expected>Use eeglab_project_plan, eeglab_plugin_check for BVA-io and NWB-io, and eeglab_method_preflight with method data_export; keep BrainVision/NWB export guidance-only, block export claims until format support, derivative output, channel/event/header metadata, and software/plugin provenance are documented; use eeglab_protocol_export for readiness.</expected>
+    <required_tools>
+      <tool>eeglab_project_plan</tool>
+      <tool>eeglab_plugin_check</tool>
+      <tool>eeglab_method_preflight</tool>
+      <tool>eeglab_protocol_export</tool>
+    </required_tools>
+    <forbidden_tools />
+    <required_terms>
+      <term>blocked</term>
+      <term>gate_results</term>
+      <term>gate_status</term>
+      <term>limitations</term>
+      <term>plugin matrix</term>
+      <term>report field matrix</term>
+      <term>report_fields</term>
+      <term>source_claim_ids</term>
+      <term>support_level</term>
+    </required_terms>
+    <gate_assertions>
+      <gate method="data_export" expected_status="blocked" missing_requirements="export_format_supported,derivative_output_planned,export_metadata_complete,software_versions_recorded" claim_ids="EEGLAB-EXPORT-001,EEGLAB-NWB-001,EEGLAB-BVA-001" />
+    </gate_assertions>
+    <resource_assertions>
+      <resource uri="eeglab://official/plugin-map.md" />
+      <resource uri="eeglab://official/report-field-matrix.md" />
+    </resource_assertions>
+    <report_assertions>
+      <report requires_protocol_export="true" requires_gate_results="true" requires_source_claim_ids="true" requires_report_fields="true" requires_report_field_matrix="true" requires_override_status="false" />
+    </report_assertions>
   </eval>
 </evals>

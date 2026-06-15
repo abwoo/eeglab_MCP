@@ -1,6 +1,6 @@
 # EEGLAB MCP Tool Reference
 
-The server keeps the original 40 stable `eeglab_*` tools and adds research planning, protocol, plugin, and event-semantics tools. Low-level tools follow the official EEGLAB pattern: user-facing `pop_` operations for data transformations/plots and `eeg_`/structure checks for consistency and metadata inspection.
+The server exposes registry-defined 37 legacy low-level `eeglab_*` tools plus 8 research workflow tools for QC, planning, official preflight, protocol, plugin, and event-semantics work. Low-level tools follow the official EEGLAB pattern: user-facing `pop_` operations for data transformations/plots and `eeg_`/structure checks for consistency and metadata inspection.
 
 ## Dual MCP Routing
 
@@ -16,9 +16,18 @@ The server keeps the original 40 stable `eeglab_*` tools and adds research plann
 - `eeglab_erp_light_workflow`: load, inspect, bandpass filter, epoch, baseline, ERP summary, and save a processed copy.
 - `eeglab_workflow_recommend`: recommend reproducible project phases, clarifying questions, default assumptions, adaptive decision rules, QC gates, self-evolution hooks, and minimum report fields without changing data.
 - `eeglab_project_plan`: create a research-grade project plan from goal/design/data/event/montage/plugin facts; returns blocking conditions, not-recommended actions, QC gates, quick modes, and official reference anchors.
-- `eeglab_protocol_export`: render Markdown/JSON protocol text and optionally write it to a local file; use for lab notebooks, handoff, or methods-section drafts.
-- `eeglab_plugin_check`: probe local MATLAB/EEGLAB path for clean_rawdata, ICLabel, DIPFIT, BIDS, LIMO, and SIFT-related functions.
+- `eeglab_protocol_export`: render Markdown/JSON protocol text and optionally write it to a local file; pass upstream `gate_results`, `source_claim_ids`, `report_fields`, and override fields for lab notebooks, handoff, or methods-section drafts.
+- `eeglab_plugin_check`: probe local MATLAB/EEGLAB path for the official plugin matrix: clean_rawdata, ICLabel, DIPFIT, EEG-BIDS, BIOSIG, File-IO, MFF-matlab-io, NWB-io, BVA-io, HEDTools, firfilt, CleanLine, Zapline-Plus, AMICA, Picard, LIMO, SIFT, groupSIFT, NFT, and NSGportal. It returns availability, `support_level`, claim IDs, dependent profiles such as `import_plugins`, `data_export`, `hed_event_annotation`, `bids_export`, `study_precompute`, `ica_clustering`, `amica_ica`, and `nsg_remote`, checked functions, found functions, and next steps.
 - `eeglab_event_semantics_audit`: classify markers as condition triggers, boundaries, impedance/QC annotations, segment markers, excluded labels, or candidate triggers before epoching.
+- `eeglab_method_preflight`: evaluate official EEGLAB/SCCN method gates before high-risk processing; returns `gate_status`, missing requirements, `source_claim_ids`, and safe next step.
+
+## High-Risk Gate Fields
+
+High-risk tools accept these optional fields:
+
+- `method_context`: known facts for official preflight, such as data shape, event roles, plugins, ICA state, channel locations, output plan, rank/reference review, or design variables.
+- `override_gate`: set true only after the user explicitly accepts missing official prerequisites.
+- `override_reason`: required when `override_gate=true`; must be reported in provenance and protocol output.
 
 ## Data Management
 
@@ -61,6 +70,7 @@ The server keeps the original 40 stable `eeglab_*` tools and adds research plann
 - `eeglab_spectral`: spectrum and band power.
 - `eeglab_timefreq`: ERSP/ITC time-frequency analysis.
 - `eeglab_connectivity`: coherence or PLV connectivity.
+These tools require explicit frequency range and artifact policy before interpretation. Connectivity reports must state sensor/source limits and avoid anatomical connectivity claims without source/model validation.
 
 ## Visualization
 
@@ -81,6 +91,7 @@ The server keeps the original 40 stable `eeglab_*` tools and adds research plann
 ## Official Function and Plugin Mapping
 
 - `pop_loadset`, `pop_biosig`, BrainVision import functions: data loading and import.
+- BIOSIG, File-IO, MFF-matlab-io, NWB-io, BVA-io, and HEDTools functions: plugin-dependent import/export/event-metadata guidance.
 - `eeg_checkset`: consistency checks after load or transformations.
 - `pop_saveset`: derivative `.set/.fdt` save.
 - `pop_eegfiltnew`, `pop_resample`, `pop_reref`, `pop_select`, `pop_interp`, `pop_chanedit`: core preprocessing.
@@ -91,7 +102,8 @@ The server keeps the original 40 stable `eeglab_*` tools and adds research plann
 - `pop_epoch`, baseline correction: event-locked ERP/ERSP preparation.
 - `spectopo`, `newtimef`, `topoplot`: spectral, ERSP/ITC, and topography outputs.
 - `pop_dipfit_settings`, DIPFIT, `pop_multifit`: source localization.
-- `pop_importbids`, `pop_study`, `std_makedesign`, STUDY statistics functions: BIDS/STUDY/group workflows.
+- `pop_importbids`, `pop_exportbids`, `bids_export`, `pop_study`, `std_makedesign`, STUDY precompute/statistics functions: BIDS/STUDY/group workflows.
+- AMICA and NSGportal functions are indexed for plugin checks, but execution remains guidance-only unless a dedicated workflow exists.
 
 ## Common Parameter Defaults
 
@@ -112,5 +124,6 @@ The server keeps the original 40 stable `eeglab_*` tools and adds research plann
 - Missing goal: ask for the hypothesis/analysis family. If unavailable, choose a conservative feasibility workflow from data shape and event availability.
 - Event ambiguity: call `eeglab_event_semantics_audit`; do not treat start/end, impedance, or segment markers as ERP triggers.
 - Missing montage: block topography/source claims until channel locations are repaired.
-- Plugin dependency: run `eeglab_plugin_check` before ASR, ICLabel, DIPFIT, BIDS/STUDY, LIMO, or SIFT-dependent workflows.
+- Plugin dependency: run `eeglab_plugin_check` before ASR, ICLabel, DIPFIT, EEG-BIDS/STUDY, BIDS export, BIOSIG/File-IO/MFF/NWB/BVA import/export, HEDTools event annotation, STUDY precompute/clustering, firfilt/CleanLine/Zapline, AMICA/Picard, LIMO, SIFT, groupSIFT, NFT, or NSGportal-dependent workflows. Treat `indexed_only` plugins and profiles as guidance-only unless a dedicated workflow exists.
+- Official gate blocked: stop, report missing requirements and `source_claim_ids`, then ask for missing facts or explicit override.
 - Self-evolution: add evals/references for repeated project patterns instead of relying on memory.

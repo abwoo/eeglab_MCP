@@ -14,13 +14,13 @@ This is for EEG signal-processing research workflows, not clinical diagnosis.
 
 ## Product Layers
 
-- `eeglab_mcp_server/`: Python stdio MCP server exposing the original 40 stable `eeglab_*` tools plus research planning/audit/export tools.
+- `eeglab_mcp_server/`: Python stdio MCP server exposing 37 legacy low-level `eeglab_*` tools plus 8 research workflow tools for planning, official preflight, audit, plugin checks, and protocol export.
 - `skills/eeglab-analysis/`: research-method guardrail skill for Codex or other skill-aware clients.
 - MCP prompts/resources: built-in project intake, QC, routing, analysis-entry prompts, skill docs, workflow docs, and official reference anchors for clients that do not support skills.
 - `configs/`: manual MCP client templates.
 - `scripts/`: setup, doctor, uninstall, and framework verification helpers.
 
-The skill and MCP connect through a fixed pattern: call `eeglab_project_plan` or `eeglab_workflow_recommend` first, use returned `qc_gates` and `blocking_conditions` as the checklist, run executable `eeglab_*` tools, then export/report exact parameters and limitations.
+The skill and MCP connect through a fixed pattern: call `eeglab_project_plan`, `eeglab_workflow_recommend`, or `eeglab_method_preflight` first, use returned `qc_gates`, `gate_results`, `source_claim_ids`, and `blocking_conditions` as the checklist, run executable `eeglab_*` tools only after gates pass or an explicit override is recorded, then export/report exact parameters and limitations.
 
 ## Quick Start
 
@@ -81,7 +81,27 @@ Built-in resources:
 - `eeglab://references/workflows.md`
 - `eeglab://references/tools.md`
 - `eeglab://references/setup.md`
+- `eeglab://references/official-method-map.md`
+- `eeglab://references/gate-policy.md`
+- `eeglab://references/method-gates.md`
+- `eeglab://references/acquisition-to-derivatives.md`
+- `eeglab://references/event-semantics.md`
+- `eeglab://references/preprocessing-decision-tree.md`
+- `eeglab://references/ica-iclabel-policy.md`
+- `eeglab://references/bids-study-policy.md`
+- `eeglab://references/source-policy.md`
+- `eeglab://references/report-protocol-templates.md`
+- `eeglab://references/statistics-reporting.md`
 - `eeglab://official/references.md`
+- `eeglab://official/topic-index.md`
+- `eeglab://official/support-matrix.md`
+- `eeglab://official/tool-support-matrix.md`
+- `eeglab://official/method-map.md`
+- `eeglab://official/gate-policy.md`
+- `eeglab://official/plugin-map.md`
+- `eeglab://official/plugin-matrix.md`
+- `eeglab://official/risk-matrix.md`
+- `eeglab://official/report-field-matrix.md`
 
 ## Pairing With MATLAB MCP
 
@@ -99,12 +119,12 @@ Use `eeglab` MCP first for EEG/EEGLAB work: loading, QC, event audit, preprocess
 ## Research Shortcuts
 
 - `quick_qc`: load/QC/events/history only; never modifies data.
-- `safe_erp`: ERP only after condition-trigger event semantics are confirmed.
+- `safe_erp`: ERP only after `eeglab_method_preflight` confirms condition-trigger event semantics.
 - `segment_qc`: for datasets with start/end markers but no task-condition triggers.
-- `study_ready_check`: multi-subject/BIDS/STUDY prerequisites before group statistics.
-- `plugin_doctor`: check clean_rawdata, ICLabel, DIPFIT, BIDS, LIMO, and SIFT availability.
+- `study_ready_check`: multi-subject/BIDS/STUDY prerequisites and official gates before group statistics.
+- `plugin_doctor`: check clean_rawdata, ICLabel, DIPFIT, EEG-BIDS, BIOSIG, File-IO, MFF-matlab-io, NWB-io, BVA-io, HEDTools, firfilt, CleanLine, Zapline-Plus, AMICA, Picard, LIMO, SIFT, groupSIFT, NFT, and NSGportal availability, including each plugin's support level and next step if missing.
 
-See `docs/user-workflows.md` and `docs/research-standard.md` for the research-standard policy and official EEGLAB reference anchors.
+See `docs/user-workflows.md`, `docs/research-standard.md`, `docs/official-topic-index.md`, `docs/official-support-matrix.md`, `docs/official-tool-support-matrix.md`, `docs/official-method-map.md`, `docs/official-gate-policy.md`, `docs/official-plugin-map.md`, `docs/official-risk-matrix.md`, and `docs/official-report-field-matrix.md` for the research-standard policy and official EEGLAB reference anchors.
 
 ## Manual Configuration
 
@@ -124,9 +144,11 @@ Framework verification does not require EEG test data:
 
 ```powershell
 python -B .\scripts\verify_framework.py
+python .\scripts\verify_official_alignment.py
+python .\scripts\verify_official_alignment.py --online
 ```
 
-It checks Python syntax, config templates, skill files, MCP tools, MCP prompts/resources, and cleanliness. It intentionally does not restore or require sample EEG datasets.
+Framework verification checks Python syntax, config templates, skill files, MCP tools, MCP prompts/resources, eval coverage, and cleanliness. Official-alignment verification checks claim/profile/tool/resource synchronization, report matrices, method-gate behavior, and, with `--online`, live official EEGLAB/SCCN/BIDS URLs. These checks intentionally do not restore or require sample EEG datasets.
 
 For a first real EEG dataset, use a small local file and call:
 

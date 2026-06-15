@@ -36,14 +36,15 @@ Tool path:
 
 1. `eeglab_project_plan` or `eeglab_workflow_recommend`
 2. `eeglab_event_semantics_audit`
-3. `eeglab_filter`
-4. optional `eeglab_clean_line_noise`
-5. optional ICA/ICLabel branch
-6. `eeglab_epoch`
-7. `eeglab_erp_analysis`
-8. optional `eeglab_plot_erp` or `eeglab_topoplot`
-9. `eeglab_save_data`
-10. `eeglab_protocol_export`
+3. `eeglab_method_preflight` with `method="epoch"` and confirmed event roles
+4. `eeglab_filter`
+5. optional `eeglab_clean_line_noise`
+6. optional ICA/ICLabel branch after its own preflight
+7. `eeglab_epoch`
+8. `eeglab_erp_analysis`
+9. optional `eeglab_plot_erp` or `eeglab_topoplot`
+10. `eeglab_save_data`
+11. `eeglab_protocol_export`
 
 ## 3. segment_qc
 
@@ -62,9 +63,10 @@ Tool path:
 
 1. `eeglab_get_events`
 2. `eeglab_event_semantics_audit`
-3. `eeglab_qc_report`
-4. optional external marker-file parser for precise segment tables
-5. `eeglab_protocol_export`
+3. `eeglab_method_preflight` with `method="epoch"` to document why ERP epoching is blocked
+4. `eeglab_qc_report`
+5. optional external marker-file parser for precise segment tables
+6. `eeglab_protocol_export`
 
 ## 4. study_ready_check
 
@@ -83,10 +85,11 @@ Tool path:
 
 1. `eeglab_project_plan`
 2. `eeglab_plugin_check`
-3. `eeglab_import_bids` or `eeglab_study_create`
-4. `eeglab_study_design`
-5. `eeglab_study_statistics`
-6. `eeglab_protocol_export`
+3. `eeglab_method_preflight` with `method="bids_import"` before BIDS import, or `method="study_create"` before creating a STUDY from existing datasets
+4. `eeglab_import_bids` or `eeglab_study_create`
+5. `eeglab_method_preflight` with `method="study_design"`, then `eeglab_study_design`
+6. `eeglab_method_preflight` with `method="study_statistics"`, then `eeglab_study_statistics`
+7. `eeglab_protocol_export`
 
 ## 5. plugin_doctor
 
@@ -97,14 +100,27 @@ Use before:
 - ASR or clean_rawdata
 - ICA + ICLabel cleanup
 - DIPFIT/source localization
-- BIDS/STUDY import
-- LIMO or SIFT-dependent analysis
+- EEG-BIDS/STUDY import
+- BIOSIG, File-IO, MFF, NWB, or BrainVision/BVA import/export readiness
+- HEDTools or HED event annotation readiness
+- firfilt, CleanLine, or Zapline-Plus line-noise/filtering choices
+- BIDS export or derivative-publication readiness
+- STUDY precompute, visualization, or ICA clustering interpretation
+- AMICA or Picard ICA variants
+- LIMO, SIFT, groupSIFT, NFT, or NSGportal-dependent analysis
 
 Tool path:
 
 1. `eeglab_init`
 2. `eeglab_plugin_check`
-3. report missing plugins and next installation/path steps
+3. `eeglab_method_preflight` for the requested plugin-dependent method
+4. report each plugin's `support_level`, missing functions, dependent profiles, and next installation/path steps
+
+Policy:
+
+- `executable` and `gated_guidance` plugins still require method preflight before scientific claims.
+- `indexed_only` plugins are planning/reporting support only unless a dedicated MCP workflow exists.
+- `bids_export`, `import_plugins`, `data_export`, `hed_event_annotation`, `history_scripting`, `event_script_modification`, `study_precompute`, `ica_clustering`, `amica_ica`, and `nsg_remote` are guidance/preflight profiles, not default execution support.
 
 ## Choosing eeglab MCP vs matlab MCP
 

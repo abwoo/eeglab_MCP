@@ -15,9 +15,9 @@ Official anchors for this skill are EEGLAB/SCCN sources: the EEGLAB repository, 
 
 1. Confirm the `eeglab` MCP server is available and exposes `eeglab_*` tools.
 2. Start with `eeglab_init`, then `eeglab_load_data`, `eeglab_qc_report`, `eeglab_info`, `eeglab_get_events`, and `eeglab_history`.
-3. Call `eeglab_project_plan` or `eeglab_workflow_recommend` before destructive processing. If the user gave a goal, pass `research_goal` and `analysis_type`; if not, pass available data facts and use the returned `clarifying_questions`, `default_assumptions`, `blocking_conditions`, `not_recommended`, and `qc_gates`.
-4. Choose a workflow from `references/workflows.md`: inspection, ERP, resting-state spectral, time-frequency, ICA cleanup, visualization, STUDY, or source localization.
-5. Before destructive processing, ask for or choose an output path and preserve the original dataset.
+3. Call `eeglab_project_plan`, `eeglab_workflow_recommend`, or `eeglab_method_preflight` before destructive/high-risk processing. If the user gave a goal, pass `research_goal` and `analysis_type`; if not, pass available data facts and use the returned `clarifying_questions`, `default_assumptions`, `blocking_conditions`, `not_recommended`, `qc_gates`, `gate_results`, and `source_claim_ids`.
+4. Choose a workflow from `references/workflows.md`: quick QC, ERP, resting-state spectral, ERSP/ITC, ICA cleanup, BIDS/STUDY, import-plugin guidance, BIDS/data export guidance, HED event annotation guidance, history scripting guidance, event-script modification guidance, STUDY precompute/clustering guidance, source, LIMO guidance, AMICA guidance, SIFT guidance, NSGportal guidance, or report-only recovery.
+5. Before destructive processing, ask for or choose an output path, preserve the original dataset, and satisfy official gates. If a gate is blocked, do not proceed unless the user explicitly supplies an override reason.
 6. Report recording/provenance facts first: source path, sampling rate, duration, data shape, channel count, channel-location coverage, reference/montage, event labels/counts, event latency range, and processing history availability.
 7. Report every processing parameter used: filter cutoffs, line-noise frequency, ASR threshold, rereference, ICA algorithm, epoch/baseline windows, channel list, frequency range, rejected components/epochs, and output files.
 8. State uncertainty and prerequisites clearly. Do not make diagnosis, treatment, or clinical interpretation claims.
@@ -52,7 +52,7 @@ Recording/provenance audit: preserve raw files, record absolute input/output pat
 
 Event semantics and experimental design: use `eeglab_event_semantics_audit` when marker meanings are unclear. Classify labels as condition/trigger, boundary, impedance/QC annotation, segment marker, excluded marker, or candidate trigger. Do not epoch around boundaries, impedance, excluded markers, or segment-only start/end labels.
 
-Preprocessing decision tree: choose the smallest justified sequence. Filtering, resampling, rereferencing, clean_rawdata/ASR, ICA, component removal, and epoch rejection all require recorded parameters and a separate derivative output.
+Preprocessing decision tree: choose the smallest justified sequence. Filtering, resampling, rereferencing, clean_rawdata/ASR, ICA, component removal, and epoch rejection all require recorded parameters, official method gate results, and a separate derivative output.
 
 ICA/ICLabel review policy: verify continuous-data suitability, rank/reference assumptions, bad-channel handling, and ICLabel availability. Use ICLabel as decision support; report thresholds and never auto-remove components without rationale.
 
@@ -81,7 +81,23 @@ Reporting and reproducibility checklist: every report needs input/output paths, 
 - `safe_erp`: ERP branch only after `eeglab_event_semantics_audit` confirms condition triggers.
 - `segment_qc`: for datasets with start/end markers but no task-condition triggers; report segment durations and avoid ERP claims.
 - `study_ready_check`: multi-subject/BIDS prerequisite check before STUDY/group statistics.
-- `plugin_doctor`: run `eeglab_plugin_check` before ASR, ICLabel, DIPFIT, BIDS/STUDY, LIMO, or SIFT-dependent work.
+- `import_plugin_check`: guidance-only import readiness for BIOSIG, File-IO, MFF, NWB, BrainVision/BVA, or other plugin-dependent formats before analysis claims.
+- `bids_export_check`: guidance-only BIDS export readiness check before claiming derivative export support.
+- `data_export_check`: guidance-only external export readiness check before claiming BrainVision, MFF, NWB, or other non-.set export support.
+- `hed_event_check`: guidance-only HED/events.json/codebook readiness check before using event metadata as condition evidence.
+- `history_script_check`: guidance-only check before converting EEGLAB GUI history into a batch protocol.
+- `event_script_check`: guidance-only check before recoding/deleting/shifting events or repairing `urevent` links.
+- `study_precompute_check`: guidance-only check before STUDY measure precompute, visualization, or ICA clustering claims.
+- `plugin_doctor`: run `eeglab_plugin_check` before ASR, ICLabel, DIPFIT, EEG-BIDS/STUDY, firfilt/CleanLine/Zapline, AMICA/Picard, LIMO, SIFT, groupSIFT, NFT, or NSGportal-dependent work.
+- `report_only_recovery`: when execution is blocked, export a protocol/report with gate status, missing requirements, source claim IDs, and safe next steps.
+
+## Official Gate Routing
+
+Use `eeglab_method_preflight` before high-risk tools: `eeglab_epoch`, `eeglab_erp_light_workflow`, `eeglab_timefreq`, `eeglab_plot_timefreq`, `eeglab_clean_rawdata`, `eeglab_run_ica`, `eeglab_classify_ica`, `eeglab_flag_components`, `eeglab_remove_components`, `eeglab_source_settings`, `eeglab_source_localization`, `eeglab_import_bids`, `eeglab_study_create`, `eeglab_study_design`, `eeglab_study_statistics`, `eeglab_filter`, `eeglab_resample`, `eeglab_reref`, `eeglab_reject_epochs`, `eeglab_clean_line_noise`, `eeglab_interpolate_channels`, `eeglab_edit_channels`, `eeglab_spectral`, `eeglab_connectivity`, `eeglab_topoplot`, and `eeglab_pipeline`. Use it for guidance-only official profiles too: `bids_export`, `import_plugins`, `data_export`, `hed_event_annotation`, `history_scripting`, `event_script_modification`, `study_precompute`, `ica_clustering`, `limo_statistics`, `amica_ica`, `sift_connectivity`, and `nsg_remote`.
+
+Official support levels are `executable`, `gated_guidance`, `indexed_only`, and `out_of_scope`. Unsupported official plugins or advanced methods must be indexed and explained as guidance-only rather than treated as executable.
+
+If `gate_status=blocked`, stop and explain missing requirements. Ask for missing facts or a user-approved `override_reason`. If the user approves an override, call the tool with `override_gate=true`, `override_reason`, and a `method_context` that records known facts. Always report `source_claim_ids`, blocked requirements, and override status.
 
 ## Tool Use Rules
 
@@ -96,8 +112,9 @@ Reporting and reproducibility checklist: every report needs input/output paths, 
 - Prefer explicit step-by-step tools over `eeglab_pipeline` when the user needs transparency or reproducibility.
 - Prefer `eeglab_qc_report` for first-pass quality checks and `eeglab_workflow_recommend` before destructive preprocessing.
 - Prefer `eeglab_project_plan` for large or ambiguous projects; use `eeglab_protocol_export` when the user needs a protocol or handoff artifact.
+- Use `eeglab_method_preflight` or high-risk tool `method_context` before official-gated steps. Treat `official_gate_blocked` as a scientific method stop, not a transient tool error.
 - Use `eeglab_event_semantics_audit` before ERP/time-frequency work when event labels are ambiguous, sparse, or include boundaries/impedance/segment markers.
-- Use `eeglab_plugin_check` before plugin-dependent workflows: clean_rawdata, ICLabel, DIPFIT, BIDS/STUDY, LIMO, and SIFT.
+- Use `eeglab_plugin_check` before plugin-dependent workflows: clean_rawdata, ICLabel, DIPFIT, EEG-BIDS/STUDY, BIDS export, import/export formats through BIOSIG, File-IO, MFF-matlab-io, NWB-io, BVA-io, HEDTools, STUDY precompute/clustering, firfilt, CleanLine, Zapline-Plus, AMICA, Picard, LIMO, SIFT, groupSIFT, NFT, and NSGportal.
 - Treat EEG recording/acquisition metadata as evidence, not decoration: if comments, channel locations, event labels, reference, or processing history are missing, report the gap.
 - Use `qc_gates` from `eeglab_workflow_recommend` as a checklist before claiming a dataset is ready for processing or analysis.
 - Use `eeglab_erp_light_workflow` for a smoke-tested ERP chain when the user wants a complete lightweight ERP run into a new output directory.
@@ -109,12 +126,13 @@ Reporting and reproducibility checklist: every report needs input/output paths, 
 - Do not silently change scientific defaults. Update skill references or eval prompts only when a repeated pattern is observed or the user explicitly approves a project-specific protocol.
 - When adding a new supported research pattern, add or update an eval prompt that requires at least two MCP tool calls and a decision based on previous output.
 - Keep the MCP and this skill synchronized: if a tool output adds a new QC field or decision rule, update the skill/reporting guidance; if the skill requires a new invariant, add a verifier or eval.
+- Keep official claim IDs synchronized: when adding a new method rule, add the claim map entry, MCP resource text, verifier term, and eval prompt together.
 
 ## Reporting Templates
 
 Recording record: input path, set name/file name, sampling rate, data shape, points/trials, duration, channel count, channel-location coverage, reference/montage, event labels/counts, event latency range, comments/BIDS metadata if available, and processing-history availability.
 
-Parameter record: output path, filter cutoffs, line-noise choice, ASR threshold, rereference, ICA algorithm/PCA rank, ICLabel thresholds, epoch window, baseline window, channels, frequency range, rejected data/components, and software/plugin limitations.
+Parameter record: output path, filter cutoffs, line-noise choice, ASR threshold, rereference, ICA algorithm/PCA rank, ICLabel thresholds, epoch window, baseline window, channels, frequency range, connectivity/model validation if relevant, rejected data/components, and software/plugin limitations.
 
 Result report: summarize recording metadata, dataset dimensions, processing steps, exact parameters, generated files, QC/provenance risks, failures/recovery, and analysis limits. Do not make clinical or diagnostic claims.
 
@@ -123,4 +141,8 @@ Result report: summarize recording metadata, dataset dimensions, processing step
 - For workflow recipes and tool sequences, read `references/workflows.md`.
 - For MCP/client setup and verification, read `references/setup.md`.
 - For tool groups and common parameters, read `references/tools.md`.
-- For official EEGLAB reference anchors, read MCP resource `eeglab://official/references.md` or project file `docs/research-standard.md`.
+- For official method gates, read `references/official-gates.md`, `references/official-method-map.md`, `references/gate-policy.md`, and `references/method-gates.md`.
+- For raw preservation, acquisition metadata, BIDS sidecars, and derivative policy, read `references/acquisition-to-derivatives.md`.
+- For event ambiguity, read `references/event-semantics.md`; for preprocessing, ICA, STUDY, source, and report detail, read the matching policy reference in `references/`.
+- For STUDY/LIMO/SIFT statistics and minimum report fields, read `references/statistics-reporting.md`.
+- For official EEGLAB reference anchors, topic coverage, support levels, tool support, risk gates, plugin matrix, and report field matrix, read MCP resources `eeglab://official/references.md`, `eeglab://official/topic-index.md`, `eeglab://official/support-matrix.md`, `eeglab://official/tool-support-matrix.md`, `eeglab://official/plugin-matrix.md`, `eeglab://official/risk-matrix.md`, and `eeglab://official/report-field-matrix.md`.

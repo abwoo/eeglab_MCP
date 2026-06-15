@@ -7,6 +7,13 @@ from typing import Any
 
 from mcp.types import Tool, ToolAnnotations
 
+try:
+    from .official_alignment import HIGH_RISK_TOOL_NAMES
+    from .tool_registry import TOOL_REGISTRY
+except ImportError:  # pragma: no cover - direct script execution support
+    from official_alignment import HIGH_RISK_TOOL_NAMES
+    from tool_registry import TOOL_REGISTRY
+
 
 REQUIRED_ARGUMENTS: dict[str, list[str]] = {
     "eeglab_load_data": ["filepath"],
@@ -37,7 +44,15 @@ WORKFLOW_OUTPUT_SCHEMA: dict[str, Any] = {
         "summary": {"type": "object"},
         "limitations": {"type": "array"},
     },
-    "required": ["status", "workflow", "steps", "parameters", "outputs", "summary", "limitations"],
+    "required": [
+        "status",
+        "workflow",
+        "steps",
+        "parameters",
+        "outputs",
+        "summary",
+        "limitations",
+    ],
 }
 
 
@@ -79,10 +94,24 @@ def workflow_tools() -> list[Tool]:
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "data_path": {"type": "string", "description": "Input EEG dataset path, usually a .set file."},
-                    "output_dir": {"type": "string", "description": "Directory for processed output files."},
-                    "low_cutoff": {"type": "number", "default": 0.5, "description": "Bandpass low cutoff in Hz."},
-                    "high_cutoff": {"type": "number", "default": 40.0, "description": "Bandpass high cutoff in Hz."},
+                    "data_path": {
+                        "type": "string",
+                        "description": "Input EEG dataset path, usually a .set file.",
+                    },
+                    "output_dir": {
+                        "type": "string",
+                        "description": "Directory for processed output files.",
+                    },
+                    "low_cutoff": {
+                        "type": "number",
+                        "default": 0.5,
+                        "description": "Bandpass low cutoff in Hz.",
+                    },
+                    "high_cutoff": {
+                        "type": "number",
+                        "default": 40.0,
+                        "description": "Bandpass high cutoff in Hz.",
+                    },
                     "event_types": {
                         "type": "array",
                         "items": {"type": "string"},
@@ -150,7 +179,15 @@ def workflow_tools() -> list[Tool]:
                 "properties": {
                     "analysis_type": {
                         "type": "string",
-                        "enum": ["auto", "erp", "resting", "timefreq", "ica", "study", "source"],
+                        "enum": [
+                            "auto",
+                            "erp",
+                            "resting",
+                            "timefreq",
+                            "ica",
+                            "study",
+                            "source",
+                        ],
                         "description": "Target analysis family. Use auto when the user has not specified a goal; the tool will infer a conservative first-pass branch.",
                     },
                     "research_goal": {
@@ -159,12 +196,25 @@ def workflow_tools() -> list[Tool]:
                     },
                     "project_scale": {
                         "type": "string",
-                        "enum": ["unknown", "single_subject", "multi_subject", "bids_study", "exploratory_qc"],
+                        "enum": [
+                            "unknown",
+                            "single_subject",
+                            "multi_subject",
+                            "bids_study",
+                            "exploratory_qc",
+                        ],
                         "description": "Expected study scale and organization.",
                     },
                     "stage": {
                         "type": "string",
-                        "enum": ["planning", "inspection", "preprocessing", "analysis", "group", "reporting"],
+                        "enum": [
+                            "planning",
+                            "inspection",
+                            "preprocessing",
+                            "analysis",
+                            "group",
+                            "reporting",
+                        ],
                         "description": "Current project stage so the recommendation can emphasize the right QC gate.",
                     },
                     "event_types": {
@@ -172,8 +222,14 @@ def workflow_tools() -> list[Tool]:
                         "items": {"type": "string"},
                         "description": "Known event labels, if available.",
                     },
-                    "srate": {"type": "number", "description": "Sampling rate in Hz, if known."},
-                    "has_ica": {"type": "boolean", "description": "Whether ICA weights already exist."},
+                    "srate": {
+                        "type": "number",
+                        "description": "Sampling rate in Hz, if known.",
+                    },
+                    "has_ica": {
+                        "type": "boolean",
+                        "description": "Whether ICA weights already exist.",
+                    },
                     "data_shape": {
                         "type": "string",
                         "enum": ["continuous_or_single_trial", "epoched"],
@@ -213,17 +269,33 @@ def workflow_tools() -> list[Tool]:
                     },
                     "analysis_type": {
                         "type": "string",
-                        "enum": ["auto", "erp", "resting", "timefreq", "ica", "study", "source", "connectivity", "segment_qc"],
+                        "enum": [
+                            "auto",
+                            "erp",
+                            "resting",
+                            "timefreq",
+                            "ica",
+                            "study",
+                            "source",
+                            "connectivity",
+                            "segment_qc",
+                        ],
                         "description": "Requested analysis family. Use auto when the user has not committed to a method.",
                     },
                     "project_scale": {
                         "type": "string",
-                        "enum": ["unknown", "single_subject", "multi_subject", "bids_study", "exploratory_qc"],
+                        "enum": [
+                            "unknown",
+                            "single_subject",
+                            "multi_subject",
+                            "bids_study",
+                            "exploratory_qc",
+                        ],
                         "description": "Study organization and expected level of inference.",
                     },
                     "data_format": {
                         "type": "string",
-                        "description": "Observed file format or container, for example .set, BrainVision, EDF/BDF, CNT, or BIDS.",
+                        "description": "Observed file format or container, for example .set, BrainVision, EDF/BDF, CNT, MFF, NWB, or BIDS.",
                     },
                     "data_shape": {
                         "type": "string",
@@ -239,9 +311,20 @@ def workflow_tools() -> list[Tool]:
                         "type": "object",
                         "description": "Mapping from event label to meaning, such as condition, boundary, impedance, or segment marker.",
                     },
-                    "srate": {"type": "number", "description": "Sampling rate in Hz, if known."},
-                    "subject_count": {"type": "integer", "minimum": 1, "description": "Number of subjects expected in the project."},
-                    "session_count": {"type": "integer", "minimum": 1, "description": "Number of sessions/runs per subject, if known."},
+                    "srate": {
+                        "type": "number",
+                        "description": "Sampling rate in Hz, if known.",
+                    },
+                    "subject_count": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "description": "Number of subjects expected in the project.",
+                    },
+                    "session_count": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "description": "Number of sessions/runs per subject, if known.",
+                    },
                     "has_channel_locations": {
                         "type": "boolean",
                         "description": "Whether channel-location metadata are complete enough for topography/source claims.",
@@ -292,9 +375,50 @@ def workflow_tools() -> list[Tool]:
                         "type": "string",
                         "description": "Optional file path for the exported protocol. Omit for structured/text content only.",
                     },
-                    "research_goal": {"type": "string", "description": "Study goal or hypothesis to record."},
-                    "analysis_type": {"type": "string", "description": "Analysis family or branch being documented."},
-                    "parameters": {"type": "object", "description": "Exact preprocessing/analysis parameters to preserve."},
+                    "research_goal": {
+                        "type": "string",
+                        "description": "Study goal or hypothesis to record.",
+                    },
+                    "analysis_type": {
+                        "type": "string",
+                        "description": "Analysis family or branch being documented.",
+                    },
+                    "parameters": {
+                        "type": "object",
+                        "description": "Exact preprocessing/analysis parameters to preserve.",
+                    },
+                    "gate_results": {
+                        "type": "array",
+                        "items": {"type": "object"},
+                        "description": "Optional compact official gate summaries from upstream workflow tools.",
+                    },
+                    "source_claim_ids": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Optional explicit official claim IDs to anchor the protocol report.",
+                    },
+                    "report_fields": {
+                        "type": "object",
+                        "description": "Optional report field matrix coverage grouped by official reporting sections.",
+                    },
+                    "override_used": {
+                        "type": "boolean",
+                        "description": "Record whether the workflow proceeded under an explicit override.",
+                    },
+                    "override_reason": {
+                        "type": "string",
+                        "description": "Explicit user-approved reason for any override.",
+                    },
+                    "blocked_requirements_acknowledged": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Critical requirements acknowledged when proceeding under override.",
+                    },
+                    "missing_requirements": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Known missing requirements that should still be reported in the protocol.",
+                    },
                     "qc_gates": {
                         "type": "array",
                         "items": {"type": "string"},
@@ -305,7 +429,10 @@ def workflow_tools() -> list[Tool]:
                         "items": {"type": "string"},
                         "description": "Planned or completed workflow steps.",
                     },
-                    "outputs": {"type": "object", "description": "Expected or produced output files/tables/figures."},
+                    "outputs": {
+                        "type": "object",
+                        "description": "Expected or produced output files/tables/figures.",
+                    },
                     "limitations": {
                         "type": "array",
                         "items": {"type": "string"},
@@ -328,8 +455,8 @@ def workflow_tools() -> list[Tool]:
             title="EEGLAB Plugin Check",
             description=(
                 "Check whether important EEGLAB plugins/functions are reachable in the local MATLAB/EEGLAB path, including "
-                "clean_rawdata, ICLabel, DIPFIT, BIDS import, LIMO, and SIFT-related functions. Use before plugin-dependent "
-                "ICA cleanup, ASR, source, BIDS/STUDY, or connectivity workflows."
+                "clean_rawdata, ICLabel, DIPFIT, EEG-BIDS, BIOSIG, File-IO, MFF, NWB, BVA, HEDTools, LIMO, SIFT, and NSG-related functions. Use before plugin-dependent "
+                "ICA cleanup, ASR, source, BIDS/STUDY, import/export, event annotation, or connectivity workflows."
             ),
             inputSchema={
                 "type": "object",
@@ -337,7 +464,7 @@ def workflow_tools() -> list[Tool]:
                     "plugins": {
                         "type": "array",
                         "items": {"type": "string"},
-                        "description": "Optional plugin/function groups to probe. Defaults to clean_rawdata, ICLabel, DIPFIT, BIDS, LIMO, and SIFT.",
+                        "description": "Optional plugin/function groups to probe. Defaults to the official plugin matrix, including clean_rawdata, ICLabel, DIPFIT, EEG-BIDS, BIOSIG, File-IO, MFF, NWB, BVA, HEDTools, LIMO, SIFT, and NSGportal.",
                     }
                 },
                 "required": [],
@@ -407,6 +534,52 @@ def workflow_tools() -> list[Tool]:
                 openWorldHint=False,
             ),
         ),
+        Tool(
+            name="eeglab_method_preflight",
+            title="EEGLAB Official Method Preflight",
+            description=(
+                "Evaluate official EEGLAB/SCCN method gates before high-risk processing. Use this before epoching, "
+                "clean_rawdata/ASR, ICA/ICLabel, component removal, source/DIPFIT, staged BIDS/STUDY work, "
+                "BIDS/acquisition provenance checks, or one-click pipelines. "
+                "It does not run MATLAB; it returns gate_status, missing requirements, source claim IDs, and safe next steps."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "method": {
+                        "type": "string",
+                        "description": "Method family such as acquisition_metadata, bids_metadata, bids_import, import_plugins, data_export, hed_event_annotation, history_scripting, event_script_modification, study_create, study_design, study_statistics, study, epoch, timefreq, clean_rawdata, run_ica, iclabel, source, derivative_processing, or pipeline.",
+                    },
+                    "tool_name": {
+                        "type": "string",
+                        "description": "Optional MCP tool name to map to a method profile, for example eeglab_epoch or eeglab_source_localization.",
+                    },
+                    "context": {
+                        "type": "object",
+                        "description": "Known facts used for gate checks: raw_input_preserved, derivative_output_planned, source/export format, event/channel mapping, HED schema, event modification rules, urevent status, reference/montage, power_line_frequency, BIDS sidecars, event_roles, data_shape, plugins_available, has_ica, has_channel_locations, output_dir, rank_reference_reviewed, and related fields.",
+                    },
+                    "strictness": {
+                        "type": "string",
+                        "enum": ["hard", "advisory"],
+                        "default": "hard",
+                        "description": "hard blocks missing critical requirements unless override_reason is supplied; advisory reports gaps without blocking.",
+                    },
+                    "override_reason": {
+                        "type": "string",
+                        "description": "Explicit user-approved reason for proceeding despite blocked official gates.",
+                    },
+                },
+                "required": [],
+            },
+            outputSchema=WORKFLOW_OUTPUT_SCHEMA,
+            annotations=ToolAnnotations(
+                title="Official method preflight",
+                readOnlyHint=True,
+                destructiveHint=False,
+                idempotentHint=True,
+                openWorldHint=False,
+            ),
+        ),
     ]
 
 
@@ -462,12 +635,13 @@ TOOL_DESCRIPTION_APPENDIX: dict[str, str] = {
     "eeglab_study_statistics": "Official pattern: wraps STUDY statistical parameter/stat calls. Preconditions: valid design, precomputed measures, alpha/correction policy. Read/write STUDY state. Common failures: missing measures or invalid correction assumptions.",
     "eeglab_pipeline": "Official pattern: chains pop_ preprocessing/analysis functions into a standardized derivative workflow. Preconditions: user accepts defaults and output path is separate from raw data. High risk because many decisions are bundled. Common failures: missing plugins/events or unsuitable defaults.",
     "eeglab_qc_report": "Research workflow: combines info/events/history into a QC gate. Preconditions: EEG loaded. Read-only. Common failures: no EEG or incomplete acquisition metadata.",
-    "eeglab_erp_light_workflow": "Research workflow: conservative smoke ERP using load/filter/epoch/ERP/save. Preconditions: validated ERP event labels and separate output directory. Writes derivative files. Common failures: wrong event labels or absent requested channels.",
+    "eeglab_erp_light_workflow": "Research workflow: conservative smoke ERP using load/filter/epoch/ERP/save. Preconditions: official preflight gates, validated ERP event labels, and separate output directory. Writes derivative files. Common failures: wrong event labels or absent requested channels.",
     "eeglab_workflow_recommend": "Research workflow: non-destructive recommender for analysis branch, QC gates, and limitations. Preconditions: pass known facts when available. Read-only. Common failures: insufficient goal/event/montage facts.",
     "eeglab_project_plan": "Research workflow: project-level protocol planner. Preconditions: goal/design facts if available. Read-only. Common failures: unresolved event semantics or missing montage/behavioral log constraints.",
     "eeglab_protocol_export": "Research workflow: protocol serializer to Markdown/JSON. Preconditions: steps/parameters/QC gates should be reviewed. May write one protocol file. Common failures: invalid output path.",
     "eeglab_plugin_check": "Research workflow: probes plugin/function availability in MATLAB/EEGLAB. Preconditions: MATLAB and EEGLAB can start. Read-only. Common failures: missing plugin path or unavailable MATLAB.",
     "eeglab_event_semantics_audit": "Research workflow: classifies markers before epoching. Preconditions: event labels/counts or user semantics. Read-only. Common failures: no condition-level event remains after excluding boundaries/QC markers.",
+    "eeglab_method_preflight": "Official alignment workflow: evaluates EEGLAB/SCCN claim-map gates before high-risk processing. Preconditions: pass available method context. Read-only. Common failures: unmapped method or missing critical prerequisites.",
 }
 
 READ_ONLY_TOOLS = {
@@ -479,6 +653,7 @@ READ_ONLY_TOOLS = {
     "eeglab_project_plan",
     "eeglab_plugin_check",
     "eeglab_event_semantics_audit",
+    "eeglab_method_preflight",
 }
 
 DESTRUCTIVE_TOOLS = {
@@ -497,15 +672,97 @@ DESTRUCTIVE_TOOLS = {
 }
 
 
+def _derivative_output_label(read_write_effect: str) -> str:
+    """Summarize derivative expectations from the registry read/write effect."""
+    effect = read_write_effect.lower()
+    if "read-only" in effect:
+        return "no data derivative unless the caller exports a report or figure"
+    if "writes derivative" in effect:
+        return "yes, writes a derivative output"
+    if "writes figure" in effect:
+        return "yes, writes a derivative figure artifact"
+    if "may write" in effect:
+        return "optional report/protocol derivative only"
+    if any(
+        token in effect
+        for token in (
+            "modifies",
+            "adds",
+            "removes",
+            "creates",
+            "converts",
+            "updates",
+            "loads",
+        )
+    ):
+        return "data-changing; save results only as a separate derivative"
+    if "computes" in effect:
+        return "analysis derivative only when exported"
+    return "not classified; record output handling in the report"
+
+
+def _tool_contract_appendix(tool_name: str) -> str:
+    """Build the model-facing official contract from the central registry."""
+    spec = TOOL_REGISTRY.get(tool_name)
+    if spec is None:
+        return ""
+    method_profile = spec.method_profile or "none"
+    if spec.risk_level == "high":
+        preflight = (
+            f"required through eeglab_method_preflight method={method_profile} "
+            "before execution unless an explicit override reason is recorded"
+        )
+    elif spec.risk_level == "read_only":
+        preflight = "not required for execution; use for planning gates when scientific claims depend on it"
+    else:
+        preflight = "use when project gates or downstream interpretation depend on this step"
+    return (
+        "Tool contract: "
+        f"EEGLAB function family: {spec.eeglab_function_family}. "
+        f"Official method profile: {method_profile}. "
+        f"Risk level: {spec.risk_level}. "
+        f"Preflight: {preflight}. "
+        f"Read/write effect: {spec.read_write_effect}. "
+        f"Derivative output: {_derivative_output_label(spec.read_write_effect)}."
+    )
+
+
 def annotate_tools(tools: list[Tool]) -> list[Tool]:
     """Add MCP title/annotation metadata without changing tool names."""
     for tool in tools:
         tool.title = tool.title or TOOL_TITLES.get(tool.name, tool.name.replace("_", " ").title())
+        if tool.name in HIGH_RISK_TOOL_NAMES:
+            properties = dict(tool.inputSchema.get("properties", {}))
+            properties.setdefault(
+                "override_gate",
+                {
+                    "description": "Set true only when the user explicitly accepts missing official preflight requirements.",
+                    "default": False,
+                },
+            )
+            properties.setdefault(
+                "override_reason",
+                {
+                    "description": "Required when override_gate is true; records why blocked official gates are being bypassed.",
+                },
+            )
+            properties.setdefault(
+                "method_context",
+                {
+                    "description": "Known facts for official preflight, such as data_shape, event_roles, plugins_available, source/export format, event/channel mapping, HED schema, event modification rules, urevent status, has_ica, has_channel_locations, output_dir, rank_reference_reviewed, and design variables.",
+                },
+            )
+            tool.inputSchema = {**tool.inputSchema, "properties": properties}
         appendix = TOOL_DESCRIPTION_APPENDIX.get(tool.name)
         if appendix:
             description = tool.description or ""
             if appendix not in description:
                 tool.description = f"{description} {appendix}".strip()
+        contract = _tool_contract_appendix(tool.name)
+        if contract:
+            description = tool.description or ""
+            if contract not in description:
+                tool.description = f"{description} {contract}".strip()
         if tool.annotations is None:
             read_only = tool.name in READ_ONLY_TOOLS
             tool.annotations = ToolAnnotations(
@@ -734,7 +991,12 @@ def validate_tool_contracts(name: str, arguments: dict[str, Any]) -> list[str]:
 
     elif name == "eeglab_reref":
         if arguments.get("ref_type") == "channel":
-            _require_present(arguments, "ref_channel", "ref_type 为 channel 时需要 ref_channel", errors)
+            _require_present(
+                arguments,
+                "ref_channel",
+                "ref_type 为 channel 时需要 ref_channel",
+                errors,
+            )
 
     elif name == "eeglab_select_channels":
         has_channels = _is_present(arguments, "channels")
@@ -818,10 +1080,24 @@ def validate_tool_contracts(name: str, arguments: dict[str, Any]) -> list[str]:
             errors.append("eeglab_protocol_export 的 qc_gates 不能为空数组")
         if "steps" in arguments and _is_present(arguments, "steps") is False:
             errors.append("eeglab_protocol_export 的 steps 不能为空数组")
+        for field in (
+            "gate_results",
+            "source_claim_ids",
+            "blocked_requirements_acknowledged",
+            "missing_requirements",
+        ):
+            if field in arguments and _is_present(arguments, field) is False:
+                errors.append(f"eeglab_protocol_export 的 {field} 不能为空数组")
+        if arguments.get("override_used") is True and not _is_present(arguments, "override_reason"):
+            errors.append("eeglab_protocol_export 使用 override 时必须提供 override_reason")
 
     elif name == "eeglab_plugin_check":
         if "plugins" in arguments and _is_present(arguments, "plugins") is False:
             errors.append("eeglab_plugin_check 的 plugins 不能为空数组")
+
+    elif name == "eeglab_method_preflight":
+        if not _is_present(arguments, "method") and not _is_present(arguments, "tool_name"):
+            errors.append("eeglab_method_preflight 需要 method 或 tool_name")
 
     elif name in {"eeglab_pipeline", "eeglab_erp_light_workflow"}:
         highpass_field = "highpass" if name == "eeglab_pipeline" else "low_cutoff"
@@ -842,6 +1118,10 @@ def validate_tool_contracts(name: str, arguments: dict[str, Any]) -> list[str]:
             _safe_leaf_filename(arguments, "output_filename", errors)
         else:
             _positive_number(arguments, "burst_criterion", errors)
+
+    if name in HIGH_RISK_TOOL_NAMES:
+        if arguments.get("override_gate") is True and not _is_present(arguments, "override_reason"):
+            errors.append("override_gate 为 true 时必须提供 override_reason")
 
     return errors
 

@@ -9,6 +9,19 @@ from typing import Any
 
 from mcp.types import TextContent
 
+try:
+    from .official_alignment import (
+        OFFICIAL_CLAIMS,
+        REPORT_FIELD_MATRIX,
+        evaluate_method_preflight,
+    )
+except ImportError:  # pragma: no cover - direct script execution support
+    from official_alignment import (
+        OFFICIAL_CLAIMS,
+        REPORT_FIELD_MATRIX,
+        evaluate_method_preflight,
+    )
+
 
 LIMITATIONS = [
     "This workflow reports EEG signal-processing outputs, not clinical or diagnostic conclusions.",
@@ -72,7 +85,13 @@ DEFAULT_QC_GATES = [
     "outputs_and_limitations_reported",
 ]
 
-NON_ANALYSIS_EVENT_ROLES = {"boundary", "impedance", "segment_marker", "excluded", "qc_annotation"}
+NON_ANALYSIS_EVENT_ROLES = {
+    "boundary",
+    "impedance",
+    "segment_marker",
+    "excluded",
+    "qc_annotation",
+}
 
 
 def _as_list(value: Any) -> list[Any]:
@@ -103,7 +122,17 @@ def _event_role_from_semantics(label: str, semantics: dict[str, Any]) -> str | N
     if raw is None:
         return None
     text = str(raw).strip().lower()
-    if any(term in text for term in ("condition", "target", "standard", "stimulus", "trigger", "response")):
+    if any(
+        term in text
+        for term in (
+            "condition",
+            "target",
+            "standard",
+            "stimulus",
+            "trigger",
+            "response",
+        )
+    ):
         return "condition"
     if any(term in text for term in ("boundary", "start", "end", "segment", "block", "run")):
         return "segment_marker" if "segment" in text or "start" in text or "end" in text else "boundary"
@@ -168,28 +197,44 @@ def _research_blockers(
         if event_types and not analysis_events:
             blockers.append("No confirmed condition/trigger event remains after excluding boundary/QC/segment markers.")
         elif not event_types:
-            blockers.append("Event-locked ERP/time-frequency analysis needs validated event labels and condition semantics.")
+            blockers.append(
+                "Event-locked ERP/time-frequency analysis needs validated event labels and condition semantics."
+            )
         if has_behavioral_log is False:
-            not_recommended.append("Do not claim condition-level behavioral interpretation without a behavioral log or validated event-code map.")
+            not_recommended.append(
+                "Do not claim condition-level behavioral interpretation without a behavioral log or validated event-code map."
+            )
 
     if analysis_type in {"source", "connectivity"}:
         if has_channel_locations is False:
-            blockers.append("Channel locations are missing; source/topography/connectivity interpretation is blocked until montage metadata is repaired.")
-        not_recommended.append("Do not infer anatomical sources from sensor data without correct montage, ICA/source prerequisites, and reported model assumptions.")
+            blockers.append(
+                "Channel locations are missing; source/topography/connectivity interpretation is blocked until montage metadata is repaired."
+            )
+        not_recommended.append(
+            "Do not infer anatomical sources from sensor data without correct montage, ICA/source prerequisites, and reported model assumptions."
+        )
 
     if analysis_type == "source" and has_ica is False:
-        blockers.append("Source localization through DIPFIT needs ICA components or another explicitly justified source model.")
+        blockers.append(
+            "Source localization through DIPFIT needs ICA components or another explicitly justified source model."
+        )
 
     if analysis_type in {"ica", "resting"} and data_shape == "epoched" and has_continuous_raw is False:
-        blockers.append("ICA/resting analysis from epoched-only data is blocked unless the design explicitly supports that use.")
+        blockers.append(
+            "ICA/resting analysis from epoched-only data is blocked unless the design explicitly supports that use."
+        )
 
     if analysis_type == "study":
         if project_scale not in {"multi_subject", "bids_study"}:
             blockers.append("STUDY/group analysis needs a multi-subject or BIDS/STUDY project structure.")
-        not_recommended.append("Do not run group statistics before the single-subject preprocessing protocol is locked and documented.")
+        not_recommended.append(
+            "Do not run group statistics before the single-subject preprocessing protocol is locked and documented."
+        )
 
     if has_channel_locations is False:
-        not_recommended.append("Do not produce topography or source claims until channel-location coverage is repaired.")
+        not_recommended.append(
+            "Do not produce topography or source claims until channel-location coverage is repaired."
+        )
 
     return blockers, not_recommended
 
@@ -199,7 +244,9 @@ def text_payload(payload: dict[str, Any]) -> list[TextContent]:
     return [TextContent(type="text", text=json.dumps(payload, ensure_ascii=False, indent=2))]
 
 
-def structured_payload(payload: dict[str, Any]) -> tuple[list[TextContent], dict[str, Any]]:
+def structured_payload(
+    payload: dict[str, Any],
+) -> tuple[list[TextContent], dict[str, Any]]:
     """Return text JSON plus structuredContent for MCP clients that support it."""
     return text_payload(payload), payload
 
@@ -209,7 +256,11 @@ def parse_tool_result(result: Any) -> dict[str, Any]:
     if isinstance(result, tuple):
         result = result[0]
     if not result:
-        return {"status": "error", "code": "empty_tool_result", "error": "tool returned no content"}
+        return {
+            "status": "error",
+            "code": "empty_tool_result",
+            "error": "tool returned no content",
+        }
     text = result[0].text if hasattr(result[0], "text") else ""
     try:
         return json.loads(text)
@@ -235,7 +286,10 @@ def workflow_error(
         "status": "error",
         "code": payload.get("code", "workflow_step_failed"),
         "error": payload.get("error", f"{step} failed"),
-        "next_step": payload.get("next_step", "Inspect the failed step details and rerun with corrected inputs."),
+        "next_step": payload.get(
+            "next_step",
+            "Inspect the failed step details and rerun with corrected inputs.",
+        ),
         "workflow": workflow,
         "steps": steps,
         "parameters": parameters,
@@ -280,6 +334,136 @@ def workflow_success(
     }
 
 
+ANALYSIS_TO_METHOD_PROFILE = {
+    "erp": "epoch",
+    "timefreq": "timefreq",
+    "ica": "run_ica",
+    "source": "source",
+    "study": "study",
+    "connectivity": "timefreq",
+    "segment_qc": "epoch",
+    "resting": "derivative_processing",
+}
+
+STUDY_STAGE_METHODS = (
+    "bids_metadata",
+    "bids_import",
+    "study_create",
+    "study_design",
+    "study_statistics",
+)
+
+
+def _method_context_from_workflow(parameters: dict[str, Any]) -> dict[str, Any]:
+    """Translate workflow-level facts into official preflight context keys."""
+    context = dict(parameters)
+    if parameters.get("analysis_event_types"):
+        context.setdefault("condition_markers", parameters.get("analysis_event_types"))
+        context.setdefault("event_roles", ["condition"])
+    event_semantics = parameters.get("event_semantics")
+    if isinstance(event_semantics, dict):
+        context.setdefault("event_roles", list(event_semantics.values()))
+    if parameters.get("has_channel_locations") is True:
+        context.setdefault("has_channel_locations", True)
+    if parameters.get("has_ica") is True:
+        context.setdefault("has_ica", True)
+    if parameters.get("has_continuous_raw") is True and not context.get("data_shape"):
+        context.setdefault("data_shape", "continuous")
+    return context
+
+
+def official_alignment_summary(
+    method: str = "", tool_name: str = "", context: dict[str, Any] | None = None
+) -> dict[str, Any]:
+    """Return a compact official-alignment summary for workflow outputs."""
+    method_key = ANALYSIS_TO_METHOD_PROFILE.get(str(method).lower(), method)
+    payload = evaluate_method_preflight(
+        {
+            "method": method_key,
+            "tool_name": tool_name,
+            "context": _method_context_from_workflow(context or {}),
+            "strictness": "hard",
+        }
+    )
+    return {
+        "method_profile_id": payload.get("method_profile_id", ""),
+        "gate_status": payload.get("gate_status", ""),
+        "source_claim_ids": payload.get("source_claim_ids", []),
+        "missing_requirement_ids": [item.get("id") for item in payload.get("missing_requirements", [])],
+    }
+
+
+def official_gate_summaries(method: str, context: dict[str, Any] | None = None) -> list[dict[str, Any]]:
+    """Return one or more compact gate summaries for a workflow branch."""
+    if str(method).lower() != "study":
+        return [official_alignment_summary(method, context=context)]
+    return [official_alignment_summary(stage_method, context=context) for stage_method in STUDY_STAGE_METHODS]
+
+
+def _unique_strings(values: list[Any]) -> list[str]:
+    """Return non-empty strings in first-seen order."""
+    seen: set[str] = set()
+    result: list[str] = []
+    for value in values:
+        text = str(value).strip()
+        if text and text not in seen:
+            seen.add(text)
+            result.append(text)
+    return result
+
+
+def _gate_results_from_args(args: dict[str, Any]) -> list[dict[str, Any]]:
+    """Normalize caller-supplied compact gate summaries."""
+    raw = args.get("gate_results")
+    if not isinstance(raw, list):
+        return []
+    return [item for item in raw if isinstance(item, dict)]
+
+
+def _source_claim_ids_from_protocol_args(args: dict[str, Any], gate_results: list[dict[str, Any]]) -> list[str]:
+    """Prefer explicit source claims; otherwise derive them from gate summaries."""
+    explicit = _as_string_list(args.get("source_claim_ids"))
+    if explicit:
+        return _unique_strings(explicit)
+    derived: list[Any] = []
+    for gate in gate_results:
+        derived.extend(_as_list(gate.get("source_claim_ids")))
+    return _unique_strings(derived)
+
+
+def _report_field_coverage(args: dict[str, Any]) -> dict[str, Any]:
+    """Return report-field coverage without claiming unchecked fields are complete."""
+    supplied = args.get("report_fields") if isinstance(args.get("report_fields"), dict) else {}
+    coverage: dict[str, Any] = {}
+    for group, fields in REPORT_FIELD_MATRIX.items():
+        group_value = supplied.get(group) if isinstance(supplied, dict) else None
+        if group_value is None:
+            provided: list[str] = []
+        elif isinstance(group_value, list):
+            provided = _unique_strings(group_value)
+        elif isinstance(group_value, dict):
+            provided = _unique_strings([key for key, value in group_value.items() if value])
+        else:
+            provided = [str(group_value)]
+        coverage[group] = {
+            "expected_fields": fields,
+            "provided_fields": provided,
+            "coverage_status": "provided" if provided else "not_provided",
+        }
+    return coverage
+
+
+def _gate_result_line(gate: dict[str, Any]) -> str:
+    """Render one compact gate result for Markdown protocol text."""
+    profile = gate.get("method_profile_id", "unknown")
+    status = gate.get("gate_status", "unknown")
+    missing = gate.get("missing_requirement_ids") or [
+        item.get("id") for item in _as_list(gate.get("missing_requirements")) if isinstance(item, dict)
+    ]
+    claims = _as_string_list(gate.get("source_claim_ids"))
+    return f"- `{profile}`: `{status}`; missing={_unique_strings(missing) or []}; " f"source_claim_ids={claims or []}"
+
+
 def qc_report_from_payloads(info: dict[str, Any], events: dict[str, Any], history: dict[str, Any]) -> dict[str, Any]:
     """Build a QC report from existing low-level tool payloads."""
     recording = info.get("recording") or {}
@@ -293,7 +477,9 @@ def qc_report_from_payloads(info: dict[str, Any], events: dict[str, Any], histor
     if not info.get("num_events"):
         risks.append("No events were reported; event-locked analyses may not be possible.")
     elif not info.get("has_urevent_links", False):
-        provenance_hints.append("Event urevent links are absent; preserve event latencies/counts when transforming epochs.")
+        provenance_hints.append(
+            "Event urevent links are absent; preserve event latencies/counts when transforming epochs."
+        )
     if info.get("has_channel_locations") is False:
         risks.append("Channel locations appear missing; topography/source workflows need channel locations.")
     elif info.get("channel_location_coverage", 1) < 1:
@@ -303,11 +489,17 @@ def qc_report_from_payloads(info: dict[str, Any], events: dict[str, Any], histor
     if info.get("srate") and info["srate"] < 128:
         risks.append("Sampling rate is low for high-frequency analyses.")
     if not info.get("processing_history_available", False):
-        provenance_hints.append("EEGLAB processing history is empty; report all steps applied in this session explicitly.")
+        provenance_hints.append(
+            "EEGLAB processing history is empty; report all steps applied in this session explicitly."
+        )
     if not recording.get("has_comments", False):
-        provenance_hints.append("Dataset comments/recording notes are absent; record acquisition context outside the .set file if needed.")
+        provenance_hints.append(
+            "Dataset comments/recording notes are absent; record acquisition context outside the .set file if needed."
+        )
     if not recording.get("filename") and not info.get("filename"):
-        provenance_hints.append("Source filename is missing from EEG metadata; keep the absolute input path in reports.")
+        provenance_hints.append(
+            "Source filename is missing from EEG metadata; keep the absolute input path in reports."
+        )
 
     return workflow_success(
         "eeglab_qc_report",
@@ -395,7 +587,12 @@ def recommend_workflow(args: dict[str, Any]) -> dict[str, Any]:
         project_scale=project_scale,
     )
 
-    common = ["eeglab_init", "eeglab_load_data", "eeglab_info recording/channel/event audit", "eeglab_qc_report"]
+    common = [
+        "eeglab_init",
+        "eeglab_load_data",
+        "eeglab_info recording/channel/event audit",
+        "eeglab_qc_report",
+    ]
     parameters: dict[str, Any] = {
         "analysis_type_requested": requested_analysis_type,
         "analysis_type_resolved": analysis_type,
@@ -411,6 +608,8 @@ def recommend_workflow(args: dict[str, Any]) -> dict[str, Any]:
         "has_continuous_raw": has_continuous_raw,
         "has_behavioral_log": has_behavioral_log,
     }
+    gate_results = official_gate_summaries(analysis_type, context=parameters)
+    official_alignment = gate_results[0]
     base_hints = [
         "Preserve the raw dataset; write transformed outputs to a new path.",
         "Report acquisition/recording facts before analysis: sampling rate, duration, channel count, montage/channel-location coverage, reference, event labels/counts, and processing history.",
@@ -431,28 +630,40 @@ def recommend_workflow(args: dict[str, Any]) -> dict[str, Any]:
     if project_scale == "unknown":
         required_user_decisions.append("project scale and grouping")
         clarifying_questions.append("Is this single-subject, multi-subject, BIDS/STUDY, or exploratory QC work?")
-        default_assumptions.append("Project scale is unknown; start with single-subject provenance/QC before group-level assumptions.")
+        default_assumptions.append(
+            "Project scale is unknown; start with single-subject provenance/QC before group-level assumptions."
+        )
     if analysis_type in {"erp", "timefreq"} and not analysis_events:
         required_user_decisions.append("event labels and task conditions")
-        clarifying_questions.append("Which event labels define the conditions/epochs, and what epoch/baseline windows match the study design?")
-        default_assumptions.append("No confirmed analysis event labels were supplied; inspect event semantics and avoid event-locked analysis until labels are confirmed.")
+        clarifying_questions.append(
+            "Which event labels define the conditions/epochs, and what epoch/baseline windows match the study design?"
+        )
+        default_assumptions.append(
+            "No confirmed analysis event labels were supplied; inspect event semantics and avoid event-locked analysis until labels are confirmed."
+        )
     if has_channel_locations is False:
         required_user_decisions.append("montage/channel-location repair")
-        clarifying_questions.append("Can you provide the cap montage/channel-location file, or should analysis avoid topography/source outputs?")
+        clarifying_questions.append(
+            "Can you provide the cap montage/channel-location file, or should analysis avoid topography/source outputs?"
+        )
     if srate is None:
         required_user_decisions.append("sampling rate and acquisition details")
-        clarifying_questions.append("What sampling rate, reference, amplifier/cap montage, and acquisition filters were used if not preserved in the file?")
+        clarifying_questions.append(
+            "What sampling rate, reference, amplifier/cap montage, and acquisition filters were used if not preserved in the file?"
+        )
 
     if analysis_type == "erp":
         steps = common + [
             "eeglab_filter bandpass 0.1-40 Hz or study-specific cutoffs",
             "optional eeglab_clean_line_noise",
-            "optional ICA review" if has_ica else "optional eeglab_run_ica + eeglab_classify_ica",
+            ("optional ICA review" if has_ica else "optional eeglab_run_ica + eeglab_classify_ica"),
             "eeglab_epoch with explicit event_types",
             "eeglab_erp_analysis",
             "eeglab_save_data to a new output path",
         ]
-        hints = base_hints + ["Use event audit first; ERP is not meaningful without validated condition/trigger labels."]
+        hints = base_hints + [
+            "Use event audit first; ERP is not meaningful without validated condition/trigger labels."
+        ]
         if not analysis_events:
             hints.append("No analysis_event_types were resolved; run eeglab_event_semantics_audit before epoching.")
     elif analysis_type == "resting":
@@ -482,18 +693,37 @@ def recommend_workflow(args: dict[str, Any]) -> dict[str, Any]:
         ]
         hints = base_hints + ["Do not automatically remove components without reporting thresholds and classes."]
     elif analysis_type == "study":
-        steps = common + ["organize BIDS/datasets", "eeglab_study_create", "eeglab_study_design", "eeglab_study_statistics"]
-        hints = base_hints + ["Run stable single-subject preprocessing before group-level STUDY statistics."]
+        steps = common + [
+            "organize BIDS/datasets",
+            "eeglab_method_preflight bids_import or study_create",
+            "eeglab_study_create",
+            "eeglab_method_preflight study_design",
+            "eeglab_study_design",
+            "eeglab_method_preflight study_statistics",
+            "eeglab_study_statistics",
+        ]
+        hints = base_hints + [
+            "Run stable single-subject preprocessing before group-level STUDY statistics.",
+            "Use staged BIDS/STUDY gates: bids_metadata, bids_import or study_create, study_design, then study_statistics.",
+        ]
     else:
-        steps = common + ["confirm ICA and channel locations", "eeglab_source_settings", "eeglab_source_localization"]
+        steps = common + [
+            "confirm ICA and channel locations",
+            "eeglab_source_settings",
+            "eeglab_source_localization",
+        ]
         hints = base_hints + ["Source localization requires correct channel locations and DIPFIT resources."]
 
     if srate and srate > 500:
         hints.append("Consider resampling for computational efficiency after confirming analysis requirements.")
     if has_channel_locations is False:
-        hints.append("Channel locations are missing; load or repair montage metadata before topography/source workflows.")
+        hints.append(
+            "Channel locations are missing; load or repair montage metadata before topography/source workflows."
+        )
     if data_shape == "epoched" and analysis_type in {"ica", "resting"}:
-        hints.append("The data appears epoched; confirm this is appropriate before ICA or resting-state spectral analysis.")
+        hints.append(
+            "The data appears epoched; confirm this is appropriate before ICA or resting-state spectral analysis."
+        )
 
     project_phases = [
         "0_project_intake: define hypothesis, project scale, subject/session structure, data format, and required outputs",
@@ -538,7 +768,9 @@ def recommend_workflow(args: dict[str, Any]) -> dict[str, Any]:
             "not_recommended": not_recommended,
             "analysis_event_types": analysis_events,
             "research_grade_next_step": (
-                "Resolve blocking_conditions before processing." if blockers else "Proceed through qc_gates before any destructive processing."
+                "Resolve blocking_conditions before processing."
+                if blockers
+                else "Proceed through qc_gates before any destructive processing."
             ),
             "qc_gates": qc_gates,
             "adaptive_decision_rules": adaptive_decision_rules,
@@ -558,6 +790,10 @@ def recommend_workflow(args: dict[str, Any]) -> dict[str, Any]:
                 "artifact_rejection_or_ica_decisions",
                 "software_and_plugin_limitations",
             ],
+            "official_alignment": official_alignment,
+            "gate_results": gate_results,
+            "method_profile_id": official_alignment.get("method_profile_id", ""),
+            "source_claim_ids": official_alignment.get("source_claim_ids", []),
         },
     )
 
@@ -715,6 +951,17 @@ def project_plan(args: dict[str, Any]) -> dict[str, Any]:
         has_behavioral_log=has_behavioral_log,
         project_scale=project_scale,
     )
+    official_context = {
+        "event_roles": (list(event_semantics.values()) if isinstance(event_semantics, dict) else []),
+        "data_shape": data_shape,
+        "has_ica": has_ica,
+        "has_channel_locations": has_channel_locations,
+        "has_continuous_raw": has_continuous_raw,
+        "project_scale": project_scale,
+        "condition_markers": analysis_events,
+    }
+    gate_results = official_gate_summaries(resolved, context=official_context)
+    official_alignment = gate_results[0]
 
     steps = [
         "project_intake",
@@ -732,7 +979,8 @@ def project_plan(args: dict[str, Any]) -> dict[str, Any]:
     if resolved == "source":
         steps.insert(7, "source_prerequisite_gate")
     if resolved == "study":
-        steps.insert(7, "single_subject_protocol_lock_before_group_statistics")
+        steps.insert(7, "staged_bids_study_gates")
+        steps.insert(8, "single_subject_protocol_lock_before_group_statistics")
 
     required_user_decisions: list[str] = []
     if not args.get("research_goal"):
@@ -748,7 +996,7 @@ def project_plan(args: dict[str, Any]) -> dict[str, Any]:
         "quick_qc": "Load/QC/events/history only; no data modification.",
         "safe_erp": "ERP branch only after event semantics identify condition triggers.",
         "segment_qc": "For start/end-only marker data; report segment durations and avoid ERP claims.",
-        "study_ready_check": "Multi-subject/BIDS metadata, design variables, and preprocessing protocol gate.",
+        "study_ready_check": "Staged BIDS/STUDY gates: bids_metadata, bids_import or study_create, study_design, and study_statistics.",
         "plugin_doctor": "Check clean_rawdata, ICLabel, DIPFIT, BIDS, LIMO, and SIFT availability before dependent steps.",
     }
 
@@ -786,6 +1034,10 @@ def project_plan(args: dict[str, Any]) -> dict[str, Any]:
             "required_user_decisions": required_user_decisions,
             "quick_modes": quick_modes,
             "official_reference_anchors": OFFICIAL_REFERENCES,
+            "official_claim_count": len(OFFICIAL_CLAIMS),
+            "official_alignment": official_alignment,
+            "gate_results": gate_results,
+            "staged_study_gate_methods": (list(STUDY_STAGE_METHODS) if resolved == "study" else []),
             "recommended_next_step": (
                 "Resolve blocking_conditions and required_user_decisions before destructive preprocessing."
                 if blockers or required_user_decisions
@@ -803,10 +1055,48 @@ def protocol_export_payload(args: dict[str, Any]) -> dict[str, Any]:
     parameters = args.get("parameters") if isinstance(args.get("parameters"), dict) else {}
     outputs = args.get("outputs") if isinstance(args.get("outputs"), dict) else {}
     qc_gates = _as_string_list(args.get("qc_gates")) or DEFAULT_QC_GATES
-    steps = _as_string_list(args.get("steps")) or ["project_intake", "quick_qc", "workflow_recommend", "analysis_branch"]
+    steps = _as_string_list(args.get("steps")) or [
+        "project_intake",
+        "quick_qc",
+        "workflow_recommend",
+        "analysis_branch",
+    ]
     limitations = _as_string_list(args.get("limitations")) or LIMITATIONS
     research_goal = str(args.get("research_goal", "")).strip()
     analysis_type = str(args.get("analysis_type", "")).strip()
+    gate_results = _gate_results_from_args(args)
+    source_claim_ids = _source_claim_ids_from_protocol_args(args, gate_results)
+    missing_requirements = _as_string_list(args.get("missing_requirements"))
+    for gate in gate_results:
+        for item in _as_list(gate.get("missing_requirements")):
+            if isinstance(item, dict) and item.get("id"):
+                missing_requirements.append(str(item["id"]))
+        missing_requirements.extend(_as_list(gate.get("missing_requirement_ids")))
+    missing_requirements = _unique_strings(missing_requirements)
+    override_used = bool(args.get("override_used"))
+    if not override_used:
+        override_used = any(bool(gate.get("override_used")) for gate in gate_results)
+    override_reason = str(args.get("override_reason", "") or "").strip()
+    if not override_reason:
+        override_reason = next(
+            (
+                str(gate.get("override_reason", "")).strip()
+                for gate in gate_results
+                if str(gate.get("override_reason", "")).strip()
+            ),
+            "",
+        )
+    blocked_acknowledged = _unique_strings(
+        _as_list(args.get("blocked_requirements_acknowledged"))
+        + [item for gate in gate_results for item in _as_list(gate.get("blocked_requirements_acknowledged"))]
+    )
+    report_field_coverage = _report_field_coverage(args)
+    gate_coverage_status = "provided" if gate_results else "not_provided"
+    override_status = {
+        "override_used": override_used,
+        "override_reason": override_reason if override_used else "",
+        "blocked_requirements_acknowledged": (blocked_acknowledged if override_used else []),
+    }
 
     protocol = {
         "research_goal": research_goal,
@@ -816,6 +1106,12 @@ def protocol_export_payload(args: dict[str, Any]) -> dict[str, Any]:
         "qc_gates": qc_gates,
         "outputs": outputs,
         "limitations": limitations,
+        "official_gate_results": gate_results,
+        "gate_coverage_status": gate_coverage_status,
+        "source_claim_ids": source_claim_ids,
+        "missing_requirements": missing_requirements,
+        "override_status": override_status,
+        "report_field_matrix_coverage": report_field_coverage,
         "official_reference_anchors": OFFICIAL_REFERENCES,
     }
 
@@ -823,12 +1119,23 @@ def protocol_export_payload(args: dict[str, Any]) -> dict[str, Any]:
         rendered = json.dumps(protocol, ensure_ascii=False, indent=2)
     else:
         refs = "\n".join(f"- {ref['name']}: {ref['url']} ({ref['use']})" for ref in OFFICIAL_REFERENCES)
+        gate_lines = (
+            [_gate_result_line(gate) for gate in gate_results]
+            if gate_results
+            else ["- Gate coverage status: not_provided"]
+        )
+        field_lines = [
+            (f"- `{group}`: {details['coverage_status']}; " f"provided={details['provided_fields']}")
+            for group, details in report_field_coverage.items()
+        ]
         rendered = "\n".join(
             [
                 "# EEGLAB Research Protocol",
                 "",
                 f"- Research goal: {research_goal or 'not specified'}",
                 f"- Analysis type: {analysis_type or 'not specified'}",
+                f"- Source claim IDs: {source_claim_ids or []}",
+                f"- Gate coverage status: {gate_coverage_status}",
                 "",
                 "## Workflow Steps",
                 *[f"- {step}" for step in steps],
@@ -846,6 +1153,17 @@ def protocol_export_payload(args: dict[str, Any]) -> dict[str, Any]:
                 json.dumps(outputs, ensure_ascii=False, indent=2),
                 "```",
                 "",
+                "## Official Gate Results",
+                *gate_lines,
+                "",
+                "## Override Status",
+                f"- override_used: {override_used}",
+                f"- override_reason: {override_reason if override_used else ''}",
+                f"- blocked_requirements_acknowledged: {blocked_acknowledged if override_used else []}",
+                "",
+                "## Report Field Matrix Coverage",
+                *field_lines,
+                "",
                 "## Limitations",
                 *[f"- {item}" for item in limitations],
                 "",
@@ -859,7 +1177,16 @@ def protocol_export_payload(args: dict[str, Any]) -> dict[str, Any]:
     output_path = str(args.get("output_path", "")).strip()
     if output_path:
         path = Path(output_path).expanduser().resolve()
-        if path.suffix.lower() in {".set", ".fdt", ".eeg", ".vhdr", ".vmrk", ".edf", ".bdf", ".cnt"}:
+        if path.suffix.lower() in {
+            ".set",
+            ".fdt",
+            ".eeg",
+            ".vhdr",
+            ".vmrk",
+            ".edf",
+            ".bdf",
+            ".cnt",
+        }:
             raise ValueError("protocol output_path must not target EEG data or raw sidecar file extensions")
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(rendered, encoding="utf-8")
@@ -880,8 +1207,36 @@ def protocol_export_payload(args: dict[str, Any]) -> dict[str, Any]:
             "qc_gates": qc_gates,
             "step_count": len(steps),
             "official_reference_count": len(OFFICIAL_REFERENCES),
+            "source_claim_ids": source_claim_ids,
+            "gate_results": gate_results,
+            "gate_coverage_status": gate_coverage_status,
+            "missing_requirements": missing_requirements,
+            "override_status": override_status,
+            "report_field_matrix_coverage": report_field_coverage,
+            "official_alignment": {
+                "source": "local_official_claim_map",
+                "claim_count": len(source_claim_ids),
+            },
             "recommended_next_step": "Attach this protocol to the project report and keep exact tool parameters synchronized after each processing change.",
         },
+    )
+
+
+def method_preflight_workflow(args: dict[str, Any]) -> dict[str, Any]:
+    """Return workflow-shaped official method gate evaluation."""
+    result = evaluate_method_preflight(args)
+    return workflow_success(
+        "eeglab_method_preflight",
+        steps=[{"name": "evaluate_official_method_gates", "status": result["gate_status"]}],
+        parameters={
+            "method": args.get("method", ""),
+            "tool_name": args.get("tool_name", ""),
+            "strictness": args.get("strictness", "hard"),
+            "context": (args.get("context", {}) if isinstance(args.get("context"), dict) else {}),
+            "override_reason": args.get("override_reason", ""),
+        },
+        outputs={},
+        summary=result,
     )
 
 
