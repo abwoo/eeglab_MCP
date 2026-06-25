@@ -477,7 +477,7 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> Any:
         return _error_response(
             "unknown_tool",
             f"未知工具: {name}",
-            next_step="调用 tools/list 查看可用的 eeglab_* 工具。当前口径为 37 个 legacy low-level 工具加 8 个 research workflow 工具。",
+            next_step="调用 tools/list 查看可用的 eeglab_* 工具。当前口径为 39 个 legacy low-level 工具加 9 个 research workflow 工具。",
         )
 
     if arguments is None:

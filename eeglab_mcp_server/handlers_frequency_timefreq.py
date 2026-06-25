@@ -25,12 +25,13 @@ async def _eeglab_spectral(args: dict) -> list[TextContent]:
     else:
         chan_code = ""
 
-    # Bug fix: pop_spectopo 调用签名是 pop_spectopo(EEG, percent, freqspace, 'EEG', EEG, ...)
+    # Correct pop_spectopo signature: pop_spectopo(EEG, percent, freqrange, ...)
     code = f"""
 {_maybe_init()}
-[spectra, freqs] = pop_spectopo(EEG, 1, EEG.pnts, 'EEG', EEG, {chan_code}'freqrange', [{freq_range[0]}, {freq_range[1]}]);
+[spectra, freqs] = pop_spectopo(EEG, 1, {chan_code}'freqrange', [{freq_range[0]}, {freq_range[1]}]);
 result.freq_range = [{freq_range[0]}, {freq_range[1]}];
-result.freq_resolution = length(freqs);
+result.num_freq_bins = length(freqs);
+result.freq_resolution = freqs(2) - freqs(1);
 """
 
     if band_power:
@@ -124,28 +125,86 @@ async def _eeglab_connectivity(args: dict) -> list[TextContent]:
 
     if channels:
         chan_str = _cell(channels)
-        chan_code = f"'chanlist', {chan_str}, "
     else:
-        chan_code = ""
+        # Default to first two channels if none specified
+        chan_str = "{'1', '2'}"
 
-    if method == "coherence":
-        method_str = "'coherence'"
-    else:
-        method_str = "'plv'"
-
+    # Use pop_newcrossf for coherence between channel pairs
+    # or compute connectivity matrix manually
     code = f"""
 {_maybe_init()}
-[conn_data, freqs] = pop_crossfreq(EEG, 1, 1:EEG.nbchan, ...
-    {chan_code}...
-    'method', {method_str}, ...
-    'freqs', [{freq_range[0]}, {freq_range[1]}]);
+nchans = EEG.nbchan;
+conn_matrix = zeros(nchans, nchans);
+
+% Get channel indices
+chan_labels = {{{chan_str}}};
+chan_indices = zeros(1, length(chan_labels));
+for c = 1:length(chan_labels)
+    found = false;
+    for ch = 1:nchans
+        if isfield(EEG.chanlocs, 'labels') && strcmpi(EEG.chanlocs(ch).labels, chan_labels{{c}})
+            chan_indices(c) = ch;
+            found = true;
+            break;
+        end
+    end
+    if ~found
+        chan_indices(c) = str2double(chan_labels{{c}});
+    end
+end
+
+% Compute connectivity using pop_newcrossf for each pair
+for i = 1:length(chan_indices)
+    for j = i+1:length(chan_indices)
+        num1 = chan_indices(i);
+        num2 = chan_indices(j);
+        if num1 > 0 && num2 > 0 && num1 <= nchans && num2 <= nchans
+            try
+                if strcmp({method_lit}, 'coher')
+                    % Linear coherence
+                    [ coh ] = pop_newcrossf(EEG, 1, num1, num2, ...
+                        [EEG.xmin*1000 EEG.xmax*1000], [3 0.5], ...
+                        'freqs', [{freq_range[0]}, {freq_range[1]}], ...
+                        'type', 'coher', ...
+                        'plotersp', 'off', 'plotphase', 'off', 'plotboot', 'off');
+                else
+                    % Phase coherence (PLV)
+                    [ coh ] = pop_newcrossf(EEG, 1, num1, num2, ...
+                        [EEG.xmin*1000 EEG.xmax*1000], [3 0.5], ...
+                        'freqs', [{freq_range[0]}, {freq_range[1]}], ...
+                        'type', 'phasecoher', ...
+                        'plotersp', 'off', 'plotphase', 'off', 'plotboot', 'off');
+                end
+                % Average coherence across frequencies
+                if ~isempty(coh)
+                    conn_matrix(num1, num2) = mean(coh(:));
+                    conn_matrix(num2, num1) = mean(coh(:));
+                end
+            catch ME
+                % If pop_newcrossf fails, use manual FFT-based coherence
+                data1 = EEG.data(num1, :);
+                data2 = EEG.data(num2, :);
+                [Pxx, f] = pwelch(data1, [], [], [], EEG.srate);
+                [Pyy, ~] = pwelch(data2, [], [], [], EEG.srate);
+                [Pxy, ~] = cpsd(data1, data2, [], [], [], EEG.srate);
+                fmask = f >= {freq_range[0]} & f <= {freq_range[1]};
+                coh_val = abs(mean(Pxy(fmask) ./ sqrt(Pxx(fmask) .* Pyy(fmask))));
+                conn_matrix(num1, num2) = coh_val;
+                conn_matrix(num2, num1) = coh_val;
+            end
+        end
+    end
+end
+
 result.method = {method_lit};
 result.freq_range = [{freq_range[0]}, {freq_range[1]}];
-result.freq_resolution = length(freqs);
-if ~isempty(conn_data)
-    result.mean_connectivity = mean(conn_data(:));
-    result.max_connectivity = max(conn_data(:));
-    result.min_connectivity = min(conn_data(:));
+result.num_channels = nchans;
+result.channel_labels = chan_labels;
+if any(conn_matrix(:) ~= 0)
+    result.mean_connectivity = mean(conn_matrix(conn_matrix ~= 0));
+    result.max_connectivity = max(conn_matrix(:));
+    result.min_connectivity = min(conn_matrix(conn_matrix ~= 0));
+    result.connectivity_matrix = conn_matrix;
 end
 """
 

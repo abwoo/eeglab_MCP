@@ -5,6 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "eeglab-mcp-server"
 version = "1.0"
+license = { text = "Apache-2.0" }
 description = "MATLAB EEGLAB EEG analysis MCP stdio server with stable EEGLAB tools, research workflows, and official preflight gates."
 readme = "README.md"
 requires-python = ">=3.10"

@@ -24,7 +24,24 @@ async def _eeglab_run_ica(args: dict) -> list[TextContent]:
 
     ica_algorithms = {
         "runica": f"EEG = pop_runica(EEG, 'extended', {ext_val}, 'maxsteps', {max_steps}{pca_str});",
-        "picard": f"EEG = pop_runica(EEG, 'icatype', 'picard', 'extended', {ext_val}, 'maxsteps', {max_steps}{pca_str});",
+        "picard": f"""
+if ~exist('pop_runica', 'file')
+    error('pop_runica not found. Please check your EEGLAB installation.');
+end
+try
+    EEG = pop_runica(EEG, 'icatype', 'picard', 'extended', {ext_val}, 'maxsteps', {max_steps}{pca_str});
+    result.algorithm = 'picard';
+catch ME
+    if contains(ME.message, 'picard', 'IgnoreCase', true)
+        warning('Picard plugin is not installed. Falling back to runica as recommended by EEGLAB official documentation.');
+        EEG = pop_runica(EEG, 'extended', {ext_val}, 'maxsteps', {max_steps}{pca_str});
+        result.algorithm = 'runica_fallback';
+        result.warning = 'Picard unavailable, used runica instead.';
+    else
+        rethrow(ME);
+    end
+end
+""",
     }
 
     ica_code = ica_algorithms.get(algorithm)
@@ -38,7 +55,9 @@ async def _eeglab_run_ica(args: dict) -> list[TextContent]:
     code = f"""
 {_maybe_init()}
 {ica_code}
-result.algorithm = '{algorithm}';
+if ~isfield(result, 'algorithm')
+    result.algorithm = '{algorithm}';
+end
 result.ncomponents = size(EEG.icaweights, 1);
 result.extended = {str(extended).lower()};
 result.max_steps = {max_steps};
@@ -55,6 +74,9 @@ async def _eeglab_classify_ica(args: dict) -> list[TextContent]:
 if ~exist('EEG', 'var') || ~isstruct(EEG) || ~isfield(EEG, 'icaweights') || isempty(EEG.icaweights)
     result.status = 'error';
     result.error = '尚未运行 ICA 分解，请先调用 eeglab_run_ica';
+elseif ~exist('pop_iclabel', 'file')
+    result.status = 'error';
+    result.error = 'ICLabel plugin is not installed. Please install it from EEGLAB menu: Tools > Manage EEGLAB extensions > ICLabel.';
 else
     EEG = pop_iclabel(EEG);
     classifications = EEG.etc.ic_classification.ICLabel.classifications;
@@ -108,6 +130,9 @@ async def _eeglab_flag_components(args: dict) -> list[TextContent]:
 if ~exist('EEG', 'var') || ~isstruct(EEG) || ~isfield(EEG, 'icaweights') || isempty(EEG.icaweights)
     result.status = 'error';
     result.error = '尚未运行 ICA 分解，请先调用 eeglab_run_ica';
+elseif ~exist('pop_iclabel', 'file') || ~exist('pop_icflag', 'file')
+    result.status = 'error';
+    result.error = 'ICLabel plugin is not installed. Please install it from EEGLAB menu: Tools > Manage EEGLAB extensions > ICLabel.';
 else
     if ~isfield(EEG, 'etc') || ~isfield(EEG.etc, 'ic_classification') || ~isfield(EEG.etc.ic_classification, 'ICLabel')
         EEG = pop_iclabel(EEG);

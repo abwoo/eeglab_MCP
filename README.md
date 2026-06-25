@@ -58,6 +58,34 @@ For a new recording, start read-only:
 
 Do not start with ICA, source localization, one-click pipelines, or destructive preprocessing. Run planning and method preflight first.
 
+For research-grade EEG work, use this order:
+
+1. Load the `eeglab-analysis` Skill.
+2. Read `docs/` first, then `skills/eeglab-analysis/references/`.
+3. Plan with `eeglab_project_plan` or `eeglab_workflow_recommend`.
+4. Follow the canonical branch matrix for preprocessing, figures, and outputs.
+5. Export the protocol and final report.
+
+## Session Order
+
+Start with [EEGLAB Session Order](docs/homepage-session-order.md), then use the full [Canonical Session Checklist](docs/canonical-session-checklist.md).
+
+## Canonical Session Order
+
+1. Load the `eeglab-analysis` Skill.
+2. Read `docs/` first, then `skills/eeglab-analysis/references/`.
+3. Plan with `eeglab_project_plan` or `eeglab_workflow_recommend`.
+4. Run the read-only intake sequence.
+5. Audit event semantics before any event-locked branch.
+6. Run `eeglab_plugin_check` when plugins are needed.
+7. Run `eeglab_method_preflight` before every high-risk step.
+8. Follow the branch matrix exactly.
+9. Save only derivative outputs.
+10. Export the protocol.
+11. Generate the final report.
+
+Use real loaded EEG data and real project metadata only. Do not fabricate provenance, figures, outputs, or gate results.
+
 ## Common Commands
 
 | Task | Command |
@@ -72,11 +100,17 @@ Do not start with ICA, source localization, one-click pipelines, or destructive 
 
 The dispatcher forwards to dedicated setup, verify, doctor, and uninstall scripts. Automation may call those lower-level scripts directly, but new users should start with `eeglab_agent.ps1`.
 
+## Official Coverage And Figure Index
+
+The project indexes official EEGLAB/SCCN topics broadly, but support levels stay conservative: `executable`, `gated_guidance`, `indexed_only`, or `out_of_scope`. Unsupported official plugins and advanced methods are listed for discovery and planning only; they are not execution promises.
+
+Default browsable figure coverage is provided through `scripts/advanced_figures/` and the `eeglab://scripts/advanced_figures/README.md` resource, including ERP, ERP-image, resting, spectral, time-frequency, ICA, connectivity, source, and STUDY figure families.
+
 ## What You Get
 
-- 45 exposed MCP tools: 37 low-level EEGLAB tool wrappers plus 8 research workflow tools.
-- 10 MCP prompts and 25 read-only MCP resources for clients that support guidance surfaces.
-- 47 official alignment claims and 39 method profiles mapped to EEGLAB/SCCN and related standards.
+- 48 exposed MCP tools: 39 low-level EEGLAB tool wrappers plus 9 research workflow tools.
+- 10 MCP prompts and 30 read-only MCP resources for clients that support guidance surfaces, including the canonical figure atlas, the official plugin family catalog, and the default advanced figure gallery index.
+- 50 official alignment claims and 39 method profiles mapped to EEGLAB/SCCN and related standards.
 - 56 machine-checkable workflow evals covering gates, reports, plugin gaps, and failure recovery.
 - A local-first runtime: EEG data stays on the user's machine.
 
@@ -88,9 +122,17 @@ Skill-aware clients should install the `eeglab-analysis` Skill. MCP-only clients
 
 - `eeglab://skill/SKILL.md`
 - `eeglab://references/workflows.md`
+- `eeglab://references/canonical-session-checklist.md`
+- `eeglab://references/branch-workflow-matrix.md`
+- `eeglab://references/figure-atlas.md`
+- `eeglab://official/figure-atlas.md`
+- `eeglab://official/plugin-family-catalog.md`
 - `eeglab://references/tools.md`
 - `eeglab://references/method-gates.md`
 - `eeglab://official/gate-policy.md`
+- `eeglab://scripts/advanced_figures/README.md`
+
+The installed `eeglab-analysis` Skill bundle also mirrors `docs/figure-atlas.md` and the plugin-family catalog so figure-family rules stay aligned in both the repository and the bundled skill copy.
 
 If you also use a general MATLAB MCP, keep names separate:
 
@@ -100,6 +142,17 @@ matlab = generic MATLAB scripts and custom calculations
 ```
 
 Treat the two servers as isolated MATLAB sessions and pass data through explicit files such as `.set/.fdt`, `.mat`, `.csv`, `.png`, Markdown, or JSON reports.
+
+## Codex Plugin Wrapper
+
+This repository can also be exposed to Codex as a local plugin wrapper named `eeglab-analysis`.
+The wrapper points back to this checkout, so updates stay local and reproducible.
+
+After making changes that affect the wrapper or Skill bundle, refresh the installed plugin with the personal marketplace flow and open a new Codex thread so the updated Skill and MCP surface are picked up.
+
+```powershell
+codex plugin add eeglab-analysis@personal
+```
 
 ## Research Workflow
 
@@ -121,6 +174,25 @@ Core workflow tools:
 - `eeglab_plugin_check`: local plugin availability and support-level check.
 - `eeglab_protocol_export`: Markdown/JSON protocol reports with gates, claims, overrides, report fields, and limitations.
 - `eeglab_erp_light_workflow`: smoke-tested ERP chain into a derivative output path.
+- `eeglab_generate_report`: generate comprehensive research reports.
+
+## Official EEGLAB Preprocessing Order
+
+Based on official EEGLAB documentation and Makoto's preprocessing pipeline:
+
+### ERP/Task Data
+1. **High-pass filter** (1 Hz for ICA, 0.5 Hz for final analysis)
+2. **ASR/clean_rawdata** (bad channel rejection, artifact subspace reconstruction)
+3. **Re-reference** (average reference, before ICA)
+4. **Run ICA** (picard or runica)
+5. **ICLabel classification** (automated component labeling)
+6. **Flag/Remove components** (threshold: >80% for muscle, eye, heart, line noise)
+
+### Key Points
+- ICA learns a spatial unmixing model specific to the reference used during training
+- Re-referencing after ICA can degrade component interpretability
+- High-pass filtering at 1-2 Hz improves ICA decomposition quality
+- ASR should be run before ICA to remove bad channels and large artifacts
 
 ## Official Alignment And Safety
 
@@ -132,6 +204,27 @@ Event semantics are a hard gate. Boundary, impedance, segment start/end, and exc
 
 Unsupported official plugins or advanced methods are indexed and explained as `indexed_only` or guidance-only. They are not treated as executable support unless a dedicated MCP workflow, method gate, report template, and eval coverage exist.
 
+## Figure And Report Coverage
+
+The repository treats figures as branch-scoped deliverables, not decoration:
+
+- required figure families are branch-mandated
+- conditional figure families require explicit justification
+- guidance-only figure families are indexed in the official topic index and report fields even when no dedicated executor exists
+
+Typical families include ERP waveform, scalp topography, PSD spectra, ERSP/ITC heatmaps, ICA component diagnostics, sensor connectivity matrices, ERP-image/single-trial dynamics, and STUDY group-figure families where supported.
+
+For default browsable figure modules, see `scripts/advanced_figures/` or the MCP resource `eeglab://scripts/advanced_figures/README.md`. They mirror the same official figure atlas and stay visible alongside the canonical MCP workflow.
+
+## Documentation Authority
+
+The repository intentionally has two documentation layers:
+
+- `docs/` is the official-alignment authority layer for support levels, gate policy, plugin mapping, risk classification, tool support, topic coverage, and minimum report fields.
+- `skills/eeglab-analysis/references/` is the agent execution layer that turns the authority rules into concrete workflows, tool routing, event semantics, preprocessing decisions, report templates, and recovery steps.
+
+If `docs/` and `references/` disagree, follow `docs/` and update the affected `references/` file. Changes that affect tools, workflows, setup, report fields, gates, plugin support, or bundled Skill content must also update `README.md`, `README.zh-CN.md`, and `AGENTS.md` before the task is considered complete.
+
 ## Reporting And Reproducibility
 
 Final reports should include:
@@ -140,9 +233,31 @@ Final reports should include:
 - sampling rate, duration, channel count, reference, montage, channel-location coverage, event labels/counts, and history availability
 - filter, line-noise, ASR, rereference, ICA, ICLabel, epoch, baseline, frequency, rejection, and output parameters
 - `gate_results`, `method_profile_id`, `gate_status`, missing requirements, and critical missing requirements
+- branch workflow coverage: branch ID, branch mode, ordered steps, blocked steps, required figures, and required outputs
 - `source_claim_ids`, plugin status, override status, report-field coverage, and limitations
+- required/conditional/guidance-only figure families, figure descriptions, and figure generation notes
+- **所有生成的图片文件路径及简要说明**（如 ERP 波形图、地形图、时频图、PSD 图、ICA 成分图等）
 
 The protocol exporter must not overwrite EEG data files such as `.set`, `.fdt`, `.eeg`, `.vhdr`, `.vmrk`, `.edf`, `.bdf`, or `.cnt`.
+
+## Visualization Tools
+
+The following visualization tools are available for generating publication-quality figures:
+
+| Tool | Description | Output |
+|------|-------------|--------|
+| `eeglab_topoplot` | Scalp topography maps | PNG files for each time point/frequency band |
+| `eeglab_plot_erp` | ERP waveform plots | PNG files for each component/analysis |
+| `eeglab_plot_timefreq` | Time-frequency ERSP/ITC plots | PNG files for each channel/group |
+| `eeglab_plot_components` | ICA component plots (topography + spectrum) | PNG files for each component |
+| `eeglab_plot_psd` | Power spectral density plots | PNG files for each brain region |
+| `eeglab_plot_connectivity` | Connectivity matrix/network plots | PNG files for each frequency band |
+
+Default gallery entry point:
+
+```powershell
+python -m scripts.advanced_figures
+```
 
 ## Repository Map
 
@@ -150,9 +265,9 @@ The protocol exporter must not overwrite EEG data files such as `.set`, `.fdt`, 
 | --- | --- |
 | `eeglab_mcp_server/` | Executable MCP server, tool schemas, handlers, registry, and official alignment map. |
 | `skills/eeglab-analysis/` | Research workflow Skill and agent references. |
-| `docs/` | Official coverage, support, risk, workflow, and report matrices. |
+| `docs/` | Official coverage, support, risk, workflow, and report matrices. Also copied to global skill directory for agent access. |
 | `configs/` | MCP client templates. |
-| `scripts/` | User dispatcher plus setup, doctor, uninstall, and verification helpers. |
+| `scripts/` | User dispatcher plus setup, doctor, uninstall, verification helpers, and default advanced figure gallery modules. |
 
 ## Development And Verification
 

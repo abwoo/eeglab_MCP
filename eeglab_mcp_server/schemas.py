@@ -43,6 +43,30 @@ WORKFLOW_OUTPUT_SCHEMA: dict[str, Any] = {
         "outputs": {"type": "object"},
         "summary": {"type": "object"},
         "limitations": {"type": "array"},
+        "branch_workflow": {
+            "type": "object",
+            "description": "Canonical branch workflow record including branch ID, branch mode, ordered steps, required figures, required outputs, and branch completeness.",
+        },
+        "branch_completeness": {
+            "type": "object",
+            "description": "Branch completeness record with completed steps, missing required steps, blocked steps, figure paths, and output paths.",
+        },
+        "tool_coverage": {
+            "type": "object",
+            "description": "Tool coverage record for called, expected, and missing tools.",
+        },
+        "reference_coverage": {
+            "type": "object",
+            "description": "Skill reference coverage record for read and missing reference files.",
+        },
+        "official_document_coverage": {
+            "type": "object",
+            "description": "Official document coverage record for docs read and missing docs files.",
+        },
+        "report_field_coverage": {
+            "type": "object",
+            "description": "Coverage record for the official report field matrix.",
+        },
     },
     "required": [
         "status",

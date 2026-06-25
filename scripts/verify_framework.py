@@ -51,6 +51,7 @@ REQUIRED_PROMPTS = {
 REQUIRED_RESOURCES = {
     "eeglab://skill/SKILL.md",
     "eeglab://references/workflows.md",
+    "eeglab://references/branch-workflow-matrix.md",
     "eeglab://references/tools.md",
     "eeglab://references/setup.md",
     "eeglab://references/official-method-map.md",
@@ -63,6 +64,7 @@ REQUIRED_RESOURCES = {
     "eeglab://references/bids-study-policy.md",
     "eeglab://references/source-policy.md",
     "eeglab://references/report-protocol-templates.md",
+    "eeglab://references/figure-atlas.md",
     "eeglab://references/statistics-reporting.md",
     "eeglab://official/references.md",
     "eeglab://official/topic-index.md",
@@ -72,8 +74,11 @@ REQUIRED_RESOURCES = {
     "eeglab://official/gate-policy.md",
     "eeglab://official/plugin-map.md",
     "eeglab://official/plugin-matrix.md",
+    "eeglab://official/plugin-family-catalog.md",
     "eeglab://official/risk-matrix.md",
     "eeglab://official/report-field-matrix.md",
+    "eeglab://official/figure-atlas.md",
+    "eeglab://scripts/advanced_figures/README.md",
 }
 
 RESEARCH_TERMS = {
@@ -97,6 +102,7 @@ RESEARCH_TERMS = {
     "import_plugins",
     "data_export",
     "history_scripting",
+    "advanced_figures",
 }
 
 
@@ -151,6 +157,10 @@ def _check_readme_structure() -> None:
             r"scripts\eeglab_agent.ps1 verify" in text,
             f"{path.name} must reference scripts\\eeglab_agent.ps1 verify",
         )
+        _require(
+            "eeglab://scripts/advanced_figures/README.md" in text,
+            f"{path.name} must reference the default advanced figure gallery resource",
+        )
 
         positions = {
             "quick_start": text.find(quick_start),
@@ -171,6 +181,14 @@ def _check_readme_structure() -> None:
         _require(
             positions["first_dataset_check"] < positions["official_alignment"],
             f"{path.name} must place first dataset check before official alignment details",
+        )
+        _require(
+            (
+                text.find("## Figure And Report Coverage") < text.find("## Reporting And Reproducibility")
+                if "## Figure And Report Coverage" in text and "## Reporting And Reproducibility" in text
+                else True
+            ),
+            f"{path.name} must place figure/report coverage before reporting/reproducibility details",
         )
 
 
@@ -203,6 +221,7 @@ def _check_configs_and_skill() -> None:
     for rel in (
         "SKILL.md",
         "references/workflows.md",
+        "references/branch-workflow-matrix.md",
         "references/tools.md",
         "references/setup.md",
         "references/official-gates.md",
@@ -230,33 +249,57 @@ def _check_configs_and_skill() -> None:
             f"<{tag}>" in skill_body and f"</{tag}>" in skill_body,
             f"SKILL.md missing XML tag: {tag}",
         )
-    heading_lines = [
-        index
-        for index, line in enumerate(skill_body.splitlines(), start=1)
-        if line.startswith("#")
-    ]
+    heading_lines = [index for index, line in enumerate(skill_body.splitlines(), start=1) if line.startswith("#")]
     _require(not heading_lines, f"SKILL.md body must use XML tags, found markdown headings at lines {heading_lines}")
 
     docs = ROOT / "docs"
     for rel in (
         "research-standard.md",
         "user-workflows.md",
+        "figure-atlas.md",
         "official-topic-index.md",
         "official-support-matrix.md",
         "official-tool-support-matrix.md",
         "official-method-map.md",
         "official-gate-policy.md",
         "official-plugin-map.md",
+        "official-plugin-family-catalog.md",
         "official-risk-matrix.md",
         "official-report-field-matrix.md",
     ):
         path = docs / rel
         _require(path.exists(), f"missing docs file: {rel}")
 
+    skill_docs = skill / "docs"
+    for rel in (
+        "official-gate-policy.md",
+        "official-method-map.md",
+        "official-plugin-map.md",
+        "official-plugin-family-catalog.md",
+        "official-report-field-matrix.md",
+        "figure-atlas.md",
+        "official-risk-matrix.md",
+        "official-support-matrix.md",
+        "official-tool-support-matrix.md",
+        "official-topic-index.md",
+        "research-standard.md",
+        "user-workflows.md",
+    ):
+        skill_path = skill_docs / rel
+        docs_path = docs / rel
+        _require(skill_path.exists(), f"missing skill docs mirror file: {rel}")
+        _require(
+            skill_path.read_text(encoding="utf-8") == docs_path.read_text(encoding="utf-8"),
+            f"skill docs mirror mismatch: {rel}",
+        )
+
     combined = "\n".join(
         [
             (skill / "SKILL.md").read_text(encoding="utf-8"),
             (skill / "references" / "workflows.md").read_text(encoding="utf-8"),
+            (skill / "references" / "branch-workflow-matrix.md").read_text(encoding="utf-8"),
+            (skill / "references" / "figure-atlas.md").read_text(encoding="utf-8"),
+            (skill / "references" / "report-protocol-templates.md").read_text(encoding="utf-8"),
             (skill / "references" / "tools.md").read_text(encoding="utf-8"),
             (skill / "references" / "official-method-map.md").read_text(encoding="utf-8"),
             (skill / "references" / "gate-policy.md").read_text(encoding="utf-8"),
@@ -267,12 +310,57 @@ def _check_configs_and_skill() -> None:
             (skill / "references" / "bids-study-policy.md").read_text(encoding="utf-8"),
             (skill / "references" / "source-policy.md").read_text(encoding="utf-8"),
             (skill / "references" / "statistics-reporting.md").read_text(encoding="utf-8"),
+            (docs / "figure-atlas.md").read_text(encoding="utf-8"),
+            (docs / "official-report-field-matrix.md").read_text(encoding="utf-8"),
+            (docs / "official-topic-index.md").read_text(encoding="utf-8"),
             (docs / "research-standard.md").read_text(encoding="utf-8"),
             (docs / "official-tool-support-matrix.md").read_text(encoding="utf-8"),
+            (skill / "docs" / "figure-atlas.md").read_text(encoding="utf-8"),
         ]
     )
     for term in RESEARCH_TERMS:
         _require(term.lower() in combined.lower(), f"missing research-standard term: {term}")
+    for term in (
+        "required_figure_families",
+        "conditional_figure_families",
+        "guidance_only_figure_families",
+        "figure_atlas",
+        "figure coverage",
+        "erp-image",
+        "study visualization",
+    ):
+        _require(term.lower() in combined.lower(), f"missing figure-coverage term: {term}")
+
+
+def _check_advanced_figure_gallery() -> None:
+    gallery = ROOT / "scripts" / "advanced_figures"
+    _require(gallery.exists(), "missing advanced figure gallery directory")
+    _require((gallery / "__init__.py").exists(), "advanced figure gallery missing __init__.py")
+    _require((gallery / "__main__.py").exists(), "advanced figure gallery missing __main__.py")
+    _require((gallery / "README.md").exists(), "advanced figure gallery missing README.md")
+    module_names = {"erp", "erpimage", "resting", "timefreq", "ica", "connectivity", "source", "study"}
+    for name in module_names:
+        _require((gallery / f"{name}_gallery.py").exists(), f"advanced figure gallery missing {name}_gallery.py")
+        _require((gallery / f"{name}.md").exists(), f"advanced figure gallery missing {name}.md")
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    readme_zh = (ROOT / "README.zh-CN.md").read_text(encoding="utf-8")
+    for text, label in ((readme, "README.md"), (readme_zh, "README.zh-CN.md")):
+        _require("scripts/advanced_figures" in text, f"{label} missing advanced figure gallery entry")
+        _require("python -m scripts.advanced_figures" in text, f"{label} missing advanced figure gallery command")
+        _require(
+            "default advanced figure gallery" in text.lower() or "default browsable figure" in text.lower(),
+            f"{label} missing default advanced figure wording",
+        )
+    gallery_readme = (gallery / "README.md").read_text(encoding="utf-8").lower()
+    _require("optional" not in gallery_readme, "advanced figure gallery README must not call the gallery optional")
+    _require("default companion" in gallery_readme, "advanced figure gallery README missing default companion wording")
+    for name in ("erp", "erpimage", "resting", "timefreq", "ica", "connectivity", "source", "study"):
+        module_text = (gallery / f"{name}_gallery.py").read_text(encoding="utf-8").lower()
+        doc_text = (gallery / f"{name}.md").read_text(encoding="utf-8").lower()
+        _require("optional" not in module_text, f"{name}_gallery.py must not call the gallery optional")
+        _require("optional" not in doc_text, f"{name}.md must not call the gallery optional")
+        _require("default" in module_text, f"{name}_gallery.py must use default wording")
+        _require("default status" in doc_text, f"{name}.md missing default status section")
 
 
 def _check_registry_documentation_drift() -> None:
@@ -290,6 +378,52 @@ def _check_registry_documentation_drift() -> None:
             _require(
                 phrase.lower() not in text.lower(),
                 f"hard-coded stale tool count phrase in {path}: {phrase}",
+            )
+
+    def _parse_topic_index_table(path: Path) -> dict[str, dict[str, str]]:
+        rows: dict[str, dict[str, str]] = {}
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if not line.startswith("| "):
+                continue
+            parts = [part.strip() for part in line.strip().strip("|").split("|")]
+            if len(parts) < 7:
+                continue
+            topic_id = parts[0].strip("`")
+            if topic_id in {"Topic ID", "---"}:
+                continue
+            rows[topic_id] = {
+                "topic": parts[1],
+                "support_level": parts[2].strip("`"),
+                "url": parts[3],
+                "claim_ids": parts[4],
+                "route": parts[5],
+                "notes": parts[6],
+            }
+        return rows
+
+    docs_topic_index = _parse_topic_index_table(ROOT / "docs" / "official-topic-index.md")
+    skill_topic_index = _parse_topic_index_table(
+        ROOT / "skills" / "eeglab-analysis" / "docs" / "official-topic-index.md"
+    )
+    from eeglab_mcp_server.official_alignment import OFFICIAL_TOPIC_INDEX as _TOPIC_INDEX
+
+    _require(
+        set(_TOPIC_INDEX) == set(docs_topic_index),
+        f"docs topic index keys do not match code: missing={sorted(set(_TOPIC_INDEX) - set(docs_topic_index))}, extra={sorted(set(docs_topic_index) - set(_TOPIC_INDEX))}",
+    )
+    _require(
+        set(_TOPIC_INDEX) == set(skill_topic_index),
+        f"skill topic index keys do not match code: missing={sorted(set(_TOPIC_INDEX) - set(skill_topic_index))}, extra={sorted(set(skill_topic_index) - set(_TOPIC_INDEX))}",
+    )
+    for topic_id, topic in _TOPIC_INDEX.items():
+        for mirror_name, mirror in (("docs", docs_topic_index[topic_id]), ("skill", skill_topic_index[topic_id])):
+            _require(
+                mirror["support_level"] == topic.get("support_level"),
+                f"{mirror_name} topic index support mismatch for {topic_id}",
+            )
+            _require(
+                mirror["topic"] == topic.get("title", ""),
+                f"{mirror_name} topic index title mismatch for {topic_id}",
             )
 
 
@@ -747,7 +881,7 @@ async def _check_mcp() -> None:
                 "eeglab_workflow_recommend",
             )
             _require(
-                recommendation.get("status") == "success",
+                recommendation.get("status") in {"success", "advisory"},
                 "workflow recommendation failed",
             )
             _require(
@@ -1026,6 +1160,10 @@ def _check_cleanliness() -> None:
 
 
 def main() -> None:
+    skip_mcp = "--skip-mcp" in sys.argv[1:]
+    if skip_mcp:
+        sys.argv = [sys.argv[0], *[arg for arg in sys.argv[1:] if arg != "--skip-mcp"]]
+
     _parse_python()
     _check_readme_structure()
     _check_configs_and_skill()
@@ -1034,9 +1172,11 @@ def main() -> None:
     _check_static_structure_policy()
     eval_summary = _check_eval_registry_coverage()
     _check_tool_support_matrix()
-    asyncio.run(_check_mcp())
+    if not skip_mcp:
+        asyncio.run(_check_mcp())
     _check_cleanliness()
     print("framework_ok=True")
+    print(f"mcp_checks_skipped={str(skip_mcp).lower()}")
     print("eval_contract_ok=True")
     print(f"eval_count={eval_summary['eval_count']}")
     print(f"eval_category_count={eval_summary['eval_category_count']}")

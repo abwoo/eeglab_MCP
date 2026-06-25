@@ -833,6 +833,70 @@ def build_tool_definitions() -> list[Tool]:
                 "required": ["output_path"],
             },
         ),
+        Tool(
+            name="eeglab_plot_psd",
+            description="绘制功率谱密度(PSD)图。显示指定通道的功率谱密度。"
+            "支持按频段分析、多通道叠加。图形保存为 PNG 文件。",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "channels": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "绘制的通道列表。例如: ['Oz', 'Pz']。留空则绘制所有通道",
+                    },
+                    "output_path": {
+                        "type": "string",
+                        "description": "输出图片的绝对路径",
+                    },
+                    "freq_range": {
+                        "type": "array",
+                        "items": {"type": "number"},
+                        "minItems": 2,
+                        "maxItems": 2,
+                        "default": [0.5, 100],
+                        "description": "频率范围[最低Hz, 最高Hz]。默认: [0.5, 100]",
+                    },
+                    "title": {"type": "string", "description": "图形标题"},
+                },
+                "required": ["output_path"],
+            },
+        ),
+        Tool(
+            name="eeglab_plot_connectivity",
+            description="绘制连接性矩阵图。显示通道间的相干性或PLV连接矩阵。"
+            "用于可视化脑功能网络连接。图形保存为 PNG 文件。",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "channels": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "分析的通道列表。例如: ['Fz', 'Cz', 'Pz']。留空则分析所有通道",
+                    },
+                    "output_path": {
+                        "type": "string",
+                        "description": "输出图片的绝对路径",
+                    },
+                    "method": {
+                        "type": "string",
+                        "enum": ["coherence", "plv"],
+                        "default": "coherence",
+                        "description": "连接性度量: coherence(相干性), plv(相位锁定值)",
+                    },
+                    "freq_range": {
+                        "type": "array",
+                        "items": {"type": "number"},
+                        "minItems": 2,
+                        "maxItems": 2,
+                        "default": [8, 13],
+                        "description": "频率范围[最低Hz, 最高Hz]。默认: [8, 13] Alpha 频段",
+                    },
+                    "title": {"type": "string", "description": "图形标题"},
+                },
+                "required": ["output_path"],
+            },
+        ),
         # ===== 第 7 类：源定位 =====
         Tool(
             name="eeglab_source_localization",
@@ -1043,6 +1107,92 @@ def build_tool_definitions() -> list[Tool]:
                     },
                 },
                 "required": ["pipeline_type", "data_path"],
+            },
+        ),
+        # ===== 第 8 类：报告生成 =====
+        Tool(
+            name="eeglab_generate_report",
+            description="生成标准 EEG 研究分析报告。根据分析结果（记录信息、预处理参数、分析参数、图片、结果等）自动生成 Markdown 或 HTML 格式的完整研究报告。遵循 official-report-field-matrix.md 字段要求。",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "output_path": {
+                        "type": "string",
+                        "description": "报告输出文件路径。例如: /path/to/report.md 或 /path/to/report.html",
+                    },
+                    "format": {
+                        "type": "string",
+                        "enum": ["markdown", "html"],
+                        "default": "markdown",
+                        "description": "报告格式。默认: markdown",
+                    },
+                    "title": {
+                        "type": "string",
+                        "description": "报告标题",
+                    },
+                    "author": {
+                        "type": "string",
+                        "description": "报告作者",
+                    },
+                    "abstract": {
+                        "type": "string",
+                        "description": "摘要",
+                    },
+                    "recording": {
+                        "type": "object",
+                        "description": "记录和采集信息（input_path, sampling_rate, channels, event_count 等）",
+                    },
+                    "preprocessing": {
+                        "type": "object",
+                        "description": "预处理参数（filter, line_noise, rereference, ica_algorithm 等）",
+                    },
+                    "analysis": {
+                        "type": "object",
+                        "description": "分析参数（erp, spectral, timefreq, connectivity, source）",
+                    },
+                    "figures": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "path": {"type": "string"},
+                                "caption": {"type": "string"},
+                                "description": {"type": "string"},
+                            },
+                        },
+                        "description": "生成的图片列表，每个包含 path, caption, description",
+                    },
+                    "results": {
+                        "type": "object",
+                        "description": "分析结果",
+                    },
+                    "discussion": {
+                        "type": "string",
+                        "description": "讨论",
+                    },
+                    "limitations": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "局限性列表",
+                    },
+                    "gate_results": {
+                        "type": "object",
+                        "description": "官方 gate 状态",
+                    },
+                    "override_used": {
+                        "type": "boolean",
+                        "description": "是否使用了 override",
+                    },
+                    "override_reason": {
+                        "type": "string",
+                        "description": "override 原因",
+                    },
+                    "appendix": {
+                        "type": "object",
+                        "description": "附录（software, plugins, generated_files）",
+                    },
+                },
+                "required": ["output_path"],
             },
         ),
     ]

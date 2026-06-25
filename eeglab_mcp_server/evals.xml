@@ -311,6 +311,7 @@
       <tool>eeglab_workflow_recommend</tool>
       <tool>eeglab_project_plan</tool>
       <tool>eeglab_protocol_export</tool>
+      <tool>eeglab_generate_report</tool>
     </required_tools>
     <forbidden_tools />
     <required_terms>

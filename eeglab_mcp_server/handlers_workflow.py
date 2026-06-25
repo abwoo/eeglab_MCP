@@ -522,3 +522,355 @@ async def _eeglab_erp_light_workflow(args: dict) -> Any:
         },
     )
     return structured_payload(payload)
+
+
+async def _eeglab_generate_report(args: dict) -> Any:
+    """Generate a standardized EEG research analysis report."""
+    import json
+    from datetime import datetime
+
+    output_path = args.get("output_path", "")
+    fmt = args.get("format", "markdown")
+
+    if not output_path:
+        return structured_payload(
+            workflow_error(
+                "eeglab_generate_report",
+                "validation",
+                {
+                    "status": "error",
+                    "code": "missing_output_path",
+                    "error": "output_path is required.",
+                    "next_step": "Provide a valid output file path (e.g., /path/to/report.md or /path/to/report.html).",
+                },
+                parameters=args,
+                steps=[],
+            )
+        )
+
+    # Build report data from args
+    title = args.get("title", "EEG Analysis Report")
+    date = args.get("date", datetime.now().strftime("%Y-%m-%d"))
+    author = args.get("author", "EEGLAB MCP Agent")
+    abstract = args.get("abstract", "No abstract provided.")
+    recording = args.get("recording", {})
+    preprocessing = args.get("preprocessing", {})
+    analysis = args.get("analysis", {})
+    figures = args.get("figures", [])
+    results = args.get("results", {})
+    discussion = args.get("discussion", "No discussion provided.")
+    limitations = args.get("limitations", [])
+    gate_results = args.get("gate_results", {})
+    override_used = args.get("override_used", False)
+    override_reason = args.get("override_reason", "")
+    appendix = args.get("appendix", {})
+
+    if fmt == "html":
+        report = _generate_html_report(
+            title, date, author, abstract, recording, preprocessing,
+            analysis, figures, results, discussion, limitations,
+            gate_results, override_used, override_reason, appendix
+        )
+    else:
+        report = _generate_markdown_report(
+            title, date, author, abstract, recording, preprocessing,
+            analysis, figures, results, discussion, limitations,
+            gate_results, override_used, override_reason, appendix
+        )
+
+    try:
+        os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
+        with open(output_path, "w", encoding="utf-8") as f:
+            f.write(report)
+        return structured_payload(
+            workflow_success(
+                "eeglab_generate_report",
+                steps=[{"name": "generate_report", "status": "success"}],
+                parameters={"output_path": output_path, "format": fmt},
+                outputs={"report_path": output_path, "format": fmt},
+                summary={"report_generated": True},
+            )
+        )
+    except OSError as exc:
+        return structured_payload(
+            workflow_error(
+                "eeglab_generate_report",
+                "write_file",
+                {
+                    "status": "error",
+                    "code": "write_failed",
+                    "error": str(exc),
+                    "next_step": "Check the output path is writable and the directory exists.",
+                },
+                parameters={"output_path": output_path, "format": fmt},
+                steps=[{"name": "generate_report", "status": "success"}, {"name": "write_file", "status": "error"}],
+            )
+        )
+
+
+def _generate_markdown_report(
+    title, date, author, abstract, recording, preprocessing,
+    analysis, figures, results, discussion, limitations,
+    gate_results, override_used, override_reason, appendix
+) -> str:
+    """Generate Markdown report."""
+    sections = []
+
+    # Title
+    sections.append(f"# {title}\n\n**Date:** {date}\n**Author:** {author}\n**Software:** EEGLAB MCP Agent")
+
+    # Abstract
+    sections.append(f"## Abstract\n\n{abstract}")
+
+    # Recording
+    if recording:
+        lines = ["## Recording And Acquisition\n", "| Parameter | Value |", "|-----------|-------|"]
+        for key, value in recording.items():
+            label = key.replace("_", " ").title()
+            lines.append(f"| {label} | {value} |")
+        sections.append("\n".join(lines))
+
+    # Preprocessing
+    if preprocessing:
+        lines = ["## Preprocessing Parameters\n", "| Step | Parameters |", "|------|------------|"]
+        for key, value in preprocessing.items():
+            label = key.replace("_", " ").title()
+            if isinstance(value, dict):
+                value = ", ".join(f"{k}: {v}" for k, v in value.items())
+            lines.append(f"| {label} | {value} |")
+        sections.append("\n".join(lines))
+
+    # Analysis
+    if any(analysis.values()):
+        lines = ["## Analysis Parameters\n"]
+        for analysis_type, params in analysis.items():
+            if params:
+                lines.append(f"### {analysis_type.replace('_', ' ').title()}\n")
+                lines.append("| Parameter | Value |")
+                lines.append("|-----------|-------|")
+                for key, value in params.items():
+                    lines.append(f"| {key} | {value} |")
+                lines.append("")
+        sections.append("\n".join(lines))
+
+    # Figures
+    if figures:
+        lines = ["## Figures\n"]
+        for i, fig in enumerate(figures, 1):
+            fig_path = fig.get("path", "")
+            fig_caption = fig.get("caption", f"Figure {i}")
+            fig_description = fig.get("description", "")
+            lines.append(f"### Figure {i}: {fig_caption}\n")
+            if fig_description:
+                lines.append(f"{fig_description}\n")
+            if fig_path:
+                lines.append(f"![{fig_caption}]({fig_path})\n")
+        sections.append("\n".join(lines))
+
+    # Results
+    if results:
+        lines = ["## Results\n"]
+        for key, value in results.items():
+            lines.append(f"### {key.replace('_', ' ').title()}\n")
+            if isinstance(value, dict):
+                lines.append("| Metric | Value |")
+                lines.append("|--------|-------|")
+                for k, v in value.items():
+                    lines.append(f"| {k} | {v} |")
+            else:
+                lines.append(str(value))
+            lines.append("")
+        sections.append("\n".join(lines))
+
+    # Discussion
+    sections.append(f"## Discussion\n\n{discussion}")
+
+    # Limitations
+    lines = ["## Limitations\n"]
+    if limitations:
+        for lim in limitations:
+            lines.append(f"- {lim}")
+    else:
+        lines.append("- No specific limitations noted.")
+    lines.append("")
+    lines.append("**Official Gate Status:**\n")
+    if gate_results:
+        for claim_id, status in gate_results.items():
+            lines.append(f"- {claim_id}: {status}")
+    else:
+        lines.append("- Gate coverage not provided.")
+    if override_used:
+        lines.append(f"\n**Override Applied:**\n\n- Reason: {override_reason}")
+    lines.append("\n**Disclaimer:** These are EEG signal-processing results, not clinical conclusions. No anatomical certainty is claimed from missing montage/model data.")
+    sections.append("\n".join(lines))
+
+    # Appendix
+    lines = ["## Appendix\n"]
+    software = appendix.get("software", {})
+    if software:
+        lines.append("### Software And Versions\n")
+        for key, value in software.items():
+            lines.append(f"- **{key}:** {value}")
+        lines.append("")
+    plugins = appendix.get("plugins", {})
+    if plugins:
+        lines.append("### Plugin Status\n")
+        for plugin, status in plugins.items():
+            lines.append(f"- **{plugin}:** {status}")
+        lines.append("")
+    files = appendix.get("generated_files", [])
+    if files:
+        lines.append("### Generated Files\n")
+        for file_info in files:
+            if isinstance(file_info, dict):
+                lines.append(f"- `{file_info.get('path', 'N/A')}`: {file_info.get('description', '')}")
+            else:
+                lines.append(f"- `{file_info}`")
+        lines.append("")
+    sections.append("\n".join(lines))
+
+    return "\n\n".join(sections)
+
+
+def _generate_html_report(
+    title, date, author, abstract, recording, preprocessing,
+    analysis, figures, results, discussion, limitations,
+    gate_results, override_used, override_reason, appendix
+) -> str:
+    """Generate HTML report with proper formatting."""
+    sections = []
+
+    # Title
+    sections.append(f"""<h1>{title}</h1>
+<p><strong>Date:</strong> {date}<br>
+<strong>Author:</strong> {author}<br>
+<strong>Software:</strong> EEGLAB MCP Agent</p>""")
+
+    # Abstract
+    sections.append(f"<h2>Abstract</h2><p>{abstract}</p>")
+
+    # Recording
+    if recording:
+        sections.append("<h2>Recording And Acquisition</h2>")
+        sections.append("<table><tr><th>Parameter</th><th>Value</th></tr>")
+        for key, value in recording.items():
+            label = key.replace("_", " ").title()
+            sections.append(f"<tr><td>{label}</td><td>{value}</td></tr>")
+        sections.append("</table>")
+
+    # Preprocessing
+    if preprocessing:
+        sections.append("<h2>Preprocessing Parameters</h2>")
+        sections.append("<table><tr><th>Step</th><th>Parameters</th></tr>")
+        for key, value in preprocessing.items():
+            label = key.replace("_", " ").title()
+            if isinstance(value, dict):
+                value = ", ".join(f"{k}: {v}" for k, v in value.items())
+            sections.append(f"<tr><td>{label}</td><td>{value}</td></tr>")
+        sections.append("</table>")
+
+    # Analysis
+    if any(analysis.values()):
+        sections.append("<h2>Analysis Parameters</h2>")
+        for analysis_type, params in analysis.items():
+            if params:
+                sections.append(f"<h3>{analysis_type.replace('_', ' ').title()}</h3>")
+                sections.append("<table><tr><th>Parameter</th><th>Value</th></tr>")
+                for key, value in params.items():
+                    sections.append(f"<tr><td>{key}</td><td>{value}</td></tr>")
+                sections.append("</table>")
+
+    # Figures
+    if figures:
+        sections.append("<h2>Figures</h2>")
+        for i, fig in enumerate(figures, 1):
+            fig_path = fig.get("path", "")
+            fig_caption = fig.get("caption", f"Figure {i}")
+            fig_description = fig.get("description", "")
+            sections.append(f"<h3>Figure {i}: {fig_caption}</h3>")
+            if fig_description:
+                sections.append(f"<p>{fig_description}</p>")
+            if fig_path:
+                sections.append(f'<img src="{fig_path}" alt="{fig_caption}" style="max-width: 100%;">')
+
+    # Results
+    if results:
+        sections.append("<h2>Results</h2>")
+        for key, value in results.items():
+            sections.append(f"<h3>{key.replace('_', ' ').title()}</h3>")
+            if isinstance(value, dict):
+                sections.append("<table><tr><th>Metric</th><th>Value</th></tr>")
+                for k, v in value.items():
+                    sections.append(f"<tr><td>{k}</td><td>{v}</td></tr>")
+                sections.append("</table>")
+            else:
+                sections.append(f"<p>{value}</p>")
+
+    # Discussion
+    sections.append(f"<h2>Discussion</h2><p>{discussion}</p>")
+
+    # Limitations
+    sections.append("<h2>Limitations</h2><ul>")
+    if limitations:
+        for lim in limitations:
+            sections.append(f"<li>{lim}</li>")
+    else:
+        sections.append("<li>No specific limitations noted.</li>")
+    sections.append("</ul>")
+    sections.append("<p><strong>Official Gate Status:</strong></p><ul>")
+    if gate_results:
+        for claim_id, status in gate_results.items():
+            sections.append(f"<li>{claim_id}: {status}</li>")
+    else:
+        sections.append("<li>Gate coverage not provided.</li>")
+    sections.append("</ul>")
+    if override_used:
+        sections.append(f"<p><strong>Override Applied:</strong></p><p>Reason: {override_reason}</p>")
+    sections.append('<p><strong>Disclaimer:</strong> These are EEG signal-processing results, not clinical conclusions. No anatomical certainty is claimed from missing montage/model data.</p>')
+
+    # Appendix
+    sections.append("<h2>Appendix</h2>")
+    software = appendix.get("software", {})
+    if software:
+        sections.append("<h3>Software And Versions</h3><ul>")
+        for key, value in software.items():
+            sections.append(f"<li><strong>{key}:</strong> {value}</li>")
+        sections.append("</ul>")
+    plugins = appendix.get("plugins", {})
+    if plugins:
+        sections.append("<h3>Plugin Status</h3><ul>")
+        for plugin, status in plugins.items():
+            sections.append(f"<li><strong>{plugin}:</strong> {status}</li>")
+        sections.append("</ul>")
+    files = appendix.get("generated_files", [])
+    if files:
+        sections.append("<h3>Generated Files</h3><ul>")
+        for file_info in files:
+            if isinstance(file_info, dict):
+                sections.append(f"<li><code>{file_info.get('path', 'N/A')}</code>: {file_info.get('description', '')}</li>")
+            else:
+                sections.append(f"<li><code>{file_info}</code></li>")
+        sections.append("</ul>")
+
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{title}</title>
+    <style>
+        body {{ font-family: Arial, sans-serif; line-height: 1.6; max-width: 1200px; margin: 0 auto; padding: 20px; color: #333; }}
+        table {{ border-collapse: collapse; width: 100%; margin: 20px 0; }}
+        th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
+        th {{ background-color: #f2f2f2; }}
+        img {{ max-width: 100%; height: auto; margin: 20px 0; display: block; }}
+        h1, h2, h3 {{ color: #333; }}
+        code {{ background-color: #f4f4f4; padding: 2px 4px; border-radius: 3px; }}
+        ul {{ margin: 10px 0; }}
+        li {{ margin: 5px 0; }}
+    </style>
+</head>
+<body>
+{"".join(sections)}
+</body>
+</html>"""

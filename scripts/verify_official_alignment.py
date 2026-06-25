@@ -113,7 +113,7 @@ def check_official_matrices() -> None:
         _require(mirror.get("commit"), f"{mirror_id} missing commit")
         _require(mirror.get("url"), f"{mirror_id} missing url")
 
-    _require(len(OFFICIAL_TOPIC_INDEX) >= 15, "official topic index too small")
+    _require(len(OFFICIAL_TOPIC_INDEX) >= 18, "official topic index too small")
     for topic_id, topic in OFFICIAL_TOPIC_INDEX.items():
         _require(topic.get("title"), f"{topic_id} missing title")
         support_level = topic.get("support_level")
@@ -169,11 +169,17 @@ def check_official_matrices() -> None:
                 f"{plugin_name} references unknown profile {profile_id}",
             )
 
+    _require(
+        "eeglab://official/plugin-family-catalog.md" in RESOURCE_FILES,
+        "official plugin family catalog resource missing",
+    )
+
     required_report_groups = {
         "recording_and_acquisition",
         "events_and_design",
         "preprocessing_parameters",
         "analysis_parameters",
+        "visualization_and_figures",
         "outputs_and_limits",
     }
     _require(
@@ -183,6 +189,18 @@ def check_official_matrices() -> None:
     for group, fields in REPORT_FIELD_MATRIX.items():
         _require(fields, f"report field matrix group empty: {group}")
 
+    figure_atlas = _read("docs/figure-atlas.md")
+    skill_figure_atlas = _read("skills/eeglab-analysis/docs/figure-atlas.md")
+    for term in (
+        "ERP image heatmap",
+        "ERSP / ITC heatmap",
+        "band-power topomaps",
+        "source / dipole review",
+        "grand-average ERP",
+    ):
+        _require(term.lower() in figure_atlas.lower(), f"figure atlas missing term: {term}")
+        _require(term.lower() in skill_figure_atlas.lower(), f"skill figure atlas missing term: {term}")
+
 
 def check_docs_and_skill() -> None:
     combined = "\n".join(
@@ -191,12 +209,15 @@ def check_docs_and_skill() -> None:
             _read("docs/official-topic-index.md"),
             _read("docs/official-support-matrix.md"),
             _read("docs/official-tool-support-matrix.md"),
+            _read("docs/official-plugin-family-catalog.md"),
             _read("docs/official-method-map.md"),
             _read("docs/official-gate-policy.md"),
             _read("docs/official-plugin-map.md"),
             _read("docs/official-risk-matrix.md"),
             _read("docs/official-report-field-matrix.md"),
             _read("skills/eeglab-analysis/SKILL.md"),
+            _read("skills/eeglab-analysis/docs/figure-atlas.md"),
+            _read("skills/eeglab-analysis/docs/official-report-field-matrix.md"),
             _read("skills/eeglab-analysis/references/official-gates.md"),
             _read("skills/eeglab-analysis/references/official-method-map.md"),
             _read("skills/eeglab-analysis/references/gate-policy.md"),
@@ -205,8 +226,9 @@ def check_docs_and_skill() -> None:
             _read("skills/eeglab-analysis/references/ica-iclabel-policy.md"),
             _read("skills/eeglab-analysis/references/bids-study-policy.md"),
             _read("skills/eeglab-analysis/references/source-policy.md"),
-            _read("skills/eeglab-analysis/references/report-protocol-templates.md"),
-            _read("skills/eeglab-analysis/references/tools.md"),
+        _read("skills/eeglab-analysis/references/report-protocol-templates.md"),
+        _read("skills/eeglab-analysis/references/branch-workflow-matrix.md"),
+        _read("skills/eeglab-analysis/references/tools.md"),
             _read("skills/eeglab-analysis/references/workflows.md"),
             _read("eeglab_mcp_server/evals.xml"),
         ]
@@ -229,7 +251,10 @@ def check_docs_and_skill() -> None:
         "gated_guidance",
         "topic index",
         "plugin matrix",
+        "plugin family catalog",
         "report field matrix",
+        "branch workflow matrix",
+        "branch-workflow-matrix.md",
         "tool support matrix",
         "eeglab://official/tool-support-matrix.md",
         "HED",
@@ -257,6 +282,9 @@ def check_docs_and_skill() -> None:
         "EEGLAB-STUDY-PRECOMP-001",
         "EEGLAB-ICCLUSTER-001",
         "EEGLAB-PLUGIN-DEV-001",
+        "EEGLAB-REVISION-001",
+        "EEGLAB-HARDWARE-001",
+        "EEGLAB-TUTORIAL-DATA-001",
         "EEGLAB-RELICA-001",
         "EEGLAB-VIEWPROPS-001",
         "EEGLAB-GETCHANLOCS-001",
@@ -289,6 +317,7 @@ def check_docs_and_skill() -> None:
     protocol_docs = "\n".join(
         [
             _read("skills/eeglab-analysis/references/report-protocol-templates.md"),
+            _read("skills/eeglab-analysis/references/branch-workflow-matrix.md"),
             _read("skills/eeglab-analysis/references/tools.md"),
             _read("skills/eeglab-analysis/references/workflows.md"),
         ]
@@ -298,6 +327,8 @@ def check_docs_and_skill() -> None:
         "gate_results",
         "source_claim_ids",
         "report_fields",
+        "branch_workflow",
+        "branch_completeness",
         "override_used",
         "override_reason",
         "blocked_requirements_acknowledged",

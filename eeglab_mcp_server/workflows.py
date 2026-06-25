@@ -11,12 +11,14 @@ from mcp.types import TextContent
 
 try:
     from .official_alignment import (
+        branch_workflow_details,
         OFFICIAL_CLAIMS,
         REPORT_FIELD_MATRIX,
         evaluate_method_preflight,
     )
 except ImportError:  # pragma: no cover - direct script execution support
     from official_alignment import (
+        branch_workflow_details,
         OFFICIAL_CLAIMS,
         REPORT_FIELD_MATRIX,
         evaluate_method_preflight,
@@ -340,7 +342,7 @@ ANALYSIS_TO_METHOD_PROFILE = {
     "ica": "run_ica",
     "source": "source",
     "study": "study",
-    "connectivity": "timefreq",
+    "connectivity": "connectivity",
     "segment_qc": "epoch",
     "resting": "derivative_processing",
 }
@@ -451,6 +453,20 @@ def _report_field_coverage(args: dict[str, Any]) -> dict[str, Any]:
             "coverage_status": "provided" if provided else "not_provided",
         }
     return coverage
+
+
+def _branch_payload_from_args(args: dict[str, Any]) -> dict[str, Any]:
+    """Normalize branch completeness inputs into a canonical payload."""
+    branch_args = args if isinstance(args, dict) else {}
+    return branch_workflow_details(
+        branch_args.get("analysis_type", ""),
+        completed_steps=_as_string_list(branch_args.get("completed_steps")),
+        figure_paths=_as_string_list(branch_args.get("figure_paths")),
+        output_paths=_as_string_list(branch_args.get("output_paths")),
+        blocker_messages=_as_string_list(branch_args.get("blocked_steps")),
+        required_outputs=_as_string_list(branch_args.get("required_outputs")),
+        branch_variant=str(branch_args.get("branch_variant", "") or "").strip() or None,
+    )
 
 
 def _gate_result_line(gate: dict[str, Any]) -> str:
@@ -725,6 +741,17 @@ def recommend_workflow(args: dict[str, Any]) -> dict[str, Any]:
             "The data appears epoched; confirm this is appropriate before ICA or resting-state spectral analysis."
         )
 
+    branch_workflow = branch_workflow_details(
+        analysis_type,
+        completed_steps=steps,
+        required_outputs=[
+            "derivative_set",
+            "protocol_export",
+            "final_report",
+        ],
+        branch_variant=("connectivity" if analysis_type == "connectivity" else None),
+    )
+
     project_phases = [
         "0_project_intake: define hypothesis, project scale, subject/session structure, data format, and required outputs",
         "1_recording_provenance_audit: preserve raw files; inspect sampling rate, data shape, duration, channel montage, reference, event markers, BIDS/comments, and history",
@@ -792,6 +819,7 @@ def recommend_workflow(args: dict[str, Any]) -> dict[str, Any]:
             ],
             "official_alignment": official_alignment,
             "gate_results": gate_results,
+            "branch_workflow": branch_workflow,
             "method_profile_id": official_alignment.get("method_profile_id", ""),
             "source_claim_ids": official_alignment.get("source_claim_ids", []),
         },
@@ -1000,6 +1028,13 @@ def project_plan(args: dict[str, Any]) -> dict[str, Any]:
         "plugin_doctor": "Check clean_rawdata, ICLabel, DIPFIT, BIDS, LIMO, and SIFT availability before dependent steps.",
     }
 
+    branch_workflow = branch_workflow_details(
+        resolved,
+        completed_steps=steps,
+        required_outputs=_as_string_list(args.get("required_outputs")),
+        branch_variant=("connectivity" if resolved == "connectivity" else None),
+    )
+
     return workflow_success(
         "eeglab_project_plan",
         steps=[{"name": step, "status": "planned"} for step in steps],
@@ -1037,6 +1072,7 @@ def project_plan(args: dict[str, Any]) -> dict[str, Any]:
             "official_claim_count": len(OFFICIAL_CLAIMS),
             "official_alignment": official_alignment,
             "gate_results": gate_results,
+            "branch_workflow": branch_workflow,
             "staged_study_gate_methods": (list(STUDY_STAGE_METHODS) if resolved == "study" else []),
             "recommended_next_step": (
                 "Resolve blocking_conditions and required_user_decisions before destructive preprocessing."
@@ -1112,6 +1148,15 @@ def protocol_export_payload(args: dict[str, Any]) -> dict[str, Any]:
         "missing_requirements": missing_requirements,
         "override_status": override_status,
         "report_field_matrix_coverage": report_field_coverage,
+        "branch_workflow": branch_workflow_details(
+            analysis_type,
+            completed_steps=_as_string_list(steps),
+            figure_paths=_as_string_list(outputs.get("figure_paths")),
+            output_paths=_as_string_list(outputs.get("output_paths")),
+            blocker_messages=missing_requirements,
+            required_outputs=_as_string_list(outputs.get("required_outputs")),
+            branch_variant=("connectivity" if analysis_type == "connectivity" else None),
+        ),
         "official_reference_anchors": OFFICIAL_REFERENCES,
     }
 
@@ -1213,6 +1258,7 @@ def protocol_export_payload(args: dict[str, Any]) -> dict[str, Any]:
             "missing_requirements": missing_requirements,
             "override_status": override_status,
             "report_field_matrix_coverage": report_field_coverage,
+            "branch_workflow": protocol["branch_workflow"],
             "official_alignment": {
                 "source": "local_official_claim_map",
                 "claim_count": len(source_claim_ids),
