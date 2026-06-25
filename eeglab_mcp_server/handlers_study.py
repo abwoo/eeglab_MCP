@@ -41,6 +41,9 @@ async def _eeglab_study_create(args: dict) -> list[TextContent]:
     if bids_path:
         bids_path_lit = matlab_string(bids_path)
         create_code = f"""
+if ~exist('pop_importbids', 'file')
+    error('EEG-BIDS plugin is not installed. Please install it from EEGLAB menu: Tools > Manage EEGLAB extensions > EEG-BIDS.');
+end
 [STUDY, ALLEEG] = pop_importbids({bids_path_lit}, 'studyName', {study_name_lit}, 'bidsevent', 'on', 'bidschanloc', 'on');
 """
     elif dataset_paths:
@@ -123,7 +126,7 @@ async def _eeglab_study_statistics(args: dict) -> list[TextContent]:
     code = f"""
 {_maybe_init()}
 STUDY = pop_statparams(STUDY, {measure_str}, {correction_str}, 'alpha', {alpha});
-[STUDY, stats] = pop_stat(EEG, STUDY, ALLEEG);
+[STUDY, stats] = pop_stat(STUDY, ALLEEG);
 result.measure = {measure_lit};
 result.alpha = {alpha};
 result.correction = {correction_lit};
@@ -187,6 +190,9 @@ EEG = pop_eegfiltnew(EEG, 'locutoff', {highpass}, 'hicutoff', {lowpass});
 EEG = eeg_checkset(EEG);
 
 %% 4. ASR 伪迹去除
+if ~exist('pop_clean_rawdata', 'file')
+    error('clean_rawdata plugin is not installed. Please install it from EEGLAB menu: Tools > Manage EEGLAB extensions > clean_rawdata.');
+end
 EEG = pop_clean_rawdata(EEG, 'FlatlineCriterion', 5, 'ChannelCriterion', 0.8, 'LineNoiseCriterion', 4, 'Highpass', [0.25 0.75], 'BurstCriterion', {burst_criterion}, 'BurstRejection', 'on', 'WindowCriterion', 0.25, 'Distance', 'Euclidian', 'WindowCriterionTolerances', [-Inf 7]);
 EEG = eeg_checkset(EEG);
 
@@ -199,10 +205,16 @@ EEG = pop_runica(EEG, 'icatype', {ica_algorithm_lit}, 'extended', 1, 'pca', EEG.
 EEG = eeg_checkset(EEG);
 
 %% 7. ICLabel 分类
+if ~exist('pop_iclabel', 'file')
+    error('ICLabel plugin is not installed. Please install it from EEGLAB menu: Tools > Manage EEGLAB extensions > ICLabel.');
+end
 EEG = pop_iclabel(EEG);
 EEG = eeg_checkset(EEG);
 
 %% 8. 标记和移除伪迹成分
+if ~exist('pop_icflag', 'file')
+    error('ICLabel plugin is not installed. Please install it from EEGLAB menu: Tools > Manage EEGLAB extensions > ICLabel.');
+end
 EEG = pop_icflag(EEG, [NaN NaN; 0.9 1; 0.9 1; NaN NaN; NaN NaN; NaN NaN; NaN NaN]);
 EEG = pop_subcomp(EEG, find(EEG.reject.gcompreject), 0);
 EEG = eeg_checkset(EEG);

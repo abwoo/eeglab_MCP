@@ -51,6 +51,9 @@ async def _eeglab_source_localization(args: dict) -> list[TextContent]:
 if ~exist('EEG', 'var') || ~isstruct(EEG) || ~isfield(EEG, 'icaweights') || isempty(EEG.icaweights)
     result.status = 'error';
     result.error = '尚未运行 ICA 分解，请先调用 eeglab_run_ica';
+elseif ~exist('pop_dipfit_settings', 'file')
+    result.status = 'error';
+    result.error = 'DIPFIT plugin is not installed. Please install it from EEGLAB menu: Tools > Manage EEGLAB extensions > DIPFIT.';
 else
     EEG = pop_dipfit_settings(EEG, 'hdmfile', {hdmfile_lit}, 'chanfile', {chanfile_lit}, 'mrifile', {mrifile_lit}, 'coordformat', {coord_lit});
     EEG = pop_multifit(EEG, {comp_str});
@@ -107,13 +110,18 @@ async def _eeglab_source_settings(args: dict) -> list[TextContent]:
 
     code = f"""
 {_maybe_init()}
-EEG = pop_dipfit_settings(EEG, 'hdmfile', {hdmfile_lit}, 'chanfile', {chanfile_lit}, 'mrifile', {mrifile_lit}, 'coordformat', {coord_lit});
-result.head_model = {head_model_lit};
-result.template = {template_lit};
-result.hdmfile = {hdmfile_lit};
-result.chanfile = {chanfile_lit};
-result.mrifile = {mrifile_lit};
-result.coordformat = {coord_lit};
+if ~exist('pop_dipfit_settings', 'file')
+    result.status = 'error';
+    result.error = 'DIPFIT plugin is not installed. Please install it from EEGLAB menu: Tools > Manage EEGLAB extensions > DIPFIT.';
+else
+    EEG = pop_dipfit_settings(EEG, 'hdmfile', {hdmfile_lit}, 'chanfile', {chanfile_lit}, 'mrifile', {mrifile_lit}, 'coordformat', {coord_lit});
+    result.head_model = {head_model_lit};
+    result.template = {template_lit};
+    result.hdmfile = {hdmfile_lit};
+    result.chanfile = {chanfile_lit};
+    result.mrifile = {mrifile_lit};
+    result.coordformat = {coord_lit};
+end
 """
 
     result = await matlab.execute(code)

@@ -141,13 +141,18 @@ async def _eeglab_import_bids(args: dict) -> list[TextContent]:
 
     code = f"""
 {_maybe_init()}
-[STUDY, ALLEEG] = pop_importbids({bids_path_lit}, 'studyName', {study_name_lit}, 'bidsevent', 'on', 'bidschanloc', 'on');
-result.study_name = {study_name_lit};
-result.num_datasets = length(ALLEEG);
-result.subjects = {{STUDY.subject}};
-EEG = ALLEEG(1);
-result.first_dataset.nbchan = EEG.nbchan;
-result.first_dataset.srate = EEG.srate;
+if ~exist('pop_importbids', 'file')
+    result.status = 'error';
+    result.error = 'EEG-BIDS plugin is not installed. Please install it from EEGLAB menu: Tools > Manage EEGLAB extensions > EEG-BIDS.';
+else
+    [STUDY, ALLEEG] = pop_importbids({bids_path_lit}, 'studyName', {study_name_lit}, 'bidsevent', 'on', 'bidschanloc', 'on');
+    result.study_name = {study_name_lit};
+    result.num_datasets = length(ALLEEG);
+    result.subjects = {{STUDY.subject}};
+    EEG = ALLEEG(1);
+    result.first_dataset.nbchan = EEG.nbchan;
+    result.first_dataset.srate = EEG.srate;
+end
 """
 
     result = await matlab.execute(code)

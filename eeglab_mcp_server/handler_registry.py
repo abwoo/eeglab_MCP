@@ -55,10 +55,13 @@ try:
         _eeglab_plot_erp,
         _eeglab_plot_timefreq,
         _eeglab_topoplot,
+        _eeglab_plot_psd,
+        _eeglab_plot_connectivity,
     )
     from .handlers_workflow import (
         _eeglab_erp_light_workflow,
         _eeglab_event_semantics_audit,
+        _eeglab_generate_report,
         _eeglab_method_preflight,
         _eeglab_plugin_check,
         _eeglab_project_plan,
@@ -116,10 +119,13 @@ except ImportError:  # pragma: no cover - direct script execution support
         _eeglab_plot_erp,
         _eeglab_plot_timefreq,
         _eeglab_topoplot,
+        _eeglab_plot_psd,
+        _eeglab_plot_connectivity,
     )
     from handlers_workflow import (
         _eeglab_erp_light_workflow,
         _eeglab_event_semantics_audit,
+        _eeglab_generate_report,
         _eeglab_method_preflight,
         _eeglab_plugin_check,
         _eeglab_project_plan,
@@ -162,6 +168,8 @@ TOOL_HANDLERS: Mapping[str, ToolHandler] = {
     "eeglab_plot_erp": _eeglab_plot_erp,
     "eeglab_plot_timefreq": _eeglab_plot_timefreq,
     "eeglab_plot_components": _eeglab_plot_components,
+    "eeglab_plot_psd": _eeglab_plot_psd,
+    "eeglab_plot_connectivity": _eeglab_plot_connectivity,
     "eeglab_source_localization": _eeglab_source_localization,
     "eeglab_source_settings": _eeglab_source_settings,
     "eeglab_study_create": _eeglab_study_create,
@@ -176,4 +184,5 @@ TOOL_HANDLERS: Mapping[str, ToolHandler] = {
     "eeglab_plugin_check": _eeglab_plugin_check,
     "eeglab_event_semantics_audit": _eeglab_event_semantics_audit,
     "eeglab_method_preflight": _eeglab_method_preflight,
+    "eeglab_generate_report": _eeglab_generate_report,
 }

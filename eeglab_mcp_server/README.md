@@ -55,16 +55,16 @@ The server runs MATLAB locally. It does not send EEG data to a remote service an
 
 ## Tool Surface
 
-The server exposes 45 MCP tools:
+The server exposes 48 MCP tools:
 
-- 37 low-level EEGLAB wrappers for data import, inspection, preprocessing, ICA, ERP/time-frequency analysis, visualization, source localization, STUDY workflows, and pipelines.
-- 8 research workflow tools for QC, planning, official method preflight, event-semantics audit, plugin checks, protocol export, and the smoke-tested ERP light workflow.
+- 39 low-level EEGLAB wrappers for data import, inspection, preprocessing, ICA, ERP/time-frequency analysis, visualization, source localization, STUDY workflows, and pipelines.
+- 9 research workflow tools for QC, planning, official method preflight, event-semantics audit, plugin checks, protocol export, report generation, and the smoke-tested ERP light workflow.
 
 High-risk tools include official method-profile metadata in their descriptions and are gated through `eeglab_method_preflight` before MATLAB execution. Blocked gates return `official_gate_blocked` unless the user supplies an explicit override reason.
 
 ## Prompts And Resources
 
-The server also exposes 10 prompts and 25 read-only resources for clients that support MCP guidance surfaces. These include the Skill text, workflow references, official topic/support matrices, method gates, plugin matrices, risk matrices, and report-field matrices.
+The server also exposes 10 prompts and 29 read-only resources for clients that support MCP guidance surfaces. These include the Skill text, workflow references, the canonical branch workflow matrix, the canonical figure atlas, the default advanced figure gallery index, official topic/support matrices, method gates, plugin matrices, risk matrices, and report-field matrices.
 
 Resources are guidance only. Reading them does not modify EEG data or MATLAB state.
 
@@ -109,7 +109,7 @@ Inspect the stdio server with MCP Inspector:
 npx @modelcontextprotocol/inspector python .\eeglab_mcp_server\server.py
 ```
 
-Use Inspector to confirm `tools/list` reports 45 exposed tools, workflow tools expose `outputSchema`, and error paths return JSON text content.
+Use Inspector to confirm `tools/list` reports 48 exposed tools, workflow tools expose `outputSchema`, and error paths return JSON text content.
 
 ## Stdio Smoke Test
 
@@ -135,7 +135,7 @@ asyncio.run(main())
 
 Expected result:
 
-- `tool_count 45`
+- `tool_count 48`
 - `missing_required_arguments`
 
 ## First Real EEGLAB Smoke Test

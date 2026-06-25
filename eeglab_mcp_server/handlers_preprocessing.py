@@ -52,7 +52,12 @@ async def _eeglab_filter(args: dict) -> list[TextContent]:
                     freqs.append(hf)
         freqs_str = _arr(freqs)
         filter_code = f"""
-EEG = pop_cleanline(EEG, 'linefreqs', {freqs_str}, 'bandwidth', 2, 'tau', 100, 'winsize', 4);
+if exist('pop_cleanline', 'file')
+    EEG = pop_cleanline(EEG, 'linefreqs', {freqs_str}, 'bandwidth', 2, 'tau', 100, 'winsize', 4);
+    result.method = 'cleanline';
+else
+    error('CleanLine plugin is not installed. Please install CleanLine from EEGLAB menu: Tools > Manage EEGLAB extensions > CleanLine.');
+end
 result.filter_type = 'notch';
 result.notch_freqs = {freqs_str};
 """
@@ -301,7 +306,12 @@ async def _eeglab_clean_line_noise(args: dict) -> list[TextContent]:
 
     code = f"""
 {_maybe_init()}
-EEG = pop_cleanline(EEG, 'linefreqs', [{line_freq}], 'bandwidth', {bandwidth}, 'tau', {tau}, 'winsize', {winsize});
+if exist('pop_cleanline', 'file')
+    EEG = pop_cleanline(EEG, 'linefreqs', [{line_freq}], 'bandwidth', {bandwidth}, 'tau', {tau}, 'winsize', {winsize});
+    result.method = 'cleanline';
+else
+    error('CleanLine plugin is not installed. Please install CleanLine from EEGLAB menu: Tools > Manage EEGLAB extensions > CleanLine.');
+end
 result.line_freq = {line_freq};
 result.bandwidth = {bandwidth};
 result.tau = {tau};
@@ -324,6 +334,9 @@ async def _eeglab_clean_rawdata(args: dict) -> list[TextContent]:
 
     code = f"""
 {_maybe_init()}
+if ~exist('pop_clean_rawdata', 'file')
+    error('clean_rawdata plugin is not installed. Please install it from EEGLAB menu: Tools > Manage EEGLAB extensions > clean_rawdata.');
+end
 EEG = pop_clean_rawdata(EEG, 'FlatlineCriterion', {flatline}, 'ChannelCriterion', {channel_crit}, 'LineNoiseCriterion', {line_noise_crit}, 'Highpass', [0.25 0.75], 'BurstCriterion', {burst_crit}, 'BurstRejection', 'on', 'WindowCriterion', {window_crit}, 'Distance', 'Euclidian', 'WindowCriterionTolerances', [-Inf 7]);
 result.flatline_criterion = {flatline};
 result.channel_criterion = {channel_crit};

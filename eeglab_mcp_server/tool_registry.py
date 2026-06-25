@@ -16,8 +16,8 @@ except ImportError:  # pragma: no cover - direct script execution support
     from official_alignment import TOOL_TO_PROFILE
 
 
-LEGACY_LOW_LEVEL_COUNT = 37
-RESEARCH_WORKFLOW_COUNT = 8
+LEGACY_LOW_LEVEL_COUNT = 39
+RESEARCH_WORKFLOW_COUNT = 9
 TOTAL_EXPOSED_TOOL_COUNT = LEGACY_LOW_LEVEL_COUNT + RESEARCH_WORKFLOW_COUNT
 
 
@@ -349,6 +349,22 @@ LEGACY_LOW_LEVEL_TOOL_SPECS: tuple[ToolSpec, ...] = (
         docs_id="tools:visualization",
     ),
     _spec(
+        "eeglab_plot_psd",
+        "visualization",
+        "_eeglab_plot_psd",
+        eeglab_function_family="pop_spectopo/PSD plots",
+        read_write_effect="writes figure output",
+        docs_id="tools:visualization",
+    ),
+    _spec(
+        "eeglab_plot_connectivity",
+        "visualization",
+        "_eeglab_plot_connectivity",
+        eeglab_function_family="connectivity matrix visualization",
+        read_write_effect="writes figure output",
+        docs_id="tools:visualization",
+    ),
+    _spec(
         "eeglab_source_localization",
         "source",
         "_eeglab_source_localization",
@@ -600,6 +616,16 @@ RESEARCH_WORKFLOW_TOOL_SPECS: tuple[ToolSpec, ...] = (
         risk_level="read_only",
         output_schema="workflow_output",
         annotations="read_only",
+    ),
+    _spec(
+        "eeglab_generate_report",
+        "workflow",
+        "_eeglab_generate_report",
+        eeglab_function_family="MCP report generator",
+        read_write_effect="writes report artifact",
+        docs_id="workflows:report",
+        risk_level="standard",
+        output_schema="workflow_output",
     ),
 )
 

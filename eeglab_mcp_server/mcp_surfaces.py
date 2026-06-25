@@ -122,6 +122,16 @@ RESOURCE_FILES: dict[str, tuple[str, Path, str]] = {
         SKILL_DIR / "references" / "workflows.md",
         "Workflow recipes for inspection, preprocessing, ERP, time-frequency, ICA, STUDY, and source workflows.",
     ),
+    "eeglab://references/branch-workflow-matrix.md": (
+        "EEGLAB Branch Workflow Matrix",
+        SKILL_DIR / "references" / "branch-workflow-matrix.md",
+        "Canonical branch workflow matrix defining required, conditional, and forbidden steps for ERP, resting-state, time-frequency, source, and STUDY analysis.",
+    ),
+    "eeglab://references/figure-atlas.md": (
+        "EEGLAB Figure Atlas",
+        SKILL_DIR / "references" / "figure-atlas.md",
+        "Canonical required, conditional, and guidance-only figure families for each analysis branch.",
+    ),
     "eeglab://references/tools.md": (
         "EEGLAB Tool Reference",
         SKILL_DIR / "references" / "tools.md",
@@ -227,6 +237,11 @@ RESOURCE_FILES: dict[str, tuple[str, Path, str]] = {
         DOCS_DIR / "official-plugin-map.md",
         "Plugin support matrix with support levels, function probes, claim IDs, dependent profiles, and next steps.",
     ),
+    "eeglab://official/plugin-family-catalog.md": (
+        "EEGLAB Official Plugin Family Catalog",
+        DOCS_DIR / "official-plugin-family-catalog.md",
+        "Discovery-only catalog for the broader official EEGLAB plugin families surfaced on the plugins page.",
+    ),
     "eeglab://official/risk-matrix.md": (
         "EEGLAB Official Risk Matrix",
         DOCS_DIR / "official-risk-matrix.md",
@@ -235,6 +250,16 @@ RESOURCE_FILES: dict[str, tuple[str, Path, str]] = {
     "eeglab://official/report-field-matrix.md": (
         "EEGLAB Official Report Field Matrix",
         DOCS_DIR / "official-report-field-matrix.md",
-        "Minimum reproducible report fields for recording, events, preprocessing, analysis, outputs, gates, and limitations.",
+        "Minimum reproducible report fields for recording, events, preprocessing, analysis, figure atlas, outputs, gates, and limitations.",
+    ),
+    "eeglab://official/figure-atlas.md": (
+        "EEGLAB Official Figure Atlas",
+        DOCS_DIR / "figure-atlas.md",
+        "Canonical static figure families, metadata, and interpretation scope by analysis branch.",
+    ),
+    "eeglab://scripts/advanced_figures/README.md": (
+        "EEGLAB Advanced Figure Gallery",
+        ROOT_DIR / "scripts" / "advanced_figures" / "README.md",
+        "Default browsable companion to the official figure atlas, with module-level Markdown and Python gallery entry points.",
     ),
 }

@@ -17,8 +17,11 @@ For a new dataset or unclear user goal:
 1. Confirm the `eeglab` MCP server is available and exposes `eeglab_*` tools.
 2. Run read-only intake first: `eeglab_init`, `eeglab_load_data`, `eeglab_qc_report`, `eeglab_info`, `eeglab_get_events`, and `eeglab_history`.
 3. Call `eeglab_project_plan`, `eeglab_workflow_recommend`, or `eeglab_method_preflight` before destructive/high-risk processing.
-4. Choose the closest workflow from `references/workflows.md`.
-5. End with `eeglab_protocol_export` whenever the user needs a report, handoff, failed-gate record, or reproducibility artifact.
+4. Choose the closest workflow from `references/workflows.md`, then follow `references/branch-workflow-matrix.md` as the canonical branch order and `references/figure-atlas.md` for figure families.
+5. End with `eeglab_protocol_export` for the machine-readable protocol/provenance record.
+6. Generate the final research report with `eeglab_generate_report`; if the MCP report tool is unavailable, use the bundled `scripts/generate_eeg_report.py` with `scripts/report_template.json`.
+7. For figure coverage, follow the branch matrix and the report-field matrix: executable figures are branch-required, conditional figures need explicit justification, and ERP-image / STUDY visualization families remain indexed-only unless a dedicated workflow exists.
+8. Keep `scripts/advanced_figures/` in the default path for browsable figure coverage. It mirrors the official figure atlas as Python/Markdown modules without changing the canonical MCP workflow.
 </quick_start>
 
 <workflow>
@@ -29,7 +32,10 @@ For a new dataset or unclear user goal:
 5. Before destructive processing, ask for or choose an output path, preserve the original dataset, and satisfy official gates. If a gate is blocked, do not proceed unless the user explicitly supplies an override reason.
 6. Report recording/provenance facts first: source path, sampling rate, duration, data shape, channel count, channel-location coverage, reference/montage, event labels/counts, event latency range, and processing history availability.
 7. Report every processing parameter used: filter cutoffs, line-noise frequency, ASR threshold, rereference, ICA algorithm, epoch/baseline windows, channel list, frequency range, rejected components/epochs, and output files.
-8. State uncertainty and prerequisites clearly. Do not make diagnosis, treatment, or clinical interpretation claims.
+8. Generate required spatial-temporal figures for the chosen analysis branch, guided by `references/figure-atlas.md`, and list every figure path plus a short description.
+9. Treat figure families as first-class report fields: required, conditional, and guidance-only families should be recorded even when no executable tool exists for the family.
+10. Generate a final report with recording metadata, parameters, figures, results, gate status, tool/reference coverage, plugin status, outputs, and limitations.
+11. State uncertainty and prerequisites clearly. Do not make diagnosis, treatment, or clinical interpretation claims.
 </workflow>
 
 <research_method_guardrails>
@@ -136,6 +142,7 @@ If `gate_status=blocked`, stop and explain missing requirements. Ask for missing
 - When adding a new supported research pattern, add or update an eval prompt that requires at least two MCP tool calls and a decision based on previous output.
 - Keep the MCP and this skill synchronized: if a tool output adds a new QC field or decision rule, update the skill/reporting guidance; if the skill requires a new invariant, add a verifier or eval.
 - Keep official claim IDs synchronized: when adding a new method rule, add the claim map entry, MCP resource text, verifier term, and eval prompt together.
+- For repository maintenance tasks, finish with a documentation synchronization check. If the task changes tools, workflows, setup/verification, reports, official gates, plugin support, Skill bundle content, or Codex configuration, update `README.md`, `README.zh-CN.md`, and `AGENTS.md`. If no README/AGENTS change is needed, state why in the final response.
 </self_evolution_protocol>
 
 <reporting_templates>
@@ -146,15 +153,53 @@ Parameter record: output path, filter cutoffs, line-noise choice, ASR threshold,
 Result report: summarize recording metadata, dataset dimensions, processing steps, exact parameters, generated files, QC/provenance risks, failures/recovery, and analysis limits. Do not make clinical or diagnostic claims.
 </reporting_templates>
 
+<bundled_scripts>
+The installed skill includes a `scripts/` bundle copied from the repository. Use it when a Codex session has the skill but is not currently opened in the repository workspace.
+
+- `scripts/generate_eeg_report.py`: generate Markdown or HTML from a structured JSON result file. It should be used after `eeglab_protocol_export` or after collecting equivalent fields from tool outputs.
+- `scripts/report_template.json`: starting schema for the report generator. Fill it with absolute input/output paths, recording metadata, preprocessing parameters, analysis parameters, figures, results, gate results, source claim IDs, plugin status, tool coverage, reference coverage, official-document coverage, method preflights, generated files, and limitations.
+- `scripts/advanced_figures/`: default browsable figure-gallery modules and Markdown notes for advanced EEG visuals that stay aligned with the figure atlas.
+- `scripts/eeglab_agent.ps1`, `scripts/setup_eeglab_agent.ps1`, `scripts/doctor_eeglab_agent.ps1`, `scripts/verify_eeglab_agent.ps1`, `scripts/uninstall_eeglab_agent.ps1`: setup and verification helpers for Codex/Windows installations.
+- `scripts/verify_framework.py` and `scripts/verify_official_alignment.py`: repository verification helpers for tool counts, eval coverage, prompts/resources, method profiles, and official claim alignment.
+
+Prefer the MCP tool `eeglab_generate_report` when available because it records a tool call in the workflow. Use the bundled Python report generator as a deterministic fallback or for offline report regeneration from saved JSON.
+</bundled_scripts>
+
+<bundled_docs>
+The installed skill also includes a `docs/` bundle copied from the repository. Treat these files as local official-alignment documents when the current Codex session is not opened in the repository workspace.
+
+Read these before research-grade processing when the workflow depends on official gates or report completeness:
+
+- `docs/official-gate-policy.md`
+- `docs/official-method-map.md`
+- `docs/official-plugin-map.md`
+- `docs/official-report-field-matrix.md`
+- `docs/figure-atlas.md`
+- `docs/official-risk-matrix.md`
+- `docs/official-support-matrix.md`
+- `docs/official-tool-support-matrix.md`
+- `docs/official-topic-index.md`
+- `docs/research-standard.md`
+- `docs/user-workflows.md`
+
+If `docs/` and `references/` disagree, follow `docs/` for official support levels, gate policy, plugin mapping, risk classification, and minimum report fields.
+
+Use `references/` to execute workflows after the applicable authority rules from `docs/` have been checked. When a conflict is found, update the affected `references/` file so future agents do not have to rediscover the same mismatch.
+</bundled_docs>
+
 <reference_guides>
 - For workflow recipes and tool sequences, read `references/workflows.md`.
+- For strict branch order, required/conditional/forbidden steps, required figures, and required outputs, read `references/branch-workflow-matrix.md`.
 - For MCP/client setup and verification, read `references/setup.md`.
 - For tool groups and common parameters, read `references/tools.md`.
 - For official method gates, read `references/official-gates.md`, `references/official-method-map.md`, `references/gate-policy.md`, and `references/method-gates.md`.
 - For raw preservation, acquisition metadata, BIDS sidecars, and derivative policy, read `references/acquisition-to-derivatives.md`.
 - For event ambiguity, read `references/event-semantics.md`; for preprocessing, ICA, STUDY, source, and report detail, read the matching policy reference in `references/`.
+- For figure families and visualization metadata, read `references/figure-atlas.md` and the bundled `docs/figure-atlas.md` mirror.
 - For STUDY/LIMO/SIFT statistics and minimum report fields, read `references/statistics-reporting.md`.
-- For official EEGLAB reference anchors, topic coverage, support levels, tool support, risk gates, plugin matrix, and report field matrix, read MCP resources `eeglab://official/references.md`, `eeglab://official/topic-index.md`, `eeglab://official/support-matrix.md`, `eeglab://official/tool-support-matrix.md`, `eeglab://official/plugin-matrix.md`, `eeglab://official/risk-matrix.md`, and `eeglab://official/report-field-matrix.md`.
+- For final report generation, use the bundled `scripts/generate_eeg_report.py` and `scripts/report_template.json` when the MCP `eeglab_generate_report` tool is unavailable.
+- For official support levels, gate policy, plugin mapping, risk classification, and report-field requirements, read the bundled `docs/` files listed above.
+- For official EEGLAB reference anchors, topic coverage, support levels, tool support, risk gates, plugin matrix, plugin family catalog, figure atlas, report field matrix, and the default advanced figure gallery index, read MCP resources `eeglab://official/references.md`, `eeglab://official/topic-index.md`, `eeglab://official/support-matrix.md`, `eeglab://official/tool-support-matrix.md`, `eeglab://official/plugin-matrix.md`, `eeglab://official/plugin-family-catalog.md`, `eeglab://official/risk-matrix.md`, `eeglab://official/figure-atlas.md`, `eeglab://official/report-field-matrix.md`, and `eeglab://scripts/advanced_figures/README.md`.
 </reference_guides>
 
 <success_criteria>
