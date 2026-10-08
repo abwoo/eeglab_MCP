@@ -16,6 +16,7 @@ outputs_ok = struct('raw_input_preserved', true, 'derivative_output_planned', tr
 
 r = eegmcp_call_tool('eegmcp_init(%s)', eeglab_root);
 eegmcp_check(strcmp(r.status, 'success'), 'eeglab_init succeeds', r);
+eegmcp_check(exist('hlp_varargin2struct', 'file') == 2, 'headless startup loads CleanLine helpers', r);
 
 % ---- no dataset ----------------------------------------------------------
 EEG = [];
