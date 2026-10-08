@@ -13,7 +13,7 @@ except ImportError:  # pragma: no cover - direct script execution support
 
 
 async def _eeglab_source_localization(args: dict) -> list[TextContent]:
-    """源定位分析（偶极子拟合）。"""
+    """Run source localization (dipole fitting)."""
     component_indices = args.get("component_indices", [])
     head_model = args.get("head_model", "bem")
     template = args.get("template", "mni")
@@ -50,7 +50,7 @@ async def _eeglab_source_localization(args: dict) -> list[TextContent]:
 {_maybe_init()}
 if ~exist('EEG', 'var') || ~isstruct(EEG) || ~isfield(EEG, 'icaweights') || isempty(EEG.icaweights)
     result.status = 'error';
-    result.error = '尚未运行 ICA 分解，请先调用 eeglab_run_ica';
+    result.error = "ICA has not been run yet, call eeglab_run_ica first";
 else
     EEG = pop_dipfit_settings(EEG, 'hdmfile', {hdmfile_lit}, 'chanfile', {chanfile_lit}, 'mrifile', {mrifile_lit}, 'coordformat', {coord_lit});
     EEG = pop_multifit(EEG, {comp_str});
@@ -80,7 +80,7 @@ end
 
 
 async def _eeglab_source_settings(args: dict) -> list[TextContent]:
-    """Dipfit 模型设置。"""
+    """Configure the Dipfit model."""
     head_model = args.get("head_model", "bem")
     template = args.get("template", "mni")
     chanfile = args.get("chanfile", "")
