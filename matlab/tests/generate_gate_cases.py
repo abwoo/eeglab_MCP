@@ -104,7 +104,8 @@ def check_keys() -> dict[str, list[str]]:
     keys: dict[str, list[str]] = {}
     for block in blocks:
         name, body = block.split('"', 1)
-        literals = set(re.findall(r'"([A-Za-z_][\w.\-]*)"', body))
+        # Dotted literals are sidecar file names, not context keys.
+        literals = set(re.findall(r'"([A-Za-z_][\w\-]*)"', body))
         for helper, helper_keys in HELPER_KEYS.items():
             if helper in body:
                 literals.update(helper_keys)
