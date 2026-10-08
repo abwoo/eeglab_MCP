@@ -13,7 +13,7 @@ except ImportError:  # pragma: no cover - direct script execution support
 
 
 async def _eeglab_spectral(args: dict) -> list[TextContent]:
-    """频谱/功率谱密度分析。"""
+    """Run spectral or power spectral density analysis."""
     channels = args.get("channels", [])
     freq_range = args.get("freq_range", [0.5, 100])
     band_power = args.get("band_power", True)
@@ -62,7 +62,7 @@ result.band_power = bands;
 
 
 async def _eeglab_timefreq(args: dict) -> list[TextContent]:
-    """时频分析。"""
+    """Run time-frequency analysis."""
     channels = args.get("channels", [])
     freq_range = args.get("freq_range", [3, 80])
     cycles = args.get("cycles", [3, 10])
@@ -116,7 +116,7 @@ result.band_ersp = bands;
 
 
 async def _eeglab_connectivity(args: dict) -> list[TextContent]:
-    """功能连接分析。"""
+    """Run functional connectivity analysis."""
     channels = args.get("channels", [])
     method = args.get("method", "coherence")
     freq_range = args.get("freq_range", [8, 13])
