@@ -14,7 +14,7 @@ except ImportError:  # pragma: no cover - direct script execution support
 
 
 async def _eeglab_init(args: dict) -> list[TextContent]:
-    """初始化 EEGLAB 环境。"""
+    """Initialize the EEGLAB environment."""
     eeglab_path = args.get("eeglab_path", "")
     if eeglab_path:
         cfg.EEGLAB_PATH = eeglab_path
@@ -40,10 +40,10 @@ end
 
     output = {
         "status": result.get("status", "unknown"),
-        "message": "EEGLAB 初始化成功" if is_success else "EEGLAB 初始化失败",
+        "message": "EEGLAB initialized" if is_success else "EEGLAB initialization failed",
         "eeglab_version": result.get("version", "unknown"),
         "eeglab_path": result.get("eeglabpath", "unknown"),
-        "custom_path": eeglab_path or cfg.EEGLAB_PATH or "未设置",
+        "custom_path": eeglab_path or cfg.EEGLAB_PATH or "not set",
     }
     if result.get("status") == "error":
         output["error"] = result.get("error", "")
@@ -52,7 +52,7 @@ end
 
 
 async def _eeglab_load_data(args: dict) -> list[TextContent]:
-    """加载 EEG 数据文件。"""
+    """Load an EEG data file."""
     filepath = args["filepath"]
     filename = args.get("filename", "")
     filepath_lit = matlab_string(filepath)
@@ -104,7 +104,7 @@ end
 
 
 async def _eeglab_save_data(args: dict) -> list[TextContent]:
-    """保存 EEG 数据到文件。"""
+    """Save the EEG data to a file."""
     filepath = args["filepath"]
     filename = args.get("filename", "")
     filepath_lit = matlab_string(filepath)
@@ -133,7 +133,7 @@ result.saved_path = {filepath_lit};
 
 
 async def _eeglab_import_bids(args: dict) -> list[TextContent]:
-    """导入 BIDS 格式数据集。"""
+    """Import a BIDS dataset."""
     bids_path = args["bids_path"]
     study_name = args.get("study_name", "MyStudy")
     bids_path_lit = matlab_string(bids_path)
@@ -155,7 +155,7 @@ result.first_dataset.srate = EEG.srate;
 
 
 async def _eeglab_info(args: dict) -> list[TextContent]:
-    """获取当前 EEG 数据集的详细信息。"""
+    """Return details about the current EEG dataset."""
     include_ch = args.get("include_channels", True)
     include_ev = args.get("include_events", True)
     include_ica = args.get("include_ica", True)
@@ -164,7 +164,7 @@ async def _eeglab_info(args: dict) -> list[TextContent]:
 {_maybe_init()}
 if ~exist('EEG', 'var') || ~isstruct(EEG)
     result.status = 'error';
-    result.error = '当前没有加载 EEG 数据，请先调用 eeglab_load_data';
+    result.error = "no EEG data is loaded yet, call eeglab_load_data first";
 else
     result.nbchan = EEG.nbchan;
     result.srate = EEG.srate;
@@ -309,13 +309,13 @@ else
 
 
 async def _eeglab_history(args: dict) -> list[TextContent]:
-    """获取操作历史记录。"""
+    """Return the operation history."""
     code = f"""
 {_maybe_init()}
 if exist('EEG', 'var') && isstruct(EEG) && isfield(EEG, 'history') && ~isempty(EEG.history)
     result.history = EEG.history;
 else
-    result.history = '无操作历史记录';
+    result.history = "no operations recorded";
 end
 """
 
