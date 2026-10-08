@@ -20,12 +20,12 @@ async def _eeglab_spectral(args: dict) -> list[TextContent]:
 
     if channels:
         chan_str = _cell(channels)
-        # Bug fix: pop_spectopo 正确签名
+        # Bug fix: the correct pop_spectopo signature
         chan_code = f"'chanlist', {chan_str}, "
     else:
         chan_code = ""
 
-    # Bug fix: pop_spectopo 调用签名是 pop_spectopo(EEG, percent, freqspace, 'EEG', EEG, ...)
+    # Bug fix: the pop_spectopo call signature is pop_spectopo(EEG, percent, freqspace, 'EEG', EEG, ...)
     code = f"""
 {_maybe_init()}
 [spectra, freqs] = pop_spectopo(EEG, 1, EEG.pnts, 'EEG', EEG, {chan_code}'freqrange', [{freq_range[0]}, {freq_range[1]}]);
@@ -76,7 +76,7 @@ async def _eeglab_timefreq(args: dict) -> list[TextContent]:
 
     cycles_str = _arr(cycles)
 
-    # Bug fix: pop_newtimef 正确调用
+    # Bug fix: the correct pop_newtimef call
     code = f"""
 {_maybe_init()}
 [ERSP, ITC, times, freqs, specs] = pop_newtimef(EEG, 1, 1:EEG.nbchan, ...
