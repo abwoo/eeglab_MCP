@@ -93,6 +93,666 @@
         "idempotentHint": true,
         "openWorldHint": false
       }
+    },
+    {
+      "name": "eeglab_save_data",
+      "title": "Save EEG data",
+      "description": "Save the current EEG data to a .set file. Saving after a destructive operation such as filtering or ICA artifact removal is recommended. Official pattern: wraps pop_saveset. Preconditions: EEG is loaded. Writes a derivative .set/.fdt; do not overwrite raw inputs unless explicitly approved. Common failures: invalid output path or missing EEG. Tool contract: EEGLAB function family: pop_saveset. Official method profile: none. Risk level: standard. Preflight: use when project gates or downstream interpretation depend on this step. Read/write effect: writes derivative .set output. Derivative output: yes, writes a derivative output. Options (JSON object): filepath (string, required; absolute path of the .set file to write, for example C:/data/sub-01_filtered.set; the folder is created when needed), filename (string; file name to write in the folder of filepath, for example sub-01_filtered.set).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "string",
+            "description": "JSON object with the options below, or \"\" for defaults."
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_import_bids",
+      "title": "Import a BIDS dataset",
+      "description": "Import a BIDS dataset. BIDS (Brain Imaging Data Structure) is the standard for organizing neuroscience data. A STUDY and ALLEEG are created on import so that group-level analysis is possible. Official pattern: uses EEGLAB BIDS import/STUDY path such as pop_importbids. Preconditions: BIDS-like folder and plugin support. Modifies ALLEEG/STUDY/EEG in MATLAB. Common failures: invalid BIDS layout or missing BIDS tools. Tool contract: EEGLAB function family: pop_importbids/STUDY. Official method profile: bids_import. Risk level: high. Preflight: required through eeglab_method_preflight method=bids_import before execution unless an explicit override reason is recorded. Read/write effect: loads BIDS/STUDY state. Derivative output: data-changing; save results only as a separate derivative. Options (JSON object): bids_path (string, required; absolute path of the BIDS dataset root), study_name (string, default \"MyStudy\"), override_gate (boolean, default false; set true only when the user explicitly accepts missing official preflight requirements), override_reason (string, required when override_gate is true), method_context (object of known facts for the official preflight gate, for example raw_input_preserved, derivative_output_planned, data_shape, plugins_available, has_channel_locations).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "string",
+            "description": "JSON object with the options below, or \"\" for defaults."
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_history",
+      "title": "Read EEG history",
+      "description": "Return the operation history of the current EEG dataset, recording every EEGLAB operation since the data was loaded. Use it to trace the analysis flow, to verify processing steps and to reproduce an analysis. Official pattern: reads EEG.history, where EEGLAB usually records pop_ command history. Preconditions: EEG is loaded. Read-only. Common failures: empty or imported history. Tool contract: EEGLAB function family: EEG.history. Official method profile: none. Risk level: standard. Preflight: use when project gates or downstream interpretation depend on this step. Read/write effect: read-only provenance inspection. Derivative output: no data derivative unless the caller exports a report or figure.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_filter",
+      "title": "Filter EEG",
+      "description": "Filter the EEG data. Supports bandpass, highpass, lowpass and notch filtering. It uses the EEGLAB-recommended pop_eegfiltnew (FIR, Hamming window) and pop_cleanline (notch). Guidance: use a 0.1-40 Hz bandpass for ERP work and a 0.5-80 Hz bandpass for time-frequency work; notch out line noise at 50 Hz (China/Europe) or 60 Hz (US); a 1 Hz highpass before ICA is recommended. Official pattern: wraps pop_eegfiltnew or equivalent EEGLAB filtering. Preconditions: continuous/epoched suitability and justified cutoffs. Modifies in-memory EEG. Common failures: invalid cutoff order or overly aggressive filter settings. Tool contract: EEGLAB function family: pop_eegfiltnew/pop_cleanline. Official method profile: derivative_processing. Risk level: high. Preflight: required through eeglab_method_preflight method=derivative_processing before execution unless an explicit override reason is recorded. Read/write effect: modifies EEG signal in memory. Derivative output: data-changing; save results only as a separate derivative. Options (JSON object): filter_type (\"bandpass\"|\"highpass\"|\"lowpass\"|\"notch\", required), low_cutoff (number, Hz; required for bandpass and highpass), high_cutoff (number, Hz; required for bandpass and lowpass), notch_freq (number, Hz; required for notch), notch_harmonics (boolean, default true; also remove harmonics below the Nyquist frequency), override_gate (boolean, default false; set true only when the user explicitly accepts missing official preflight requirements), override_reason (string, required when override_gate is true), method_context (object of known facts for the official preflight gate, for example raw_input_preserved, derivative_output_planned, data_shape, plugins_available, has_channel_locations).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "string",
+            "description": "JSON object with the options below, or \"\" for defaults."
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_resample",
+      "title": "Resample EEG",
+      "description": "Resample the EEG data. Lowering the sampling rate reduces both the data size and the computation time. Guidance: apply a lowpass anti-aliasing filter before downsampling; common target rates are 250 Hz for ERP and 500 Hz for time-frequency work. Official pattern: wraps pop_resample. Preconditions: EEG is loaded and target sample rate is justified. Modifies in-memory EEG. Common failures: nonpositive sample rate. Tool contract: EEGLAB function family: pop_resample. Official method profile: derivative_processing. Risk level: high. Preflight: required through eeglab_method_preflight method=derivative_processing before execution unless an explicit override reason is recorded. Read/write effect: modifies EEG sampling/data points in memory. Derivative output: data-changing; save results only as a separate derivative. Options (JSON object): new_srate (number, Hz, required), override_gate (boolean, default false; set true only when the user explicitly accepts missing official preflight requirements), override_reason (string, required when override_gate is true), method_context (object of known facts for the official preflight gate, for example raw_input_preserved, derivative_output_planned, data_shape, plugins_available, has_channel_locations).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "string",
+            "description": "JSON object with the options below, or \"\" for defaults."
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_reref",
+      "title": "Re-reference EEG",
+      "description": "Re-reference the EEG data. Supports average reference (the mean of all channels), a single-channel reference such as Cz or a mastoid electrode, and REST reference. Guidance: average reference is the most common choice and suits most research settings; average reference reduces the data rank by 1, so set pca=nchan-1 for ICA; ICA is usually run before re-referencing, or with average reference. Official pattern: wraps pop_reref. Preconditions: reference policy is known and channel labels are valid for channel reference. Modifies in-memory EEG. Common failures: missing reference channel or inappropriate rank assumptions. Tool contract: EEGLAB function family: pop_reref. Official method profile: derivative_processing. Risk level: high. Preflight: required through eeglab_method_preflight method=derivative_processing before execution unless an explicit override reason is recorded. Read/write effect: modifies EEG reference/rank in memory. Derivative output: data-changing; save results only as a separate derivative. Options (JSON object): ref_type (\"average\"|\"channel\"|\"rest\", required; \"rest\" needs the REST plugin), ref_channel (string; required when ref_type is \"channel\", for example \"Cz\", or \"M1,M2\" for the mean of several channels), override_gate (boolean, default false; set true only when the user explicitly accepts missing official preflight requirements), override_reason (string, required when override_gate is true), method_context (object of known facts for the official preflight gate, for example raw_input_preserved, derivative_output_planned, data_shape, plugins_available, has_channel_locations).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "string",
+            "description": "JSON object with the options below, or \"\" for defaults."
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_select_channels",
+      "title": "Select channels",
+      "description": "Select or exclude specific channels, either to drop bad channels or to keep only a region of interest. Guidance: drop clearly bad channels before ICA while keeping enough channels; removing channels before ICA lowers the number of components. Official pattern: wraps pop_select for channel inclusion/exclusion. Preconditions: channel labels are known. Modifies in-memory EEG. Common failures: mixing include and exclude lists or absent labels. Tool contract: EEGLAB function family: pop_select. Official method profile: none. Risk level: standard. Preflight: use when project gates or downstream interpretation depend on this step. Read/write effect: modifies channel set in memory. Derivative output: data-changing; save results only as a separate derivative. Options (JSON object): channels (array of strings; labels to keep) or exclude_channels (array of strings; labels to remove), exactly one of the two.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "string",
+            "description": "JSON object with the options below, or \"\" for defaults."
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_interpolate_channels",
+      "title": "Interpolate channels",
+      "description": "Interpolate channels, estimating the signal of a bad channel from its neighbours with spherical splines. Guidance: run this after ICA artifact removal rather than before; urchanlocs can restore channels that were removed earlier. Official pattern: wraps pop_interp. Preconditions: bad-channel list and channel locations are available. Modifies in-memory EEG. Common failures: missing montage/channel locations. Tool contract: EEGLAB function family: pop_interp. Official method profile: channel_locations. Risk level: high. Preflight: required through eeglab_method_preflight method=channel_locations before execution unless an explicit override reason is recorded. Read/write effect: modifies channel data in memory. Derivative output: data-changing; save results only as a separate derivative. Options (JSON object): ref_chanlocs (string; \"urchanlocs\" restores the original or removed channels, or the absolute path of a channel location file; empty restores the channels removed earlier), method (\"spherical\"|\"v4\", default \"spherical\"), override_gate (boolean, default false; set true only when the user explicitly accepts missing official preflight requirements), override_reason (string, required when override_gate is true), method_context (object of known facts for the official preflight gate, for example raw_input_preserved, derivative_output_planned, data_shape, plugins_available, has_channel_locations).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "string",
+            "description": "JSON object with the options below, or \"\" for defaults."
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_edit_channels",
+      "title": "Edit channel information",
+      "description": "Edit channel information, for example loading a .loc location file or renaming channels. Guidance: check the channel locations after loading, otherwise topomaps and source results will be wrong. Official pattern: wraps pop_chanedit-style channel metadata edits. Preconditions: channel-location file or rename map is valid. Modifies channel metadata. Common failures: wrong montage file or incomplete label mapping. Tool contract: EEGLAB function family: pop_chanedit/channel metadata. Official method profile: channel_locations. Risk level: high. Preflight: required through eeglab_method_preflight method=channel_locations before execution unless an explicit override reason is recorded. Read/write effect: modifies channel metadata in memory. Derivative output: data-changing; save results only as a separate derivative. Options (JSON object): action (\"load_loc\"|\"rename\", required), loc_file (string; channel location file, required for load_loc), rename_map (object of old label to new label, required for rename, for example {\"Fp1\": \"E1\"}), override_gate (boolean, default false; set true only when the user explicitly accepts missing official preflight requirements), override_reason (string, required when override_gate is true), method_context (object of known facts for the official preflight gate, for example raw_input_preserved, derivative_output_planned, data_shape, plugins_available, has_channel_locations).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "string",
+            "description": "JSON object with the options below, or \"\" for defaults."
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_clean_line_noise",
+      "title": "Clean line noise",
+      "description": "Dedicated line-noise removal, using pop_cleanline from the cleanline plugin. It is more accurate than plain notch filtering because it estimates the line noise and its harmonics adaptively. It needs the cleanline plugin. Guidance: prefer this tool when the data has clear 50/60 Hz line noise. Official pattern: line-noise cleanup around 50/60 Hz. Preconditions: local mains frequency and data shape are known. Modifies in-memory EEG. Common failures: plugin/function unavailable or wrong line frequency. Tool contract: EEGLAB function family: cleanline/line-noise cleanup. Official method profile: line_noise. Risk level: high. Preflight: required through eeglab_method_preflight method=line_noise before execution unless an explicit override reason is recorded. Read/write effect: modifies EEG signal in memory. Derivative output: data-changing; save results only as a separate derivative. Options (JSON object): line_freq (number, Hz, default 50), bandwidth (number, Hz, default 2), tau (number, default 100), winsize (number, seconds, default 4), override_gate (boolean, default false; set true only when the user explicitly accepts missing official preflight requirements), override_reason (string, required when override_gate is true), method_context (object of known facts for the official preflight gate, for example raw_input_preserved, derivative_output_planned, data_shape, plugins_available, has_channel_locations).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "string",
+            "description": "JSON object with the options below, or \"\" for defaults."
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_clean_rawdata",
+      "title": "Clean raw data with ASR",
+      "description": "ASR (Artifact Subspace Reconstruction) artifact removal, using the clean_rawdata plugin. It detects and repairs bad channels and removes high-amplitude artifacts automatically. Guidance: run it on continuous data before epoching; using it before ICA improves ICA quality; burst_criterion: 5 is aggressive, 20 conservative, 40 mild. It needs the clean_rawdata plugin. Official pattern: wraps clean_rawdata/pop_clean_rawdata for bad channels, bad segments, and ASR. Preconditions: continuous raw data and documented thresholds. Modifies in-memory EEG. Common failures: plugin missing or aggressive thresholds removing too much data. Tool contract: EEGLAB function family: pop_clean_rawdata/ASR. Official method profile: clean_rawdata. Risk level: high. Preflight: required through eeglab_method_preflight method=clean_rawdata before execution unless an explicit override reason is recorded. Read/write effect: modifies EEG signal/channel segments in memory. Derivative output: data-changing; save results only as a separate derivative. Options (JSON object): flatline_criterion (number, seconds, default 5), channel_criterion (number, correlation, default 0.8), line_noise_criterion (number, z, default 4), burst_criterion (number, z, default 20), window_criterion (number, proportion, default 0.25), override_gate (boolean, default false; set true only when the user explicitly accepts missing official preflight requirements), override_reason (string, required when override_gate is true), method_context (object of known facts for the official preflight gate, for example raw_input_preserved, derivative_output_planned, data_shape, plugins_available, has_channel_locations).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "string",
+            "description": "JSON object with the options below, or \"\" for defaults."
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_run_ica",
+      "title": "Run ICA",
+      "description": "Run an ICA (independent component analysis) decomposition on the EEG data. ICA separates brain sources from artifact components such as ocular, muscle and cardiac activity. Guidance: a 1 Hz highpass before ICA is recommended; do not baseline-correct before ICA; average reference reduces the rank by 1, so set pca=nchan-1; runica ships with EEGLAB, while picard needs the picard plugin. Options (JSON object): algorithm (\"runica\"|\"picard\", default \"runica\"; picard needs the picard plugin), pca_components (integer > 0, default the channel count), extended (boolean, default true), max_steps (integer > 0, default 512). Gate options (high-risk tool): method_context (object of confirmed facts for the official preflight gate), override_gate (boolean, default false), override_reason (string, required when override_gate is true).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "string",
+            "description": "JSON object with the options below, or \"\" for defaults."
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_classify_ica",
+      "title": "Classify ICA components",
+      "description": "Classify ICA components automatically with ICLabel. ICLabel is a deep-learning based classifier that assigns each component to one of seven classes: Brain, Muscle, Eye, Heart, Line_Noise, Channel_Noise and Other. The result carries the probability of each class for every component. Run the ICA decomposition first. It needs the ICLabel plugin. Options (JSON object): no tool options besides the gate options. Gate options (high-risk tool): method_context (object of confirmed facts for the official preflight gate), override_gate (boolean, default false), override_reason (string, required when override_gate is true).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "string",
+            "description": "JSON object with the options below, or \"\" for defaults."
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_flag_components",
+      "title": "Flag ICA components",
+      "description": "Mark ICA components from the ICLabel probabilities. Set a probability threshold per class to decide which components count as artifacts. Guidance: a common strategy marks components whose Brain probability is below 0.2, or whose Muscle or Eye probability is above 0.8. Options (JSON object): brain_range, muscle_range, eye_range, heart_range, line_noise_range, channel_noise_range, other_range (each [min, max] probabilities between 0 and 1, optional; a component whose class probability lies inside a range is flagged). ICLabel runs first when the dataset has no classification. Sets EEG.reject.gcompreject only; the data are not changed. Gate options (high-risk tool): method_context (object of confirmed facts for the official preflight gate), override_gate (boolean, default false), override_reason (string, required when override_gate is true).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "string",
+            "description": "JSON object with the options below, or \"\" for defaults."
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_remove_components",
+      "title": "Remove ICA components",
+      "description": "Remove selected ICA artifact components and rebuild the EEG data, either from the ICLabel classification or from a manual selection, dropping non-brain components such as ocular, muscle, cardiac and line noise. This is the core step of ICA artifact removal. Run eeglab_classify_ica first to see the classification before deciding what to remove. Options (JSON object): component_indices (list of integers counted from 1) or auto_remove_brain_threshold (number between 0 and 1); exactly one is required. Gate options (high-risk tool): method_context (object of confirmed facts for the official preflight gate), override_gate (boolean, default false), override_reason (string, required when override_gate is true).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "string",
+            "description": "JSON object with the options below, or \"\" for defaults."
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_reject_epochs",
+      "title": "Reject epochs",
+      "description": "Reject trials. Reject artifact-contaminated trials by threshold or by joint probability. Guidance: use it after epoching; set the threshold from the data amplitude, usually plus or minus 100 microvolts; the joint probability method detects abnormalities that are only visible across channels. Options (JSON object): method (\"threshold\"|\"joint_probability\", default \"threshold\"), threshold ([low, high] microvolts, default [-100, 100]), channels (list of channel labels, default all), jp_threshold (number > 0, standard deviations, default 3). Needs epoched data. Gate options (high-risk tool): method_context (object of confirmed facts for the official preflight gate), override_gate (boolean, default false), override_reason (string, required when override_gate is true).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "string",
+            "description": "JSON object with the options below, or \"\" for defaults."
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_epoch",
+      "title": "Epoch EEG",
+      "description": "Epoch the continuous EEG data and apply baseline correction, cutting the data into trials by event type. Epoching is required for ERP analysis. Guidance: common windows are [-200, 800] ms for P300 and [-200, 500] ms for N170; baseline correction removes the DC offset over the pre-stimulus period; the baseline window is usually the same as the pre-stimulus window. Options (JSON object): event_types (list of event types, default all events), pre_stimulus (number, seconds, default -0.2), post_stimulus (number, seconds, default 0.8), baseline_start (number, seconds, default -0.2), baseline_end (number, seconds, default 0). Gate options (high-risk tool): method_context (object of confirmed facts for the official preflight gate), override_gate (boolean, default false), override_reason (string, required when override_gate is true).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "string",
+            "description": "JSON object with the options below, or \"\" for defaults."
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_erp_analysis",
+      "title": "ERP analysis",
+      "description": "ERP (event-related potential) analysis. Computes the average ERP waveform per condition, with grouping by condition, channel selection and a configurable time window. It reports the mean, the peak and the latency for each condition and channel. Guidance: common ERP components are N1 at 80-150 ms, P2 at 150-280 ms, N170 at 140-200 ms over temporo-occipital sites, P300 at 250-500 ms over centro-parietal sites and N400 at 300-500 ms over central sites. Options (JSON object): channels (list of channel labels, default all), time_window ([start, end] ms, default the whole epoch), peak_detection (boolean, default true; peaks are reported when time_window is set), conditions (list of event types; trials are grouped by their time-locking event, default all trials together). Read-only.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "string",
+            "description": "JSON object with the options below, or \"\" for defaults."
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_sort_epochs",
+      "title": "Sort epochs",
+      "description": "Sort trials by condition, grouping and ordering the trials by event type so that the grouped analysis can follow. Guidance: use it after epoching; once the trials are sorted, eeglab_erp_analysis can analyse them by condition. Options (JSON object): sort_by (string, required): the event field to sort on, for example \"type\"; epochs are ordered by that field of their time-locking event.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "string",
+            "description": "JSON object with the options below, or \"\" for defaults."
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_average_erp",
+      "title": "Average ERP",
+      "description": "Average the ERP, computing the average ERP waveform per condition. Guidance: usually run after epoching and baseline correction; it can group by event type to average the ERP per condition. Options (JSON object): conditions (list of event types; trials are grouped by their time-locking event, default all trials together), channels (list of channel labels, default all). Read-only.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "string",
+            "description": "JSON object with the options below, or \"\" for defaults."
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_spectral",
+      "title": "Power spectrum and band power",
+      "description": "Spectral or power spectral density (PSD) analysis, computing the power spectral density of each channel with the Welch method. It reports the absolute and the relative power of the Delta, Theta, Alpha, Beta and Gamma bands. Guidance: the bands are Delta 0.5-4 Hz, Theta 4-8 Hz, Alpha 8-13 Hz, Beta 13-30 Hz and Gamma 30-80 Hz; this tool is the usual choice for resting-state analysis. Official pattern: spectral analysis via EEGLAB spectopo-style functions. Preconditions: suitable continuous/epoch data and frequency range. Read-only analysis output. Common failures: frequency range above Nyquist or unsuitable epochs. Tool contract: EEGLAB function family: pop_spectopo/spectral summaries. Official method profile: spectral. Risk level: high. Preflight: required through eeglab_method_preflight method=spectral before execution unless an explicit override reason is recorded. Read/write effect: computes spectral outputs. Derivative output: analysis derivative only when exported. Options (JSON object): channels (list of channel labels, default all), freq_range ([low, high] Hz, default [0.5, 100]; frequencies above Nyquist are ignored with a warning), band_power (boolean, default true), override_gate (boolean, default false; set true only when the user accepts missing official preflight requirements), override_reason (string, required with override_gate), method_context (object of confirmed facts for the official preflight gate).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "string",
+            "description": "JSON object with the options below, or \"\" for defaults."
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_timefreq",
+      "title": "Time-frequency ERSP and ITC",
+      "description": "Time-frequency analysis. Computes the event-related spectral perturbation (ERSP) and the inter-trial coherence (ITC) of the EEG signal. It supports the Morlet wavelet transform. ERSP reflects how the energy of each band varies over time, while ITC reflects how strongly the phase is locked in each band. Guidance: a frequency range of 3-80 Hz with 3-10 cycles growing linearly from low to high frequency; it needs epoched data. Official pattern: time-frequency via newtimef/pop_newtimef-style ERSP/ITC. Preconditions: event-locked epochs, baseline, channels, and frequency/cycle choices. Read-only analysis output. Common failures: missing epochs or too-short windows. Tool contract: EEGLAB function family: pop_newtimef/ERSP/ITC. Official method profile: timefreq. Risk level: high. Preflight: required through eeglab_method_preflight method=timefreq before execution unless an explicit override reason is recorded. Read/write effect: computes time-frequency outputs. Derivative output: analysis derivative only when exported. Options (JSON object): channels (list of channel labels, default all), freq_range ([low, high] Hz, default [3, 80], clipped at Nyquist), cycles ([start, end] or [start, step, end] wavelet cycles, default [3, 10]), baseline ([start, end] ms, default [-200, 0]), output_type (\"ersp\"|\"itc\"|\"both\", default \"both\"), override_gate (boolean, default false; set true only when the user accepts missing official preflight requirements), override_reason (string, required with override_gate), method_context (object of confirmed facts for the official preflight gate).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "string",
+            "description": "JSON object with the options below, or \"\" for defaults."
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_connectivity",
+      "title": "Channel connectivity",
+      "description": "Functional connectivity analysis, computing the coherence and the phase locking value (PLV) between channels. Guidance: coherence reflects the linear relationship between two signals at a given frequency; PLV reflects phase synchronisation; both are common in resting-state brain network analysis. Official pattern: connectivity estimates such as coherence/PLV. Preconditions: channels, frequency range, and artifact policy are defined. Read-only analysis output. Common failures: missing channels or overinterpreting sensor-level connectivity. Tool contract: EEGLAB function family: coherence/PLV summaries. Official method profile: connectivity. Risk level: high. Preflight: required through eeglab_method_preflight method=connectivity before execution unless an explicit override reason is recorded. Read/write effect: computes connectivity outputs. Derivative output: analysis derivative only when exported. Options (JSON object): channels (list of channel labels, default all), method (\"coherence\"|\"plv\", default \"coherence\"), freq_range ([low, high] Hz, default [8, 13]), override_gate (boolean, default false; set true only when the user accepts missing official preflight requirements), override_reason (string, required with override_gate), method_context (object of confirmed facts for the official preflight gate).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "string",
+            "description": "JSON object with the options below, or \"\" for defaults."
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_topoplot",
+      "title": "Plot a scalp map",
+      "description": "Plot a scalp topomap, showing the distribution of the EEG signal over the scalp as contour lines. It can plot the average potential at a given time point or across a time window. The figure is saved as a PNG file. Official pattern: wraps topoplot/pop_topoplot. Preconditions: channel locations and valid time/frequency selection. Writes figure output. Common failures: missing montage or invalid output path. Tool contract: EEGLAB function family: pop_topoplot/topoplot. Official method profile: topography. Risk level: high. Preflight: required through eeglab_method_preflight method=topography before execution unless an explicit override reason is recorded. Read/write effect: writes figure output. Derivative output: yes, writes a derivative figure artifact. Options (JSON object): output_path (string, required, absolute image path), time_point (number, ms) or time_window ([start, end] ms), not both (neither averages all samples), channels (list of channel labels, default all located channels), title (string), override_gate (boolean, default false; set true only when the user accepts missing official preflight requirements), override_reason (string, required with override_gate), method_context (object of confirmed facts for the official preflight gate).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "string",
+            "description": "JSON object with the options below, or \"\" for defaults."
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_plot_erp",
+      "title": "Plot ERP waveforms",
+      "description": "Plot ERP waveforms, showing the average ERP waveform of the given channels. It can plot per condition and can add confidence intervals. The figure is saved as a PNG file. Official pattern: wraps EEGLAB ERP plotting. Preconditions: ERP/epoched data and requested channels exist. Writes figure output. Common failures: missing channels or no condition averages. Tool contract: EEGLAB function family: pop_ploterp. Official method profile: none. Risk level: standard. Preflight: use when project gates or downstream interpretation depend on this step. Read/write effect: writes figure output. Derivative output: yes, writes a derivative figure artifact. Options (JSON object): channels (list of channel labels, required), output_path (string, required, absolute image path), conditions (list of time-locking event types, default all trials), title (string).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "string",
+            "description": "JSON object with the options below, or \"\" for defaults."
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_plot_timefreq",
+      "title": "Plot ERSP and ITC",
+      "description": "Plot time-frequency figures, showing the ERSP and/or ITC of the given channel. Run eeglab_timefreq first to obtain the time-frequency data. The figure is saved as a PNG file. Official pattern: wraps time-frequency plotting. Preconditions: valid time-frequency settings and channel. Writes figure output. Common failures: no current epoched data or bad output path. Tool contract: EEGLAB function family: pop_newtimef plotting. Official method profile: timefreq. Risk level: high. Preflight: required through eeglab_method_preflight method=timefreq before execution unless an explicit override reason is recorded. Read/write effect: writes figure output. Derivative output: yes, writes a derivative figure artifact. It computes the transform itself with newtimef (3-80 Hz clipped at Nyquist, cycles [3, 10], pre-stimulus baseline) on the current epoched dataset. Options (JSON object): channel (string, required, channel label), output_path (string, required, absolute image path), plot_ersp (boolean, default true), plot_itc (boolean, default true), title (string), override_gate (boolean, default false; set true only when the user accepts missing official preflight requirements), override_reason (string, required with override_gate), method_context (object of confirmed facts for the official preflight gate).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "string",
+            "description": "JSON object with the options below, or \"\" for defaults."
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_plot_components",
+      "title": "Plot ICA component maps",
+      "description": "Plot ICA component figures, showing the scalp topomap and the power spectrum of each component. Use them to inspect the components and to judge their nature by hand. The figures are saved as PNG files. Guidance: run the ICA decomposition first, and combine the figures with the ICLabel classification to judge the components. Official pattern: plots ICA components/topographies. Preconditions: ICA exists and channel locations help interpretation. Writes figure output. Common failures: no ICA or missing montage. Tool contract: EEGLAB function family: pop_topoplot/component plots. Official method profile: none. Risk level: standard. Preflight: use when project gates or downstream interpretation depend on this step. Read/write effect: writes figure output. Derivative output: yes, writes a derivative figure artifact. Options (JSON object): output_path (string, required, absolute image path), component_indices (list of 1-based integers, default the first 10), title (string).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "string",
+            "description": "JSON object with the options below, or \"\" for defaults."
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_source_localization",
+      "title": "Fit component dipoles",
+      "description": "Source localization by dipole fitting, using the Dipfit tool built into EEGLAB to fit dipoles to the ICA components and estimate where the intracranial sources sit. Run the ICA decomposition first. It reports the MNI coordinates of the dipoles, the residual variance and more. Guidance: the channel locations must be correct before fitting; a residual variance below 15 percent means a good fit. It needs the Dipfit plugin, which ships with EEGLAB. Official pattern: wraps DIPFIT settings and multifit for equivalent dipoles. Preconditions: ICA, correct channel locations, head model resources, and DIPFIT. Modifies dipfit fields. Common failures: missing DIPFIT/montage or no ICA. Tool contract: EEGLAB function family: DIPFIT/pop_multifit. Official method profile: source. Risk level: high. Preflight: required through eeglab_method_preflight method=source before execution unless an explicit override reason is recorded. Read/write effect: adds source model results to EEG state. Derivative output: data-changing; save results only as a separate derivative. Needs the DIPFIT and FieldTrip-lite plugins; without them it returns plugin_missing. Options (JSON object): component_indices (list of 1-based integers, default all), head_model (\"bem\"|\"spherical\", default \"bem\"), template (\"mni\"|\"colin27\", default \"mni\"), override_gate (boolean, default false; set true only when the user accepts missing official preflight requirements), override_reason (string, required with override_gate), method_context (object of confirmed facts for the official preflight gate).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "string",
+            "description": "JSON object with the options below, or \"\" for defaults."
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_source_settings",
+      "title": "Configure DIPFIT head model",
+      "description": "Dipfit model settings, configuring the head model, the template brain and the channel location file. Guidance: set the correct parameters before running source localization; the BEM model is more accurate but slower, while the spherical model is fast but less accurate. Official pattern: wraps pop_dipfit_settings. Preconditions: DIPFIT resources and coordinate assumptions are known. Modifies source model settings. Common failures: missing template files or wrong montage. Tool contract: EEGLAB function family: DIPFIT/pop_dipfit_settings. Official method profile: source. Risk level: high. Preflight: required through eeglab_method_preflight method=source before execution unless an explicit override reason is recorded. Read/write effect: adds source model settings to EEG state. Derivative output: data-changing; save results only as a separate derivative. Needs the DIPFIT and FieldTrip-lite plugins; without them it returns plugin_missing. Options (JSON object): head_model (\"bem\"|\"spherical\", default \"bem\"), template (\"mni\"|\"colin27\", default \"mni\"), chanfile (string, template channel file, default from the head model), mrifile (string, MRI file, default from the template), override_gate (boolean, default false; set true only when the user accepts missing official preflight requirements), override_reason (string, required with override_gate), method_context (object of confirmed facts for the official preflight gate).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "string",
+            "description": "JSON object with the options below, or \"\" for defaults."
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
     }
   ],
   "signatures": {
@@ -128,6 +788,236 @@
       "function": "eegmcp_qc_report",
       "input": {
         "order": []
+      }
+    },
+    "eeglab_save_data": {
+      "function": "eegmcp_save_data",
+      "input": {
+        "order": [
+          "options"
+        ]
+      }
+    },
+    "eeglab_import_bids": {
+      "function": "eegmcp_import_bids",
+      "input": {
+        "order": [
+          "options"
+        ]
+      }
+    },
+    "eeglab_history": {
+      "function": "eegmcp_history",
+      "input": {
+        "order": []
+      }
+    },
+    "eeglab_filter": {
+      "function": "eegmcp_filter",
+      "input": {
+        "order": [
+          "options"
+        ]
+      }
+    },
+    "eeglab_resample": {
+      "function": "eegmcp_resample",
+      "input": {
+        "order": [
+          "options"
+        ]
+      }
+    },
+    "eeglab_reref": {
+      "function": "eegmcp_reref",
+      "input": {
+        "order": [
+          "options"
+        ]
+      }
+    },
+    "eeglab_select_channels": {
+      "function": "eegmcp_select_channels",
+      "input": {
+        "order": [
+          "options"
+        ]
+      }
+    },
+    "eeglab_interpolate_channels": {
+      "function": "eegmcp_interpolate_channels",
+      "input": {
+        "order": [
+          "options"
+        ]
+      }
+    },
+    "eeglab_edit_channels": {
+      "function": "eegmcp_edit_channels",
+      "input": {
+        "order": [
+          "options"
+        ]
+      }
+    },
+    "eeglab_clean_line_noise": {
+      "function": "eegmcp_clean_line_noise",
+      "input": {
+        "order": [
+          "options"
+        ]
+      }
+    },
+    "eeglab_clean_rawdata": {
+      "function": "eegmcp_clean_rawdata",
+      "input": {
+        "order": [
+          "options"
+        ]
+      }
+    },
+    "eeglab_run_ica": {
+      "function": "eegmcp_run_ica",
+      "input": {
+        "order": [
+          "options"
+        ]
+      }
+    },
+    "eeglab_classify_ica": {
+      "function": "eegmcp_classify_ica",
+      "input": {
+        "order": [
+          "options"
+        ]
+      }
+    },
+    "eeglab_flag_components": {
+      "function": "eegmcp_flag_components",
+      "input": {
+        "order": [
+          "options"
+        ]
+      }
+    },
+    "eeglab_remove_components": {
+      "function": "eegmcp_remove_components",
+      "input": {
+        "order": [
+          "options"
+        ]
+      }
+    },
+    "eeglab_reject_epochs": {
+      "function": "eegmcp_reject_epochs",
+      "input": {
+        "order": [
+          "options"
+        ]
+      }
+    },
+    "eeglab_epoch": {
+      "function": "eegmcp_epoch",
+      "input": {
+        "order": [
+          "options"
+        ]
+      }
+    },
+    "eeglab_erp_analysis": {
+      "function": "eegmcp_erp_analysis",
+      "input": {
+        "order": [
+          "options"
+        ]
+      }
+    },
+    "eeglab_sort_epochs": {
+      "function": "eegmcp_sort_epochs",
+      "input": {
+        "order": [
+          "options"
+        ]
+      }
+    },
+    "eeglab_average_erp": {
+      "function": "eegmcp_average_erp",
+      "input": {
+        "order": [
+          "options"
+        ]
+      }
+    },
+    "eeglab_spectral": {
+      "function": "eegmcp_spectral",
+      "input": {
+        "order": [
+          "options"
+        ]
+      }
+    },
+    "eeglab_timefreq": {
+      "function": "eegmcp_timefreq",
+      "input": {
+        "order": [
+          "options"
+        ]
+      }
+    },
+    "eeglab_connectivity": {
+      "function": "eegmcp_connectivity",
+      "input": {
+        "order": [
+          "options"
+        ]
+      }
+    },
+    "eeglab_topoplot": {
+      "function": "eegmcp_topoplot",
+      "input": {
+        "order": [
+          "options"
+        ]
+      }
+    },
+    "eeglab_plot_erp": {
+      "function": "eegmcp_plot_erp",
+      "input": {
+        "order": [
+          "options"
+        ]
+      }
+    },
+    "eeglab_plot_timefreq": {
+      "function": "eegmcp_plot_timefreq",
+      "input": {
+        "order": [
+          "options"
+        ]
+      }
+    },
+    "eeglab_plot_components": {
+      "function": "eegmcp_plot_components",
+      "input": {
+        "order": [
+          "options"
+        ]
+      }
+    },
+    "eeglab_source_localization": {
+      "function": "eegmcp_source_localization",
+      "input": {
+        "order": [
+          "options"
+        ]
+      }
+    },
+    "eeglab_source_settings": {
+      "function": "eegmcp_source_settings",
+      "input": {
+        "order": [
+          "options"
+        ]
       }
     }
   }

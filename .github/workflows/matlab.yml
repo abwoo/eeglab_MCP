@@ -46,4 +46,4 @@ jobs:
       - name: Run the gate tests and the tool tests against the EEGLAB sample dataset
         uses: matlab-actions/run-command@bfa857648f4895aa98a446fe41c85e0788421ed5 # v3.3.0
         with:
-          command: addpath('matlab/tests'); run_eegmcp_gate_tests(fullfile(getenv('RUNNER_TEMP'), 'gate_cases.json')); run_eegmcp_tests(fullfile(getenv('RUNNER_TEMP'), 'eeglab'))
+          command: addpath('matlab/tests'); run_eegmcp_gate_tests(fullfile(getenv('RUNNER_TEMP'), 'gate_cases.json')); eeglab_root = fullfile(getenv('RUNNER_TEMP'), 'eeglab'); run_eegmcp_tests(eeglab_root); run_eegmcp_b1_tests(eeglab_root); run_eegmcp_b2_tests(eeglab_root); run_eegmcp_b3_tests(eeglab_root)
