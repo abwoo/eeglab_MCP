@@ -150,6 +150,7 @@ The protocol exporter must not overwrite EEG data files such as `.set`, `.fdt`, 
 | Path | Purpose |
 | --- | --- |
 | `eeglab_mcp_server/` | Executable MCP server, tool schemas, handlers, registry, and official alignment map. |
+| `matlab/` | Python-free prototype: five read-only tools as MATLAB functions for the MATLAB MCP Core Server. See `matlab/README.md`. |
 | `skills/eeglab-analysis/` | Optional Codex Skill; its references are also served as MCP resources. |
 | `docs/` | Official coverage, support, risk, workflow, and report matrices. |
 | `configs/` | MCP client templates. |
