@@ -14,7 +14,7 @@ except ImportError:  # pragma: no cover - direct script execution support
 
 
 async def _eeglab_topoplot(args: dict) -> list[TextContent]:
-    """绘制头皮地形图。"""
+    """Plot a scalp topomap."""
     output_path = args["output_path"]
     time_point = args.get("time_point")
     time_window = args.get("time_window")
@@ -53,7 +53,7 @@ result.output_path = {output_path_lit};
 
 
 async def _eeglab_plot_erp(args: dict) -> list[TextContent]:
-    """绘制 ERP 波形图。"""
+    """Plot ERP waveforms."""
     channels = args["channels"]
     output_path = args["output_path"]
     conditions = args.get("conditions", [])
@@ -87,7 +87,7 @@ result.channels = {chan_str};
 
 
 async def _eeglab_plot_timefreq(args: dict) -> list[TextContent]:
-    """绘制时频图。"""
+    """Plot time-frequency figures."""
     channel = args["channel"]
     output_path = args["output_path"]
     plot_ersp = args.get("plot_ersp", True)
@@ -119,7 +119,7 @@ result.channel = {channel_lit};
 
 
 async def _eeglab_plot_components(args: dict) -> list[TextContent]:
-    """绘制 ICA 成分图。"""
+    """Plot ICA component figures."""
     output_path = args["output_path"]
     component_indices = args.get("component_indices", [])
     title = args.get("title", "")
@@ -138,7 +138,7 @@ async def _eeglab_plot_components(args: dict) -> list[TextContent]:
 {_maybe_init()}
 if ~exist('EEG', 'var') || ~isstruct(EEG) || ~isfield(EEG, 'icaweights') || isempty(EEG.icaweights)
     result.status = 'error';
-    result.error = '尚未运行 ICA 分解，请先调用 eeglab_run_ica';
+    result.error = "ICA has not been run yet, call eeglab_run_ica first";
 else
     figure('Visible', 'off');
     pop_topoplot(EEG, {title_code}'components', {comp_str});
