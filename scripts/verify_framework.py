@@ -11,12 +11,16 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Any
 
-import tomllib
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
+
+try:
+    import tomllib
+except ModuleNotFoundError:
+    import tomli as tomllib
 
 from eeglab_mcp_server.handler_registry import TOOL_HANDLERS
 from eeglab_mcp_server.mcp_surfaces import RESOURCE_FILES
