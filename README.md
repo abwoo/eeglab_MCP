@@ -210,3 +210,9 @@ The uninstall path backs up the Codex config and Skill directory before removing
 - EEGLAB documentation: https://eeglab.org/
 - EEGLAB repository: https://github.com/sccn/eeglab
 - Official topic and support matrices: see `docs/` or the `eeglab://official/...` MCP resources.
+
+## Repository Maintenance
+
+This repository is licensed under Apache-2.0; see [LICENSE](LICENSE). Report vulnerabilities using [SECURITY.md](SECURITY.md). CODEOWNERS routes reviews to the maintainer, Dependabot checks Python dependencies and GitHub Actions weekly, and the Scorecard workflow evaluates repository security on main and on its weekly schedule. Development and portability checks remain in the existing CI workflow.
+
+With PowerShell 7 on Linux or macOS, run `pwsh -NoProfile -File scripts/eeglab_agent.ps1 verify` from the repository root. The verification dispatcher uses native paths when invoking Python; the existing Windows PowerShell command is also supported.
