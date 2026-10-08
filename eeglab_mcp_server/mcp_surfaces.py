@@ -6,7 +6,11 @@ from pathlib import Path
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 SKILL_DIR = ROOT_DIR / "skills" / "eeglab-analysis"
+GENERATED_DIR = ROOT_DIR / "generated"
 DOCS_DIR = ROOT_DIR / "docs"
+CLAIMS_DOCUMENT_NAME = "eeglab-official-claims"
+CLAIMS_DOCUMENT_VERSION = "1.0.0"
+GENERATED_CLAIMS_JSON = GENERATED_DIR / "eeglab-official-claims.json"
 
 PROMPT_DEFINITIONS: dict[str, dict[str, str]] = {
     "eeglab_project_intake": {
@@ -112,6 +116,12 @@ PROMPT_DEFINITIONS: dict[str, dict[str, str]] = {
 }
 
 RESOURCE_FILES: dict[str, tuple[str, Path, str]] = {
+    "eeglab://official/claims.json": (
+        "EEGLAB Official Claims And Method Profiles",
+        GENERATED_CLAIMS_JSON,
+        "Versioned machine-readable alignment claims, method profiles and tool routing. Generated from the same "
+        "constants the gate enforces, so an external hub can cite claim ids without scraping the Skill markdown.",
+    ),
     "eeglab://skill/SKILL.md": (
         "EEGLAB Analysis Skill",
         SKILL_DIR / "SKILL.md",

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 import urllib.request
 from pathlib import Path
@@ -12,6 +13,7 @@ sys.path.insert(0, str(ROOT))
 
 from eeglab_mcp_server.mcp_surfaces import RESOURCE_FILES
 from eeglab_mcp_server.official_alignment import (
+    CLAIMS_DOCUMENT_VERSION,
     HIGH_RISK_TOOL_NAMES,
     METHOD_PROFILES,
     OFFICIAL_CLAIMS,
@@ -19,6 +21,7 @@ from eeglab_mcp_server.official_alignment import (
     OFFICIAL_SOURCE_SNAPSHOT,
     OFFICIAL_TOPIC_INDEX,
     REPORT_FIELD_MATRIX,
+    build_official_claims_document,
     evaluate_method_preflight,
 )
 from eeglab_mcp_server.schemas import workflow_tools
@@ -804,6 +807,44 @@ def check_online_sources() -> None:
             )
 
 
+def check_published_claims_document() -> None:
+    uri = "eeglab://official/claims.json"
+    _require(uri in RESOURCE_FILES, f"{uri} is not registered as a resource")
+    _title, path, _description = RESOURCE_FILES[uri]
+    _require(path.exists(), f"{uri} points at a missing file: {path}")
+
+    published = json.loads(path.read_text(encoding="utf-8"))
+    expected = build_official_claims_document()
+    _require(
+        published == expected,
+        f"{uri} is stale; regenerate it from build_official_claims_document()",
+    )
+    _require(published["claim_count"] == len(OFFICIAL_CLAIMS), "published claim_count does not match OFFICIAL_CLAIMS")
+    _require(
+        published["method_profile_count"] == len(METHOD_PROFILES),
+        "published method_profile_count does not match METHOD_PROFILES",
+    )
+    _require(
+        published["document_version"] == CLAIMS_DOCUMENT_VERSION,
+        "published document_version does not match CLAIMS_DOCUMENT_VERSION",
+    )
+    for claim_id, claim in published["claims"].items():
+        _require(
+            set(claim) == {"id", "title", "url", "applies_to", "requirement", "cited_on"},
+            f"{claim_id} has an unexpected published shape",
+        )
+    for profile_id, profile in published["method_profiles"].items():
+        for claim_id in profile["source_claim_ids"]:
+            _require(
+                claim_id in published["claims"],
+                f"{profile_id} cites unknown published claim {claim_id}",
+            )
+    _require(
+        "not a clinical device" in published["not_for_clinical_use"],
+        "published document must carry the non-clinical-use statement",
+    )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--online", action="store_true", help="Also check official URLs are reachable.")
@@ -814,6 +855,7 @@ def main() -> None:
     check_docs_and_skill()
     check_tool_contract_text()
     check_preflight_behavior()
+    check_published_claims_document()
     if args.online:
         check_online_sources()
 

@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 CITED_ON = "2026-06-14"
+CLAIMS_DOCUMENT_VERSION = "1.0.0"
 
 
 OFFICIAL_SOURCE_SNAPSHOT: dict[str, Any] = {
@@ -3177,4 +3178,67 @@ def evaluate_method_preflight(args: dict[str, Any]) -> dict[str, Any]:
             "source": "local_official_claim_map",
             "claim_count": len(profile.get("source_claim_ids", [])),
         },
+    }
+
+
+def _claim_index_entry(claim_id: str, claim: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "id": claim_id,
+        "title": claim["title"],
+        "url": claim["url"],
+        "applies_to": claim["applies_to"],
+    }
+
+
+def _requirement_index_entry(requirement: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "id": requirement["id"],
+        "severity": requirement["severity"],
+        "check": requirement["check"],
+        "text": requirement["text"],
+    }
+
+
+def build_official_claims_document() -> dict[str, Any]:
+    """Build the machine-readable official alignment document.
+
+    This is the payload served as the ``eeglab://official/claims.json`` MCP
+    resource. It is generated from the same constants the server uses at
+    runtime, so a hub that cites a claim id from this document is citing the
+    claim the gate actually enforces.
+    """
+    claims = {
+        claim_id: {
+            **_claim_index_entry(claim_id, claim),
+            "requirement": claim["requirement"],
+            "cited_on": claim["cited_on"],
+        }
+        for claim_id, claim in OFFICIAL_CLAIMS.items()
+    }
+    method_profiles = {
+        profile_id: {
+            "aliases": profile.get("aliases", []),
+            "tool_names": profile.get("tool_names", []),
+            "source_claim_ids": profile["source_claim_ids"],
+            "requirements": [_requirement_index_entry(item) for item in profile["requirements"]],
+            "not_recommended": profile.get("not_recommended", []),
+        }
+        for profile_id, profile in METHOD_PROFILES.items()
+    }
+    return {
+        "document": "eeglab-official-claims",
+        "document_version": CLAIMS_DOCUMENT_VERSION,
+        "cited_on": CITED_ON,
+        "retrieved_on": OFFICIAL_SOURCE_SNAPSHOT["retrieved_on"],
+        "claim_count": len(claims),
+        "method_profile_count": len(method_profiles),
+        "support_level_values": list(OFFICIAL_SOURCE_SNAPSHOT["support_level_values"]),
+        "high_risk_tool_names": sorted(HIGH_RISK_TOOL_NAMES),
+        "claims": claims,
+        "method_profiles": method_profiles,
+        "tool_to_profile": dict(TOOL_TO_PROFILE),
+        "not_for_clinical_use": (
+            "This document describes research-grade alignment with EEGLAB and SCCN sources. "
+            "It is not a clinical device, makes no diagnostic claim, and confers no clinical use."
+        ),
     }
