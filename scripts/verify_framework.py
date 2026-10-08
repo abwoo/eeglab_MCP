@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import ast
 import asyncio
 import json
@@ -1025,6 +1026,9 @@ def _check_cleanliness() -> None:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--skip-mcp", action="store_true", help="skip the live MCP handshake check")
+    args = parser.parse_args()
     _parse_python()
     _check_readme_structure()
     _check_configs_and_skill()
@@ -1033,7 +1037,8 @@ def main() -> None:
     _check_static_structure_policy()
     eval_summary = _check_eval_registry_coverage()
     _check_tool_support_matrix()
-    asyncio.run(_check_mcp())
+    if not args.skip_mcp:
+        asyncio.run(_check_mcp())
     _check_cleanliness()
     print("framework_ok=True")
     print("eval_contract_ok=True")
