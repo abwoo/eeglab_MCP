@@ -6,7 +6,7 @@ These workflows are designed for users who want fast progress without losing res
 
 Goal: inspect a dataset without modifying it.
 
-Use when the user says: "看看这个数据", "先检查一下", "load and QC", or gives a new file with no goal yet.
+Use when the user asks to look at the data, asks for a check first, says "load and QC", or hands over a new file with no goal yet.
 
 Tool path:
 
