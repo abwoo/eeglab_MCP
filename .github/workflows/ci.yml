@@ -41,16 +41,14 @@ jobs:
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: python -m black --check eeglab_mcp_server scripts
 
-      - name: Type check with mypy (non-blocking)
+      - name: Type check with mypy
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
-        continue-on-error: true
         run: python -m mypy --config-file eeglab_mcp_server/pyproject.toml eeglab_mcp_server
 
       - name: Run framework verifier
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
-        run: python scripts/verify_framework.py --skip-mcp
+        run: python scripts/verify_framework.py
 
-      - name: Run official alignment verifier (non-blocking)
+      - name: Run official alignment verifier
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
-        continue-on-error: true
         run: python scripts/verify_official_alignment.py
