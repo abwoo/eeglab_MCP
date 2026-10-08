@@ -54,7 +54,7 @@ async def _eeglab_classify_ica(args: dict) -> list[TextContent]:
 {_maybe_init()}
 if ~exist('EEG', 'var') || ~isstruct(EEG) || ~isfield(EEG, 'icaweights') || isempty(EEG.icaweights)
     result.status = 'error';
-    result.error = '尚未运行 ICA 分解，请先调用 eeglab_run_ica';
+    result.error = "ICA has not been run yet, call eeglab_run_ica first";
 else
     EEG = pop_iclabel(EEG);
     classifications = EEG.etc.ic_classification.ICLabel.classifications;
@@ -107,7 +107,7 @@ async def _eeglab_flag_components(args: dict) -> list[TextContent]:
 {_maybe_init()}
 if ~exist('EEG', 'var') || ~isstruct(EEG) || ~isfield(EEG, 'icaweights') || isempty(EEG.icaweights)
     result.status = 'error';
-    result.error = '尚未运行 ICA 分解，请先调用 eeglab_run_ica';
+    result.error = "ICA has not been run yet, call eeglab_run_ica first";
 else
     if ~isfield(EEG, 'etc') || ~isfield(EEG.etc, 'ic_classification') || ~isfield(EEG.etc.ic_classification, 'ICLabel')
         EEG = pop_iclabel(EEG);
@@ -138,7 +138,7 @@ async def _eeglab_remove_components(args: dict) -> list[TextContent]:
         remove_code = f"""
 if ~exist('EEG', 'var') || ~isstruct(EEG) || ~isfield(EEG, 'icaweights') || isempty(EEG.icaweights)
     result.status = 'error';
-    result.error = '尚未运行 ICA 分解，请先调用 eeglab_run_ica';
+    result.error = "ICA has not been run yet, call eeglab_run_ica first";
 elseif ~isfield(EEG, 'etc') || ~isfield(EEG.etc, 'ic_classification') || ~isfield(EEG.etc.ic_classification, 'ICLabel')
     result.status = 'error';
     result.error = "ICLabel classification has not been run yet, call eeglab_classify_ica first";
