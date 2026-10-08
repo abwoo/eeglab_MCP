@@ -544,7 +544,7 @@ def qc_report_from_payloads(info: dict[str, Any], events: dict[str, Any], histor
             "missing_channel_locations": missing_locations,
             "risk_hints": risks,
             "provenance_hints": provenance_hints,
-            "history_available": bool(history.get("history") and history.get("history") != "无操作历史记录"),
+            "history_available": bool(history.get("history") and history.get("history") != "no operations recorded"),
         },
     )
 
