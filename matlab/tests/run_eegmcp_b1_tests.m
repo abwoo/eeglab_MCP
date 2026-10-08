@@ -23,6 +23,13 @@ r = eegmcp_call_tool('eegmcp_history()');
 eegmcp_check(strcmp(r.code, 'no_dataset'), 'eeglab_history needs a dataset', r);
 r = call('eegmcp_filter', 'filter_type', 'highpass', 'low_cutoff', 1, override{:});
 eegmcp_check(strcmp(r.code, 'no_dataset'), 'eeglab_filter needs a dataset', r);
+r = call('eegmcp_reref', 'ref_type', 'average', override{:});
+eegmcp_check(strcmp(r.code, 'no_dataset'), 'eeglab_reref needs a dataset', r);
+r = call('eegmcp_interpolate_channels', 'method', 'spherical', override{:});
+eegmcp_check(strcmp(r.code, 'no_dataset'), 'eeglab_interpolate_channels needs a dataset', r);
+r = call('eegmcp_edit_channels', 'action', 'load_loc', 'loc_file', locs, override{:});
+eegmcp_check(strcmp(r.code, 'no_dataset'), 'eeglab_edit_channels needs a dataset', r);
+
 
 % ---- history ---------------------------------------------------------------
 load_sample(sample);

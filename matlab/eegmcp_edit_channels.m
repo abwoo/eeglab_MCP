@@ -12,7 +12,7 @@ try
         return
     end
     errors = eegmcp_b1_check(opts, {'action', 'string', {'load_loc', 'rename'}; ...
-        'loc_file', 'string'; 'rename_map', 'object'});
+        'loc_file', 'string', []; 'rename_map', 'object', []});
     errors = [errors, eegmcp_b1_override_errors(opts)];
     if isempty(errors)
         action = char(opts.action);

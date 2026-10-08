@@ -10,7 +10,7 @@ function eegmcp_interpolate_channels(options)
 
 try
     opts = eegmcp_options(options);
-    errors = eegmcp_b1_check(opts, {'ref_chanlocs', 'string'; 'method', 'string', {'spherical', 'v4'}});
+    errors = eegmcp_b1_check(opts, {'ref_chanlocs', 'string', []; 'method', 'string', {'spherical', 'v4'}});
     errors = [errors, eegmcp_b1_override_errors(opts)];
     if ~isempty(errors)
         eegmcp_b1_invalid('eeglab_interpolate_channels', errors);

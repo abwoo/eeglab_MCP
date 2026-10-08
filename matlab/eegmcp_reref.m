@@ -13,7 +13,7 @@ try
         return
     end
     errors = eegmcp_b1_check(opts, {'ref_type', 'string', {'average', 'channel', 'rest'}; ...
-        'ref_channel', 'string'});
+        'ref_channel', 'string', []});
     errors = [errors, eegmcp_b1_override_errors(opts)];
     if isempty(errors) && strcmp(opts.ref_type, 'channel') && ~eegmcp_b1_present(opts, 'ref_channel')
         errors{end + 1} = 'ref_channel is needed when ref_type is channel';
