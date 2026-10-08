@@ -73,7 +73,8 @@ The dispatcher forwards to dedicated setup, verify, doctor, and uninstall script
 ## What You Get
 
 - 45 exposed MCP tools: 37 low-level EEGLAB tool wrappers plus 8 research workflow tools.
-- 10 MCP prompts and 25 read-only MCP resources for clients that support guidance surfaces.
+- 10 MCP prompts and 26 read-only MCP resources for clients that support guidance surfaces.
+- 1 versioned machine-readable alignment document at `eeglab://official/claims.json`, generated from the constants the gate enforces, so an external hub can cite claim ids without scraping the Skill markdown.
 - 47 official alignment claims and 39 method profiles mapped to EEGLAB/SCCN and related standards.
 - 56 machine-checkable workflow evals covering gates, reports, plugin gaps, and failure recovery.
 - A local-first runtime: EEG data stays on the user's machine.
@@ -89,6 +90,8 @@ Skill-aware clients should install the `eeglab-analysis` Skill. MCP-only clients
 - `eeglab://references/tools.md`
 - `eeglab://references/method-gates.md`
 - `eeglab://official/gate-policy.md`
+
+For agent hubs and other external consumers, `eeglab://official/claims.json` is the machine-readable entry point. It carries the 47 alignment claims, the 39 method profiles with their requirements, and the tool-to-profile routing, with a `document_version` field. It is generated from the same constants `eeglab_method_preflight` enforces, so a cited claim id always matches the gate. It is research alignment metadata, not a clinical instrument, and confers no clinical use.
 
 If you also use a general MATLAB MCP, keep names separate:
 
