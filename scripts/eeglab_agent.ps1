@@ -5,6 +5,7 @@ param(
     [switch]$Online,
     [switch]$SkipCompile,
     [switch]$RemoveSkill,
+    [switch]$InstallSkill,
     [string]$CodexHome = "$env:USERPROFILE\.codex",
     [string]$EeglabPath = "D:\MATLAB_Tools\eeglab",
     [string]$MatlabRoot = "D:\MATLAB",
@@ -26,6 +27,7 @@ function Show-EeglabAgentHelp {
     Write-Host "Common commands:"
     Write-Host "  powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 setup -DryRun"
     Write-Host "  powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 setup"
+    Write-Host "  powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 setup -InstallSkill   (optional Codex Skill)"
     Write-Host "  powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 verify"
     Write-Host "  powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 verify-online"
     Write-Host "  powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 doctor"
@@ -39,16 +41,19 @@ switch ($Action) {
         Show-EeglabAgentHelp
     }
     "setup" {
-        $setupArgs = @{
-            CodexHome = $CodexHome
-            EeglabPath = $EeglabPath
-            MatlabRoot = $MatlabRoot
-            MatlabExec = $MatlabExec
-            EeglabWorkDir = $EeglabWorkDir
-            MatlabTimeout = $MatlabTimeout
-        }
+        $setupArgs = @(
+            "-CodexHome", $CodexHome,
+            "-EeglabPath", $EeglabPath,
+            "-MatlabRoot", $MatlabRoot,
+            "-MatlabExec", $MatlabExec,
+            "-EeglabWorkDir", $EeglabWorkDir,
+            "-MatlabTimeout", $MatlabTimeout
+        )
         if ($DryRun) {
-            $setupArgs["DryRun"] = $true
+            $setupArgs += "-DryRun"
+        }
+        if ($InstallSkill) {
+            $setupArgs += "-InstallSkill"
         }
         & $SetupScript @setupArgs
     }
@@ -74,14 +79,12 @@ switch ($Action) {
         & $DoctorScript -CodexHome $CodexHome -EeglabPath $EeglabPath -MatlabExec $MatlabExec
     }
     "uninstall" {
-        $uninstallArgs = @{
-            CodexHome = $CodexHome
-        }
+        $uninstallArgs = @("-CodexHome", $CodexHome)
         if ($DryRun) {
-            $uninstallArgs["DryRun"] = $true
+            $uninstallArgs += "-DryRun"
         }
         if ($RemoveSkill) {
-            $uninstallArgs["RemoveSkill"] = $true
+            $uninstallArgs += "-RemoveSkill"
         }
         & $UninstallScript @uninstallArgs
     }

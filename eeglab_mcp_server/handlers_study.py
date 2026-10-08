@@ -32,7 +32,7 @@ except ImportError:  # pragma: no cover - direct script execution support
 
 
 async def _eeglab_study_create(args: dict) -> list[TextContent]:
-    """创建 STUDY。"""
+    """Create a STUDY."""
     bids_path = args.get("bids_path", "")
     study_name = args.get("study_name", "MyStudy")
     dataset_paths = args.get("dataset_paths", [])
@@ -41,9 +41,6 @@ async def _eeglab_study_create(args: dict) -> list[TextContent]:
     if bids_path:
         bids_path_lit = matlab_string(bids_path)
         create_code = f"""
-if ~exist('pop_importbids', 'file')
-    error('EEG-BIDS plugin is not installed. Please install it from EEGLAB menu: Tools > Manage EEGLAB extensions > EEG-BIDS.');
-end
 [STUDY, ALLEEG] = pop_importbids({bids_path_lit}, 'studyName', {study_name_lit}, 'bidsevent', 'on', 'bidschanloc', 'on');
 """
     elif dataset_paths:
@@ -54,8 +51,8 @@ end
     else:
         return _error_response(
             "missing_required_argument",
-            "请指定 bids_path 或 dataset_paths",
-            next_step="传入 BIDS 根目录或 .set 文件路径列表后重试。",
+            "specify bids_path or dataset_paths",
+            next_step="pass the BIDS root directory or a list of .set file paths, then retry.",
         )
 
     code = f"""
@@ -72,7 +69,7 @@ result.subjects = {{STUDY.subject}};
 
 
 async def _eeglab_study_design(args: dict) -> list[TextContent]:
-    """定义 STUDY 实验设计。"""
+    """Define the STUDY experimental design."""
     design_name = args.get("design_name", "Design1")
     variable_name = args.get("variable_name", "condition")
     variable_values = args.get("variable_values", ["target", "standard"])
@@ -99,7 +96,7 @@ result.variable_values = {vals_str};
 
 
 async def _eeglab_study_statistics(args: dict) -> list[TextContent]:
-    """STUDY 统计检验。"""
+    """Run a STUDY statistical test."""
     measure = args.get("measure", "erp")
     alpha = args.get("alpha", 0.05)
     correction = args.get("correction", "fdr")
@@ -126,7 +123,7 @@ async def _eeglab_study_statistics(args: dict) -> list[TextContent]:
     code = f"""
 {_maybe_init()}
 STUDY = pop_statparams(STUDY, {measure_str}, {correction_str}, 'alpha', {alpha});
-[STUDY, stats] = pop_stat(STUDY, ALLEEG);
+[STUDY, stats] = pop_stat(EEG, STUDY, ALLEEG);
 result.measure = {measure_lit};
 result.alpha = {alpha};
 result.correction = {correction_lit};
@@ -144,7 +141,7 @@ end
 
 
 async def _eeglab_pipeline(args: dict) -> list[TextContent]:
-    """一键流程生成。"""
+    """Generate a one-shot pipeline."""
     pipeline_type = args["pipeline_type"]
     data_path = args["data_path"]
     output_dir = args.get("output_dir", "")
@@ -164,7 +161,7 @@ async def _eeglab_pipeline(args: dict) -> list[TextContent]:
     output_dir_lit = matlab_string(output_dir)
     ica_algorithm_lit = matlab_string(ica_algorithm)
 
-    # 加载数据
+    # Load the data
     if ext == "set":
         fp = Path(data_path)
         load_code = (
@@ -173,57 +170,48 @@ async def _eeglab_pipeline(args: dict) -> list[TextContent]:
     else:
         load_code = f"EEG = pop_biosig({data_path_lit});\n"
 
-    # 公共预处理步骤
+    # Common preprocessing steps
     common_steps = f"""
-%% 1. 加载数据
+%% 1. Load the data
 {load_code}
 EEG = eeg_checkset(EEG);
 
-%% 2. 降采样（如果采样率过高）
+%% 2. Downsample (if the sampling rate is high)
 if EEG.srate > 500
     EEG = pop_resample(EEG, 250);
     EEG = eeg_checkset(EEG);
 end
 
-%% 3. 滤波
+%% 3. Filter
 EEG = pop_eegfiltnew(EEG, 'locutoff', {highpass}, 'hicutoff', {lowpass});
 EEG = eeg_checkset(EEG);
 
-%% 4. ASR 伪迹去除
-if ~exist('pop_clean_rawdata', 'file')
-    error('clean_rawdata plugin is not installed. Please install it from EEGLAB menu: Tools > Manage EEGLAB extensions > clean_rawdata.');
-end
+%% 4. ASR artifact removal
 EEG = pop_clean_rawdata(EEG, 'FlatlineCriterion', 5, 'ChannelCriterion', 0.8, 'LineNoiseCriterion', 4, 'Highpass', [0.25 0.75], 'BurstCriterion', {burst_criterion}, 'BurstRejection', 'on', 'WindowCriterion', 0.25, 'Distance', 'Euclidian', 'WindowCriterionTolerances', [-Inf 7]);
 EEG = eeg_checkset(EEG);
 
-%% 5. 重参考（平均参考）
+%% 5. Re-reference (average reference)
 EEG = pop_reref(EEG, []);
 EEG = eeg_checkset(EEG);
 
-%% 6. ICA 分解
+%% 6. ICA decomposition
 EEG = pop_runica(EEG, 'icatype', {ica_algorithm_lit}, 'extended', 1, 'pca', EEG.nbchan-1);
 EEG = eeg_checkset(EEG);
 
-%% 7. ICLabel 分类
-if ~exist('pop_iclabel', 'file')
-    error('ICLabel plugin is not installed. Please install it from EEGLAB menu: Tools > Manage EEGLAB extensions > ICLabel.');
-end
+%% 7. ICLabel classification
 EEG = pop_iclabel(EEG);
 EEG = eeg_checkset(EEG);
 
-%% 8. 标记和移除伪迹成分
-if ~exist('pop_icflag', 'file')
-    error('ICLabel plugin is not installed. Please install it from EEGLAB menu: Tools > Manage EEGLAB extensions > ICLabel.');
-end
+%% 8. Mark and remove artifact components
 EEG = pop_icflag(EEG, [NaN NaN; 0.9 1; 0.9 1; NaN NaN; NaN NaN; NaN NaN; NaN NaN]);
 EEG = pop_subcomp(EEG, find(EEG.reject.gcompreject), 0);
 EEG = eeg_checkset(EEG);
 
-%% 9. 通道插值
+%% 9. Interpolate channels
 EEG = pop_interp(EEG, EEG.urchanlocs, 'spherical');
 EEG = eeg_checkset(EEG);
 
-%% 10. 再次重参考
+%% 10. Re-reference again
 EEG = pop_reref(EEG, []);
 EEG = eeg_checkset(EEG);
 """
@@ -233,11 +221,11 @@ EEG = eeg_checkset(EEG);
         events_str = _cell(events)
         pipeline_code = f"""
 {common_steps}
-%% 11. 分段
+%% 11. Epoch
 EEG = pop_epoch(EEG, {events_str}, [{epoch_window[0]}, {epoch_window[1]}], 'epochinfo', 'on');
 EEG = eeg_checkset(EEG);
 
-%% 12. 基线校正
+%% 12. Baseline correction
 baseline_requested = [{baseline_window[0]}, {baseline_window[1]}];
 baseline_points = find(EEG.times >= baseline_requested(1) & EEG.times <= baseline_requested(2));
 if isempty(baseline_points)
@@ -246,7 +234,7 @@ end
 EEG = pop_rmbase(EEG, [], baseline_points);
 EEG = eeg_checkset(EEG);
 
-%% 13. 保存
+%% 13. Save
 output_dir = {output_dir_lit};
 mkdir(output_dir);
 EEG = pop_saveset(EEG, 'filename', 'erp_processed.set', 'filepath', output_dir);
@@ -263,10 +251,10 @@ disp('ERP pipeline complete.');
     elif pipeline_type == "resting":
         pipeline_code = f"""
 {common_steps}
-%% 11. 频谱分析
+%% 11. Spectral analysis
 [spectra, freqs] = pop_spectopo(EEG, 1, EEG.pnts, 'EEG', EEG, 'freqrange', [0.5, 45]);
 
-%% 12. 计算各频段功率
+%% 12. Compute band power
 bands = struct();
 band_names = {{'delta', 'theta', 'alpha', 'beta', 'gamma'}};
 band_ranges = [0.5 4; 4 8; 8 13; 13 30; 30 45];
@@ -279,7 +267,7 @@ for b = 1:length(band_names)
     end
 end
 
-%% 13. 保存
+%% 13. Save
 output_dir = {output_dir_lit};
 mkdir(output_dir);
 EEG = pop_saveset(EEG, 'filename', 'resting_processed.set', 'filepath', output_dir);
@@ -299,11 +287,11 @@ disp('Resting-state pipeline complete.');
         events_str = _cell(events)
         pipeline_code = f"""
 {common_steps}
-%% 11. 分段
+%% 11. Epoch
 EEG = pop_epoch(EEG, {events_str}, [{epoch_window[0]}, {epoch_window[1]}], 'epochinfo', 'on');
 EEG = eeg_checkset(EEG);
 
-%% 12. 基线校正
+%% 12. Baseline correction
 baseline_requested = [{baseline_window[0]}, {baseline_window[1]}];
 baseline_points = find(EEG.times >= baseline_requested(1) & EEG.times <= baseline_requested(2));
 if isempty(baseline_points)
@@ -312,13 +300,13 @@ end
 EEG = pop_rmbase(EEG, [], baseline_points);
 EEG = eeg_checkset(EEG);
 
-%% 13. 时频分析
+%% 13. Time-frequency analysis
 [ERSP, ITC, times, freqs] = pop_newtimef(EEG, 1, 1:EEG.nbchan, ...
     [EEG.xmin*1000 EEG.xmax*1000], [3 0.5], ...
     'freqs', [3 80], 'cycles', [3 10], ...
     'baseline', [{baseline_window[0]}, {baseline_window[1]}]);
 
-%% 14. 保存
+%% 14. Save
 output_dir = {output_dir_lit};
 mkdir(output_dir);
 EEG = pop_saveset(EEG, 'filename', 'timefreq_processed.set', 'filepath', output_dir);
@@ -335,8 +323,8 @@ disp('Time-frequency pipeline complete.');
     else:
         return _error_response(
             "invalid_arguments",
-            f"不支持的流程类型: {pipeline_type}",
-            next_step="pipeline_type 只能是 erp、resting 或 timefreq。",
+            f"unsupported pipeline type: {pipeline_type}",
+            next_step="pipeline_type must be erp, resting or timefreq.",
         )
 
     code = f"""

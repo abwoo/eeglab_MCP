@@ -92,7 +92,7 @@ def _load_result_file(result_file: str, *, stdout: str = "", stderr: str = "") -
     if not os.path.exists(result_file):
         return {
             "status": "error",
-            "error": "无法读取结果文件",
+            "error": "Cannot read the result file",
             "code": "matlab_result_missing",
             "details": {
                 "result_file": result_file,
@@ -106,7 +106,7 @@ def _load_result_file(result_file: str, *, stdout: str = "", stderr: str = "") -
     except Exception as exc:
         return {
             "status": "error",
-            "error": f"读取 MATLAB 结果文件失败: {exc}",
+            "error": f"Failed to read the MATLAB result file: {exc}",
             "code": "matlab_result_read_error",
             "details": {
                 "result_file": result_file,
@@ -118,7 +118,7 @@ def _load_result_file(result_file: str, *, stdout: str = "", stderr: str = "") -
     if not raw.strip():
         return {
             "status": "error",
-            "error": "MATLAB 结果文件为空",
+            "error": "The MATLAB result file is empty",
             "code": "matlab_result_empty",
             "details": {
                 "result_file": result_file,
@@ -132,7 +132,7 @@ def _load_result_file(result_file: str, *, stdout: str = "", stderr: str = "") -
     except json.JSONDecodeError as exc:
         return {
             "status": "error",
-            "error": f"MATLAB 结果 JSON 解析失败: {exc}",
+            "error": f"Failed to parse the MATLAB result JSON: {exc}",
             "code": "matlab_result_json_error",
             "details": {
                 "result_file": result_file,
@@ -216,10 +216,10 @@ class MatlabBackend:
             result = {
                 "status": "error",
                 "code": "matlab_unavailable",
-                "error": "MATLAB 不可用。请安装 MATLAB Engine for Python 或确保 matlab 命令在 PATH 中。",
-                "next_step": "确认 MATLAB 已安装，MATLAB_EXEC 指向可执行文件，并且 EEGLAB_PATH 指向本地 EEGLAB 目录后重试。",
+                "error": "MATLAB is unavailable. Install MATLAB Engine for Python or make sure the matlab command is on PATH.",
+                "next_step": "Confirm MATLAB is installed, MATLAB_EXEC points at an executable, and EEGLAB_PATH points at a local EEGLAB directory, then retry.",
                 "hint": "Engine: cd 'MATLAB_PATH/extern/engines/python' && python setup.py install\n"
-                "CLI: 确保 matlab 在系统 PATH 中",
+                "CLI: make sure matlab is on the system PATH",
                 "details": _backend_details("none"),
             }
 
@@ -250,8 +250,8 @@ class MatlabBackend:
                 return {
                     "status": "error",
                     "code": "matlab_engine_start_failed",
-                    "error": f"启动 MATLAB 引擎失败: {exc}",
-                    "next_step": "确认 MATLAB Engine for Python 与当前 Python 版本兼容，或改用 MATLAB CLI 模式。",
+                    "error": f"Failed to start the MATLAB engine: {exc}",
+                    "next_step": "Confirm MATLAB Engine for Python matches the current Python version, or switch to MATLAB CLI mode.",
                     "details": _backend_details("engine"),
                 }
 
@@ -301,8 +301,8 @@ fclose(fid);
             return {
                 "status": "error",
                 "code": "matlab_engine_error",
-                "error": f"Engine 执行错误: {exc}",
-                "next_step": "检查 MATLAB 会话状态、EEGLAB 初始化状态和输入参数；必要时重启 MCP server 后重试。",
+                "error": f"Engine execution error: {exc}",
+                "next_step": "Check the MATLAB session state, the EEGLAB initialization state and the input arguments; restart the MCP server if needed, then retry.",
                 "details": _backend_details("engine"),
             }
         finally:
@@ -393,9 +393,9 @@ exit;
                 return _load_result_file(result_file, stdout=proc_result.stdout, stderr=proc_result.stderr)
             return {
                 "status": "error",
-                "error": f"MATLAB 执行失败 (exit code: {proc_result.returncode})",
+                "error": f"MATLAB execution failed (exit code: {proc_result.returncode})",
                 "code": "matlab_process_failed",
-                "next_step": "查看 stdout/stderr 预览，确认 MATLAB_EXEC、EEGLAB_PATH、插件依赖和输入文件路径后重试。",
+                "next_step": "Read the stdout/stderr preview, confirm MATLAB_EXEC, EEGLAB_PATH, plugin dependencies and the input file paths, then retry.",
                 "details": _backend_details(
                     "cli",
                     stdout=proc_result.stdout,
@@ -406,17 +406,17 @@ exit;
         except subprocess.TimeoutExpired:
             return {
                 "status": "error",
-                "error": f"MATLAB 执行超时 ({cfg.MATLAB_TIMEOUT}秒)",
+                "error": f"MATLAB execution timed out after {cfg.MATLAB_TIMEOUT}s",
                 "code": "matlab_timeout",
-                "next_step": "增大 MATLAB_TIMEOUT，或先运行更小的检查步骤定位耗时环节。",
+                "next_step": "Increase MATLAB_TIMEOUT, or run a smaller check first to find the slow step.",
                 "details": _backend_details("cli"),
             }
         except Exception as exc:
             return {
                 "status": "error",
-                "error": f"CLI 执行错误: {exc}",
+                "error": f"CLI execution error: {exc}",
                 "code": "matlab_cli_error",
-                "next_step": "确认 MATLAB 命令可从当前 shell 启动，并检查 EEGLAB_WORK_DIR 是否可写。",
+                "next_step": "Confirm the MATLAB command starts from the current shell and that EEGLAB_WORK_DIR is writable.",
                 "details": _backend_details("cli"),
             }
         finally:

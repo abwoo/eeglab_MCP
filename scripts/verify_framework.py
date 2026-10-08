@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-import asyncio
+import argparse
 import ast
+import asyncio
 import json
 import shutil
 import sys
-import tomllib
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Any
@@ -18,18 +18,23 @@ from mcp.client.stdio import stdio_client
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from eeglab_mcp_server.handler_registry import TOOL_HANDLERS  # noqa: E402
-from eeglab_mcp_server.mcp_surfaces import RESOURCE_FILES  # noqa: E402
-from eeglab_mcp_server.official_alignment import (  # noqa: E402
+try:
+    import tomllib
+except ModuleNotFoundError:
+    import tomli as tomllib
+
+from eeglab_mcp_server.handler_registry import TOOL_HANDLERS
+from eeglab_mcp_server.mcp_surfaces import RESOURCE_FILES
+from eeglab_mcp_server.official_alignment import (
     METHOD_PROFILES,
     OFFICIAL_CLAIMS,
 )
-from eeglab_mcp_server.tool_registry import (  # noqa: E402
+from eeglab_mcp_server.tool_registry import (
     EXPOSED_TOOL_NAMES,
     LEGACY_LOW_LEVEL_TOOL_NAMES,
     RESEARCH_WORKFLOW_TOOL_NAMES,
-    TOTAL_EXPOSED_TOOL_COUNT,
     TOOL_REGISTRY,
+    TOTAL_EXPOSED_TOOL_COUNT,
     registry_summary,
     validate_handler_map,
     validate_registry,
@@ -51,7 +56,6 @@ REQUIRED_PROMPTS = {
 REQUIRED_RESOURCES = {
     "eeglab://skill/SKILL.md",
     "eeglab://references/workflows.md",
-    "eeglab://references/branch-workflow-matrix.md",
     "eeglab://references/tools.md",
     "eeglab://references/setup.md",
     "eeglab://references/official-method-map.md",
@@ -64,7 +68,6 @@ REQUIRED_RESOURCES = {
     "eeglab://references/bids-study-policy.md",
     "eeglab://references/source-policy.md",
     "eeglab://references/report-protocol-templates.md",
-    "eeglab://references/figure-atlas.md",
     "eeglab://references/statistics-reporting.md",
     "eeglab://official/references.md",
     "eeglab://official/topic-index.md",
@@ -74,11 +77,8 @@ REQUIRED_RESOURCES = {
     "eeglab://official/gate-policy.md",
     "eeglab://official/plugin-map.md",
     "eeglab://official/plugin-matrix.md",
-    "eeglab://official/plugin-family-catalog.md",
     "eeglab://official/risk-matrix.md",
     "eeglab://official/report-field-matrix.md",
-    "eeglab://official/figure-atlas.md",
-    "eeglab://scripts/advanced_figures/README.md",
 }
 
 RESEARCH_TERMS = {
@@ -102,7 +102,6 @@ RESEARCH_TERMS = {
     "import_plugins",
     "data_export",
     "history_scripting",
-    "advanced_figures",
 }
 
 
@@ -129,8 +128,6 @@ def _check_readme_structure() -> None:
     forbidden_fragments = (
         "Simple Version",
         "Detailed Version",
-        "简单版",
-        "详细版",
     )
     readme_specs = (
         (
@@ -139,13 +136,6 @@ def _check_readme_structure() -> None:
             "## Minimal MCP Config",
             "## First Dataset Check",
             "## Official Alignment And Safety",
-        ),
-        (
-            ROOT / "README.zh-CN.md",
-            "## 快速开始",
-            "## 最小 MCP 配置",
-            "## 第一次数据检查",
-            "## 官方对齐与安全边界",
         ),
     )
 
@@ -156,10 +146,6 @@ def _check_readme_structure() -> None:
         _require(
             r"scripts\eeglab_agent.ps1 verify" in text,
             f"{path.name} must reference scripts\\eeglab_agent.ps1 verify",
-        )
-        _require(
-            "eeglab://scripts/advanced_figures/README.md" in text,
-            f"{path.name} must reference the default advanced figure gallery resource",
         )
 
         positions = {
@@ -181,14 +167,6 @@ def _check_readme_structure() -> None:
         _require(
             positions["first_dataset_check"] < positions["official_alignment"],
             f"{path.name} must place first dataset check before official alignment details",
-        )
-        _require(
-            (
-                text.find("## Figure And Report Coverage") < text.find("## Reporting And Reproducibility")
-                if "## Figure And Report Coverage" in text and "## Reporting And Reproducibility" in text
-                else True
-            ),
-            f"{path.name} must place figure/report coverage before reporting/reproducibility details",
         )
 
 
@@ -221,7 +199,6 @@ def _check_configs_and_skill() -> None:
     for rel in (
         "SKILL.md",
         "references/workflows.md",
-        "references/branch-workflow-matrix.md",
         "references/tools.md",
         "references/setup.md",
         "references/official-gates.md",
@@ -256,50 +233,22 @@ def _check_configs_and_skill() -> None:
     for rel in (
         "research-standard.md",
         "user-workflows.md",
-        "figure-atlas.md",
         "official-topic-index.md",
         "official-support-matrix.md",
         "official-tool-support-matrix.md",
         "official-method-map.md",
         "official-gate-policy.md",
         "official-plugin-map.md",
-        "official-plugin-family-catalog.md",
         "official-risk-matrix.md",
         "official-report-field-matrix.md",
     ):
         path = docs / rel
         _require(path.exists(), f"missing docs file: {rel}")
 
-    skill_docs = skill / "docs"
-    for rel in (
-        "official-gate-policy.md",
-        "official-method-map.md",
-        "official-plugin-map.md",
-        "official-plugin-family-catalog.md",
-        "official-report-field-matrix.md",
-        "figure-atlas.md",
-        "official-risk-matrix.md",
-        "official-support-matrix.md",
-        "official-tool-support-matrix.md",
-        "official-topic-index.md",
-        "research-standard.md",
-        "user-workflows.md",
-    ):
-        skill_path = skill_docs / rel
-        docs_path = docs / rel
-        _require(skill_path.exists(), f"missing skill docs mirror file: {rel}")
-        _require(
-            skill_path.read_text(encoding="utf-8") == docs_path.read_text(encoding="utf-8"),
-            f"skill docs mirror mismatch: {rel}",
-        )
-
     combined = "\n".join(
         [
             (skill / "SKILL.md").read_text(encoding="utf-8"),
             (skill / "references" / "workflows.md").read_text(encoding="utf-8"),
-            (skill / "references" / "branch-workflow-matrix.md").read_text(encoding="utf-8"),
-            (skill / "references" / "figure-atlas.md").read_text(encoding="utf-8"),
-            (skill / "references" / "report-protocol-templates.md").read_text(encoding="utf-8"),
             (skill / "references" / "tools.md").read_text(encoding="utf-8"),
             (skill / "references" / "official-method-map.md").read_text(encoding="utf-8"),
             (skill / "references" / "gate-policy.md").read_text(encoding="utf-8"),
@@ -310,64 +259,18 @@ def _check_configs_and_skill() -> None:
             (skill / "references" / "bids-study-policy.md").read_text(encoding="utf-8"),
             (skill / "references" / "source-policy.md").read_text(encoding="utf-8"),
             (skill / "references" / "statistics-reporting.md").read_text(encoding="utf-8"),
-            (docs / "figure-atlas.md").read_text(encoding="utf-8"),
-            (docs / "official-report-field-matrix.md").read_text(encoding="utf-8"),
-            (docs / "official-topic-index.md").read_text(encoding="utf-8"),
             (docs / "research-standard.md").read_text(encoding="utf-8"),
             (docs / "official-tool-support-matrix.md").read_text(encoding="utf-8"),
-            (skill / "docs" / "figure-atlas.md").read_text(encoding="utf-8"),
         ]
     )
     for term in RESEARCH_TERMS:
         _require(term.lower() in combined.lower(), f"missing research-standard term: {term}")
-    for term in (
-        "required_figure_families",
-        "conditional_figure_families",
-        "guidance_only_figure_families",
-        "figure_atlas",
-        "figure coverage",
-        "erp-image",
-        "study visualization",
-    ):
-        _require(term.lower() in combined.lower(), f"missing figure-coverage term: {term}")
-
-
-def _check_advanced_figure_gallery() -> None:
-    gallery = ROOT / "scripts" / "advanced_figures"
-    _require(gallery.exists(), "missing advanced figure gallery directory")
-    _require((gallery / "__init__.py").exists(), "advanced figure gallery missing __init__.py")
-    _require((gallery / "__main__.py").exists(), "advanced figure gallery missing __main__.py")
-    _require((gallery / "README.md").exists(), "advanced figure gallery missing README.md")
-    module_names = {"erp", "erpimage", "resting", "timefreq", "ica", "connectivity", "source", "study"}
-    for name in module_names:
-        _require((gallery / f"{name}_gallery.py").exists(), f"advanced figure gallery missing {name}_gallery.py")
-        _require((gallery / f"{name}.md").exists(), f"advanced figure gallery missing {name}.md")
-    readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    readme_zh = (ROOT / "README.zh-CN.md").read_text(encoding="utf-8")
-    for text, label in ((readme, "README.md"), (readme_zh, "README.zh-CN.md")):
-        _require("scripts/advanced_figures" in text, f"{label} missing advanced figure gallery entry")
-        _require("python -m scripts.advanced_figures" in text, f"{label} missing advanced figure gallery command")
-        _require(
-            "default advanced figure gallery" in text.lower() or "default browsable figure" in text.lower(),
-            f"{label} missing default advanced figure wording",
-        )
-    gallery_readme = (gallery / "README.md").read_text(encoding="utf-8").lower()
-    _require("optional" not in gallery_readme, "advanced figure gallery README must not call the gallery optional")
-    _require("default companion" in gallery_readme, "advanced figure gallery README missing default companion wording")
-    for name in ("erp", "erpimage", "resting", "timefreq", "ica", "connectivity", "source", "study"):
-        module_text = (gallery / f"{name}_gallery.py").read_text(encoding="utf-8").lower()
-        doc_text = (gallery / f"{name}.md").read_text(encoding="utf-8").lower()
-        _require("optional" not in module_text, f"{name}_gallery.py must not call the gallery optional")
-        _require("optional" not in doc_text, f"{name}.md must not call the gallery optional")
-        _require("default" in module_text, f"{name}_gallery.py must use default wording")
-        _require("default status" in doc_text, f"{name}.md missing default status section")
 
 
 def _check_registry_documentation_drift() -> None:
     forbidden_tool_count_phrases = (
         "original " + "40",
         "40 " + "stable",
-        "旧版 " + "40",
     )
     checked_suffixes = {".md", ".xml", ".ps1", ".py", ".toml", ".json"}
     for path in ROOT.rglob("*"):
@@ -378,52 +281,6 @@ def _check_registry_documentation_drift() -> None:
             _require(
                 phrase.lower() not in text.lower(),
                 f"hard-coded stale tool count phrase in {path}: {phrase}",
-            )
-
-    def _parse_topic_index_table(path: Path) -> dict[str, dict[str, str]]:
-        rows: dict[str, dict[str, str]] = {}
-        for line in path.read_text(encoding="utf-8").splitlines():
-            if not line.startswith("| "):
-                continue
-            parts = [part.strip() for part in line.strip().strip("|").split("|")]
-            if len(parts) < 7:
-                continue
-            topic_id = parts[0].strip("`")
-            if topic_id in {"Topic ID", "---"}:
-                continue
-            rows[topic_id] = {
-                "topic": parts[1],
-                "support_level": parts[2].strip("`"),
-                "url": parts[3],
-                "claim_ids": parts[4],
-                "route": parts[5],
-                "notes": parts[6],
-            }
-        return rows
-
-    docs_topic_index = _parse_topic_index_table(ROOT / "docs" / "official-topic-index.md")
-    skill_topic_index = _parse_topic_index_table(
-        ROOT / "skills" / "eeglab-analysis" / "docs" / "official-topic-index.md"
-    )
-    from eeglab_mcp_server.official_alignment import OFFICIAL_TOPIC_INDEX as _TOPIC_INDEX
-
-    _require(
-        set(_TOPIC_INDEX) == set(docs_topic_index),
-        f"docs topic index keys do not match code: missing={sorted(set(_TOPIC_INDEX) - set(docs_topic_index))}, extra={sorted(set(docs_topic_index) - set(_TOPIC_INDEX))}",
-    )
-    _require(
-        set(_TOPIC_INDEX) == set(skill_topic_index),
-        f"skill topic index keys do not match code: missing={sorted(set(_TOPIC_INDEX) - set(skill_topic_index))}, extra={sorted(set(skill_topic_index) - set(_TOPIC_INDEX))}",
-    )
-    for topic_id, topic in _TOPIC_INDEX.items():
-        for mirror_name, mirror in (("docs", docs_topic_index[topic_id]), ("skill", skill_topic_index[topic_id])):
-            _require(
-                mirror["support_level"] == topic.get("support_level"),
-                f"{mirror_name} topic index support mismatch for {topic_id}",
-            )
-            _require(
-                mirror["topic"] == topic.get("title", ""),
-                f"{mirror_name} topic index title mismatch for {topic_id}",
             )
 
 
@@ -783,366 +640,365 @@ def _assert_preflight_summary(payload: dict[str, Any], tool_name: str) -> None:
 
 async def _check_mcp() -> None:
     params = StdioServerParameters(command="python", args=["-B", "eeglab_mcp_server/server.py"])
-    async with stdio_client(params) as (read, write):
-        async with ClientSession(read, write) as session:
-            await session.initialize()
+    async with stdio_client(params) as (read, write), ClientSession(read, write) as session:
+        await session.initialize()
 
-            tools = await session.list_tools()
-            tool_names = [tool.name for tool in tools.tools]
-            tool_set = set(tool_names)
-            registry_errors = validate_registry()
-            _require(not registry_errors, f"registry errors: {registry_errors}")
-            missing_legacy = sorted(LEGACY_LOW_LEVEL_TOOL_NAMES - tool_set)
-            _require(not missing_legacy, f"missing legacy low-level tools: {missing_legacy}")
-            missing_research = sorted(RESEARCH_WORKFLOW_TOOL_NAMES - tool_set)
+        tools = await session.list_tools()
+        tool_names = [tool.name for tool in tools.tools]
+        tool_set = set(tool_names)
+        registry_errors = validate_registry()
+        _require(not registry_errors, f"registry errors: {registry_errors}")
+        missing_legacy = sorted(LEGACY_LOW_LEVEL_TOOL_NAMES - tool_set)
+        _require(not missing_legacy, f"missing legacy low-level tools: {missing_legacy}")
+        missing_research = sorted(RESEARCH_WORKFLOW_TOOL_NAMES - tool_set)
+        _require(
+            not missing_research,
+            f"missing research workflow tools: {missing_research}",
+        )
+        missing_registered = sorted(EXPOSED_TOOL_NAMES - tool_set)
+        extra_tools = sorted(tool_set - EXPOSED_TOOL_NAMES)
+        _require(not missing_registered, f"missing registry tools: {missing_registered}")
+        _require(not extra_tools, f"unregistered MCP tools exposed: {extra_tools}")
+        _require(
+            len(tool_names) == TOTAL_EXPOSED_TOOL_COUNT,
+            f"unexpected tool count: {len(tool_names)}",
+        )
+        tools_by_name = {tool.name: tool for tool in tools.tools}
+        for tool_name in tool_names:
+            spec = TOOL_REGISTRY[tool_name]
+            description = tools_by_name[tool_name].description or ""
+            _require(spec.handler, f"{tool_name} missing registry handler")
+            _require(spec.docs_id, f"{tool_name} missing registry docs_id")
             _require(
-                not missing_research,
-                f"missing research workflow tools: {missing_research}",
+                spec.eeglab_function_family,
+                f"{tool_name} missing EEGLAB function family",
             )
-            missing_registered = sorted(EXPOSED_TOOL_NAMES - tool_set)
-            extra_tools = sorted(tool_set - EXPOSED_TOOL_NAMES)
-            _require(not missing_registered, f"missing registry tools: {missing_registered}")
-            _require(not extra_tools, f"unregistered MCP tools exposed: {extra_tools}")
-            _require(
-                len(tool_names) == TOTAL_EXPOSED_TOOL_COUNT,
-                f"unexpected tool count: {len(tool_names)}",
-            )
-            tools_by_name = {tool.name: tool for tool in tools.tools}
-            for tool_name in tool_names:
-                spec = TOOL_REGISTRY[tool_name]
-                description = tools_by_name[tool_name].description or ""
-                _require(spec.handler, f"{tool_name} missing registry handler")
-                _require(spec.docs_id, f"{tool_name} missing registry docs_id")
+            _require(spec.read_write_effect, f"{tool_name} missing read/write effect")
+            for term in (
+                "Tool contract:",
+                "EEGLAB function family:",
+                "Official method profile:",
+                "Preflight:",
+                "Read/write effect:",
+                "Derivative output:",
+                spec.eeglab_function_family,
+                spec.read_write_effect,
+            ):
                 _require(
-                    spec.eeglab_function_family,
-                    f"{tool_name} missing EEGLAB function family",
+                    term in description,
+                    f"{tool_name} description missing tool contract term: {term}",
                 )
-                _require(spec.read_write_effect, f"{tool_name} missing read/write effect")
-                for term in (
-                    "Tool contract:",
-                    "EEGLAB function family:",
-                    "Official method profile:",
-                    "Preflight:",
-                    "Read/write effect:",
-                    "Derivative output:",
-                    spec.eeglab_function_family,
-                    spec.read_write_effect,
-                ):
-                    _require(
-                        term in description,
-                        f"{tool_name} description missing tool contract term: {term}",
-                    )
-                if spec.risk_level == "high":
-                    _require(
-                        spec.method_profile in description,
-                        f"{tool_name} description missing method profile",
-                    )
-                    _require(
-                        "eeglab_method_preflight" in description,
-                        f"{tool_name} description missing preflight route",
-                    )
+            if spec.risk_level == "high":
+                _require(
+                    spec.method_profile in description,
+                    f"{tool_name} description missing method profile",
+                )
+                _require(
+                    "eeglab_method_preflight" in description,
+                    f"{tool_name} description missing preflight route",
+                )
 
-            prompts = await session.list_prompts()
-            prompt_names = [prompt.name for prompt in prompts.prompts]
-            for name in REQUIRED_PROMPTS:
-                _require(name in prompt_names, f"missing prompt: {name}")
+        prompts = await session.list_prompts()
+        prompt_names = [prompt.name for prompt in prompts.prompts]
+        for name in REQUIRED_PROMPTS:
+            _require(name in prompt_names, f"missing prompt: {name}")
 
-            resources = await session.list_resources()
-            resource_uris = [str(resource.uri) for resource in resources.resources]
-            for uri in sorted(REQUIRED_RESOURCES | _eval_resource_uris()):
-                _require(uri in resource_uris, f"missing resource: {uri}")
-                resource = await session.read_resource(uri)
-                _require(bool(resource.contents), f"resource returned no contents: {uri}")
+        resources = await session.list_resources()
+        resource_uris = [str(resource.uri) for resource in resources.resources]
+        for uri in sorted(REQUIRED_RESOURCES | _eval_resource_uris()):
+            _require(uri in resource_uris, f"missing resource: {uri}")
+            resource = await session.read_resource(uri)
+            _require(bool(resource.contents), f"resource returned no contents: {uri}")
 
-            unknown = _first_text(await session.call_tool("eeglab_unknown", {}))
-            _require(
-                unknown.get("code") == "unknown_tool",
-                "unknown tool must return JSON error",
-            )
+        unknown = _first_text(await session.call_tool("eeglab_unknown", {}))
+        _require(
+            unknown.get("code") == "unknown_tool",
+            "unknown tool must return JSON error",
+        )
 
-            missing_args = _first_text(await session.call_tool("eeglab_load_data", {}))
-            _require(
-                missing_args.get("code") == "missing_required_arguments",
-                "missing required args must return JSON error",
-            )
-            _require("next_step" in missing_args, "missing args error missing next_step")
+        missing_args = _first_text(await session.call_tool("eeglab_load_data", {}))
+        _require(
+            missing_args.get("code") == "missing_required_arguments",
+            "missing required args must return JSON error",
+        )
+        _require("next_step" in missing_args, "missing args error missing next_step")
 
-            invalid_contract = _first_text(
-                await session.call_tool("eeglab_filter", {"filter_type": "bandpass", "low_cutoff": 1})
-            )
-            _require(
-                invalid_contract.get("code") == "invalid_tool_contract",
-                "invalid contract must return JSON error",
-            )
-            _require("details" in invalid_contract, "invalid contract error missing details")
+        invalid_contract = _first_text(
+            await session.call_tool("eeglab_filter", {"filter_type": "bandpass", "low_cutoff": 1})
+        )
+        _require(
+            invalid_contract.get("code") == "invalid_tool_contract",
+            "invalid contract must return JSON error",
+        )
+        _require("details" in invalid_contract, "invalid contract error missing details")
 
-            recommendation = _structured(
-                await session.call_tool("eeglab_workflow_recommend", {}),
-                "eeglab_workflow_recommend",
-            )
-            _require(
-                recommendation.get("status") in {"success", "advisory"},
-                "workflow recommendation failed",
-            )
-            _require(
-                "not_recommended" in recommendation.get("summary", {}),
-                "workflow recommendation missing not_recommended",
-            )
+        recommendation = _structured(
+            await session.call_tool("eeglab_workflow_recommend", {}),
+            "eeglab_workflow_recommend",
+        )
+        _require(
+            recommendation.get("status") == "success",
+            "workflow recommendation failed",
+        )
+        _require(
+            "not_recommended" in recommendation.get("summary", {}),
+            "workflow recommendation missing not_recommended",
+        )
 
-            plan = _structured(
-                await session.call_tool(
-                    "eeglab_project_plan",
-                    {
-                        "analysis_type": "auto",
-                        "event_types": ["s1000"],
+        plan = _structured(
+            await session.call_tool(
+                "eeglab_project_plan",
+                {
+                    "analysis_type": "auto",
+                    "event_types": ["s1000"],
+                    "has_channel_locations": False,
+                },
+            ),
+            "eeglab_project_plan",
+        )
+        _require(plan.get("status") == "success", "project plan failed")
+        _require(
+            "blocking_conditions" in plan.get("summary", {}),
+            "project plan missing blocking conditions",
+        )
+
+        study_plan = _structured(
+            await session.call_tool(
+                "eeglab_project_plan",
+                {
+                    "analysis_type": "study",
+                    "project_scale": "bids_study",
+                },
+            ),
+            "eeglab_project_plan",
+        )
+        study_gate_profiles = {
+            item.get("method_profile_id") for item in study_plan.get("summary", {}).get("gate_results", [])
+        }
+        _require(
+            {
+                "bids_metadata",
+                "bids_import",
+                "study_create",
+                "study_design",
+                "study_statistics",
+            }.issubset(study_gate_profiles),
+            "project plan missing staged BIDS/STUDY gate results",
+        )
+
+        audit = _structured(
+            await session.call_tool(
+                "eeglab_event_semantics_audit",
+                {
+                    "event_types": ["s1000", "Impedance"],
+                    "event_counts": {"s1000": 18, "Impedance": 2},
+                    "segment_markers": ["s1000"],
+                    "exclude_markers": ["Impedance"],
+                },
+            ),
+            "eeglab_event_semantics_audit",
+        )
+        _require(audit.get("status") == "success", "event semantics audit failed")
+        _require(
+            audit.get("summary", {}).get("confirmed_analysis_events") == [],
+            "segment/impedance markers must not become analysis events",
+        )
+
+        protocol = _structured(
+            await session.call_tool(
+                "eeglab_protocol_export",
+                {
+                    "format": "markdown",
+                    "research_goal": "framework verification",
+                    "steps": ["quick_qc"],
+                },
+            ),
+            "eeglab_protocol_export",
+        )
+        _require(protocol.get("status") == "success", "protocol export failed")
+        _require(
+            "protocol_text" in protocol.get("outputs", {}),
+            "protocol export missing text",
+        )
+
+        protocol_gate = {
+            "method_profile_id": "source",
+            "gate_status": "override_accepted",
+            "source_claim_ids": ["EEGLAB-DIPFIT-001", "EEGLAB-CHANLOC-001"],
+            "missing_requirement_ids": ["has_ica", "head_model_defined"],
+            "override_used": True,
+            "override_reason": "Framework verification override; no source claims will be made.",
+            "blocked_requirements_acknowledged": [
+                "has_ica",
+                "head_model_defined",
+            ],
+        }
+        protocol_with_gates = _structured(
+            await session.call_tool(
+                "eeglab_protocol_export",
+                {
+                    "format": "markdown",
+                    "research_goal": "framework verification protocol",
+                    "analysis_type": "source",
+                    "steps": ["quick_qc", "source_preflight"],
+                    "gate_results": [protocol_gate],
+                    "report_fields": {
+                        "recording_and_acquisition": ["input_path"],
+                        "outputs_and_limits": ["official_gate_status"],
+                    },
+                    "override_used": True,
+                    "override_reason": "Framework verification override; no source claims will be made.",
+                    "blocked_requirements_acknowledged": [
+                        "has_ica",
+                        "head_model_defined",
+                    ],
+                },
+            ),
+            "eeglab_protocol_export",
+        )
+        protocol_summary = protocol_with_gates.get("summary", {})
+        _require(
+            protocol_summary.get("source_claim_ids") == ["EEGLAB-DIPFIT-001", "EEGLAB-CHANLOC-001"],
+            "protocol export should derive source_claim_ids from gate_results",
+        )
+        _require(
+            protocol_summary.get("override_status", {}).get("override_used") is True,
+            "protocol export should preserve override_used",
+        )
+        protocol_text = protocol_with_gates.get("outputs", {}).get("protocol_text", "")
+        for term in (
+            "Official Gate Results",
+            "Report Field Matrix Coverage",
+            "Override Status",
+            "EEGLAB-DIPFIT-001",
+            "has_ica",
+        ):
+            _require(term in protocol_text, f"protocol text missing {term}")
+
+        preflight = _structured(
+            await session.call_tool(
+                "eeglab_method_preflight",
+                {"method": "epoch", "context": {"event_roles": ["boundary"]}},
+            ),
+            "eeglab_method_preflight",
+        )
+        _require(preflight.get("status") == "success", "method preflight failed")
+        _assert_preflight_summary(preflight, "eeglab_method_preflight")
+        _require(
+            preflight.get("summary", {}).get("gate_status") == "blocked",
+            "boundary epoch preflight should be blocked",
+        )
+
+        acquisition = _structured(
+            await session.call_tool(
+                "eeglab_method_preflight",
+                {
+                    "method": "acquisition_metadata",
+                    "context": {
+                        "raw_input_preserved": False,
+                        "derivative_output_planned": False,
+                    },
+                },
+            ),
+            "eeglab_method_preflight",
+        )
+        _assert_preflight_summary(acquisition, "eeglab_method_preflight acquisition")
+        _require(
+            acquisition.get("summary", {}).get("gate_status") == "blocked",
+            "acquisition metadata preflight should block missing provenance",
+        )
+
+        bids = _structured(
+            await session.call_tool(
+                "eeglab_method_preflight",
+                {
+                    "method": "bids_metadata",
+                    "context": {
+                        "bids_path": "sub-01",
+                        "events_tsv_columns": ["onset", "duration", "trial_type"],
+                    },
+                },
+            ),
+            "eeglab_method_preflight",
+        )
+        _assert_preflight_summary(bids, "eeglab_method_preflight bids")
+        _require(
+            bids.get("summary", {}).get("gate_status") == "blocked",
+            "BIDS metadata preflight should block missing sidecar descriptions",
+        )
+
+        study_stats = _structured(
+            await session.call_tool(
+                "eeglab_method_preflight",
+                {
+                    "method": "study_statistics",
+                    "context": {
+                        "project_scale": "bids_study",
+                        "design_variables": ["condition"],
+                        "measure": "erp",
+                        "alpha": 0.05,
+                    },
+                },
+            ),
+            "eeglab_method_preflight",
+        )
+        _assert_preflight_summary(study_stats, "eeglab_method_preflight study_statistics")
+        study_stats_missing = {
+            item.get("id") for item in study_stats.get("summary", {}).get("critical_missing_requirements", [])
+        }
+        _require(
+            "single_subject_protocol_locked" in study_stats_missing,
+            "STUDY statistics preflight should require protocol lock",
+        )
+
+        override = _structured(
+            await session.call_tool(
+                "eeglab_method_preflight",
+                {
+                    "method": "source",
+                    "context": {
+                        "has_ica": False,
                         "has_channel_locations": False,
                     },
-                ),
-                "eeglab_project_plan",
-            )
-            _require(plan.get("status") == "success", "project plan failed")
-            _require(
-                "blocking_conditions" in plan.get("summary", {}),
-                "project plan missing blocking conditions",
-            )
+                    "override_reason": "Framework verification override; no source claims will be made.",
+                },
+            ),
+            "eeglab_method_preflight",
+        )
+        _assert_preflight_summary(override, "eeglab_method_preflight override")
+        _require(
+            override.get("summary", {}).get("gate_status") == "override_accepted",
+            "override preflight should be accepted when reason is supplied",
+        )
+        _require(
+            override.get("summary", {}).get("override_used") is True,
+            "override_used should be true for accepted override",
+        )
 
-            study_plan = _structured(
-                await session.call_tool(
-                    "eeglab_project_plan",
-                    {
-                        "analysis_type": "study",
-                        "project_scale": "bids_study",
-                    },
-                ),
-                "eeglab_project_plan",
-            )
-            study_gate_profiles = {
-                item.get("method_profile_id") for item in study_plan.get("summary", {}).get("gate_results", [])
-            }
-            _require(
+        blocked = _first_text(
+            await session.call_tool(
+                "eeglab_epoch",
                 {
-                    "bids_metadata",
-                    "bids_import",
-                    "study_create",
-                    "study_design",
-                    "study_statistics",
-                }.issubset(study_gate_profiles),
-                "project plan missing staged BIDS/STUDY gate results",
+                    "event_types": ["boundary"],
+                    "method_context": {"event_roles": ["boundary"]},
+                },
             )
+        )
+        _require(
+            blocked.get("code") == "official_gate_blocked",
+            "high-risk epoch call should be officially gated",
+        )
 
-            audit = _structured(
-                await session.call_tool(
-                    "eeglab_event_semantics_audit",
-                    {
-                        "event_types": ["s1000", "Impedance"],
-                        "event_counts": {"s1000": 18, "Impedance": 2},
-                        "segment_markers": ["s1000"],
-                        "exclude_markers": ["Impedance"],
-                    },
-                ),
-                "eeglab_event_semantics_audit",
+        unconfirmed = _first_text(
+            await session.call_tool(
+                "eeglab_epoch",
+                {"event_types": ["target"]},
             )
-            _require(audit.get("status") == "success", "event semantics audit failed")
-            _require(
-                audit.get("summary", {}).get("confirmed_analysis_events") == [],
-                "segment/impedance markers must not become analysis events",
-            )
-
-            protocol = _structured(
-                await session.call_tool(
-                    "eeglab_protocol_export",
-                    {
-                        "format": "markdown",
-                        "research_goal": "framework verification",
-                        "steps": ["quick_qc"],
-                    },
-                ),
-                "eeglab_protocol_export",
-            )
-            _require(protocol.get("status") == "success", "protocol export failed")
-            _require(
-                "protocol_text" in protocol.get("outputs", {}),
-                "protocol export missing text",
-            )
-
-            protocol_gate = {
-                "method_profile_id": "source",
-                "gate_status": "override_accepted",
-                "source_claim_ids": ["EEGLAB-DIPFIT-001", "EEGLAB-CHANLOC-001"],
-                "missing_requirement_ids": ["has_ica", "head_model_defined"],
-                "override_used": True,
-                "override_reason": "Framework verification override; no source claims will be made.",
-                "blocked_requirements_acknowledged": [
-                    "has_ica",
-                    "head_model_defined",
-                ],
-            }
-            protocol_with_gates = _structured(
-                await session.call_tool(
-                    "eeglab_protocol_export",
-                    {
-                        "format": "markdown",
-                        "research_goal": "framework verification protocol",
-                        "analysis_type": "source",
-                        "steps": ["quick_qc", "source_preflight"],
-                        "gate_results": [protocol_gate],
-                        "report_fields": {
-                            "recording_and_acquisition": ["input_path"],
-                            "outputs_and_limits": ["official_gate_status"],
-                        },
-                        "override_used": True,
-                        "override_reason": "Framework verification override; no source claims will be made.",
-                        "blocked_requirements_acknowledged": [
-                            "has_ica",
-                            "head_model_defined",
-                        ],
-                    },
-                ),
-                "eeglab_protocol_export",
-            )
-            protocol_summary = protocol_with_gates.get("summary", {})
-            _require(
-                protocol_summary.get("source_claim_ids") == ["EEGLAB-DIPFIT-001", "EEGLAB-CHANLOC-001"],
-                "protocol export should derive source_claim_ids from gate_results",
-            )
-            _require(
-                protocol_summary.get("override_status", {}).get("override_used") is True,
-                "protocol export should preserve override_used",
-            )
-            protocol_text = protocol_with_gates.get("outputs", {}).get("protocol_text", "")
-            for term in (
-                "Official Gate Results",
-                "Report Field Matrix Coverage",
-                "Override Status",
-                "EEGLAB-DIPFIT-001",
-                "has_ica",
-            ):
-                _require(term in protocol_text, f"protocol text missing {term}")
-
-            preflight = _structured(
-                await session.call_tool(
-                    "eeglab_method_preflight",
-                    {"method": "epoch", "context": {"event_roles": ["boundary"]}},
-                ),
-                "eeglab_method_preflight",
-            )
-            _require(preflight.get("status") == "success", "method preflight failed")
-            _assert_preflight_summary(preflight, "eeglab_method_preflight")
-            _require(
-                preflight.get("summary", {}).get("gate_status") == "blocked",
-                "boundary epoch preflight should be blocked",
-            )
-
-            acquisition = _structured(
-                await session.call_tool(
-                    "eeglab_method_preflight",
-                    {
-                        "method": "acquisition_metadata",
-                        "context": {
-                            "raw_input_preserved": False,
-                            "derivative_output_planned": False,
-                        },
-                    },
-                ),
-                "eeglab_method_preflight",
-            )
-            _assert_preflight_summary(acquisition, "eeglab_method_preflight acquisition")
-            _require(
-                acquisition.get("summary", {}).get("gate_status") == "blocked",
-                "acquisition metadata preflight should block missing provenance",
-            )
-
-            bids = _structured(
-                await session.call_tool(
-                    "eeglab_method_preflight",
-                    {
-                        "method": "bids_metadata",
-                        "context": {
-                            "bids_path": "sub-01",
-                            "events_tsv_columns": ["onset", "duration", "trial_type"],
-                        },
-                    },
-                ),
-                "eeglab_method_preflight",
-            )
-            _assert_preflight_summary(bids, "eeglab_method_preflight bids")
-            _require(
-                bids.get("summary", {}).get("gate_status") == "blocked",
-                "BIDS metadata preflight should block missing sidecar descriptions",
-            )
-
-            study_stats = _structured(
-                await session.call_tool(
-                    "eeglab_method_preflight",
-                    {
-                        "method": "study_statistics",
-                        "context": {
-                            "project_scale": "bids_study",
-                            "design_variables": ["condition"],
-                            "measure": "erp",
-                            "alpha": 0.05,
-                        },
-                    },
-                ),
-                "eeglab_method_preflight",
-            )
-            _assert_preflight_summary(study_stats, "eeglab_method_preflight study_statistics")
-            study_stats_missing = {
-                item.get("id") for item in study_stats.get("summary", {}).get("critical_missing_requirements", [])
-            }
-            _require(
-                "single_subject_protocol_locked" in study_stats_missing,
-                "STUDY statistics preflight should require protocol lock",
-            )
-
-            override = _structured(
-                await session.call_tool(
-                    "eeglab_method_preflight",
-                    {
-                        "method": "source",
-                        "context": {
-                            "has_ica": False,
-                            "has_channel_locations": False,
-                        },
-                        "override_reason": "Framework verification override; no source claims will be made.",
-                    },
-                ),
-                "eeglab_method_preflight",
-            )
-            _assert_preflight_summary(override, "eeglab_method_preflight override")
-            _require(
-                override.get("summary", {}).get("gate_status") == "override_accepted",
-                "override preflight should be accepted when reason is supplied",
-            )
-            _require(
-                override.get("summary", {}).get("override_used") is True,
-                "override_used should be true for accepted override",
-            )
-
-            blocked = _first_text(
-                await session.call_tool(
-                    "eeglab_epoch",
-                    {
-                        "event_types": ["boundary"],
-                        "method_context": {"event_roles": ["boundary"]},
-                    },
-                )
-            )
-            _require(
-                blocked.get("code") == "official_gate_blocked",
-                "high-risk epoch call should be officially gated",
-            )
-
-            unconfirmed = _first_text(
-                await session.call_tool(
-                    "eeglab_epoch",
-                    {"event_types": ["target"]},
-                )
-            )
-            _require(
-                unconfirmed.get("code") == "official_gate_blocked",
-                "event_types alone should not satisfy official event semantics",
-            )
+        )
+        _require(
+            unconfirmed.get("code") == "official_gate_blocked",
+            "event_types alone should not satisfy official event semantics",
+        )
 
 
 def _check_cleanliness() -> None:
@@ -1160,10 +1016,9 @@ def _check_cleanliness() -> None:
 
 
 def main() -> None:
-    skip_mcp = "--skip-mcp" in sys.argv[1:]
-    if skip_mcp:
-        sys.argv = [sys.argv[0], *[arg for arg in sys.argv[1:] if arg != "--skip-mcp"]]
-
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--skip-mcp", action="store_true", help="skip the live MCP handshake check")
+    args = parser.parse_args()
     _parse_python()
     _check_readme_structure()
     _check_configs_and_skill()
@@ -1172,11 +1027,10 @@ def main() -> None:
     _check_static_structure_policy()
     eval_summary = _check_eval_registry_coverage()
     _check_tool_support_matrix()
-    if not skip_mcp:
+    if not args.skip_mcp:
         asyncio.run(_check_mcp())
     _check_cleanliness()
     print("framework_ok=True")
-    print(f"mcp_checks_skipped={str(skip_mcp).lower()}")
     print("eval_contract_ok=True")
     print(f"eval_count={eval_summary['eval_count']}")
     print(f"eval_category_count={eval_summary['eval_category_count']}")

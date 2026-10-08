@@ -8,11 +8,7 @@ $ErrorActionPreference = "Continue"
 
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $ConfigPath = Join-Path $CodexHome "config.toml"
-$SkillRoot = Join-Path $CodexHome "skills\eeglab-analysis"
-$SkillTarget = Join-Path $SkillRoot "SKILL.md"
-$SkillReportScript = Join-Path $SkillRoot "scripts\generate_eeg_report.py"
-$SkillReportTemplate = Join-Path $SkillRoot "scripts\report_template.json"
-$SkillDocsRoot = Join-Path $SkillRoot "docs"
+$SkillTarget = Join-Path $CodexHome "skills\eeglab-analysis\SKILL.md"
 $ServerPath = Join-Path $RepoRoot "eeglab_mcp_server\server.py"
 
 $results = [ordered]@{}
@@ -37,17 +33,9 @@ if (Test-Path -LiteralPath $ConfigPath) {
     $configText = Get-Content -Raw -LiteralPath $ConfigPath
 }
 Add-Check "codex_config_exists" (Test-Path -LiteralPath $ConfigPath) "Run scripts\eeglab_agent.ps1 setup."
-Add-Check "eeglab_mcp_registered" ($configText -match '(?m)^\[mcp_servers\.eeglab\]\r?$') "Run scripts\eeglab_agent.ps1 setup."
-Add-Check "matlab_mcp_registered" ($configText -match '(?m)^\[mcp_servers\.matlab\]\r?$') "Optional: register a general matlab MCP if you need custom MATLAB scripts."
-Add-Check "skill_installed" (Test-Path -LiteralPath $SkillTarget) "Run scripts\eeglab_agent.ps1 setup to sync the skill."
-Add-Check "skill_report_script_installed" (Test-Path -LiteralPath $SkillReportScript) "Run scripts\eeglab_agent.ps1 setup to sync bundled skill scripts."
-Add-Check "skill_report_template_installed" (Test-Path -LiteralPath $SkillReportTemplate) "Run scripts\eeglab_agent.ps1 setup to sync bundled report templates."
-$skillDocsCount = 0
-if (Test-Path -LiteralPath $SkillDocsRoot) {
-    $skillDocsCount = @(Get-ChildItem -LiteralPath $SkillDocsRoot -Filter "*.md" -File).Count
-}
-Add-Check "skill_docs_installed" ($skillDocsCount -ge 10) "Run scripts\eeglab_agent.ps1 setup to sync bundled official docs."
-Write-Host "skill_docs_count=$skillDocsCount"
+Add-Check "eeglab_mcp_registered" ($configText -match '(?m)^\[mcp_servers\.eeglab\]$') "Run scripts\eeglab_agent.ps1 setup."
+Add-Check "matlab_mcp_registered" ($configText -match '(?m)^\[mcp_servers\.matlab\]$') "Optional: register a general matlab MCP if you need custom MATLAB scripts."
+Add-Check "skill_installed" (Test-Path -LiteralPath $SkillTarget) "Optional: run scripts\eeglab_agent.ps1 setup -InstallSkill if you want the Codex Skill."
 
 try {
     $mcpCheck = @'

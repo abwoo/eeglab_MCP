@@ -1,11 +1,11 @@
-"""EEGLAB MCP Server - 专业脑电分析 MCP 工具服务器
+"""EEGLAB MCP Server: an MCP tool server for EEG analysis
 
-提供稳定 EEGLAB 工具、研究级规划工具和官方门控能力，支持两种 MATLAB 执行模式:
-1. MATLAB Engine for Python (优先模式，需安装 matlab.engine)
-2. MATLAB CLI 命令行 (回退模式，通过 matlab -batch 执行)
+It exposes stable EEGLAB tools, research-grade planning tools and official gating, and runs MATLAB in one of two modes:
+1. MATLAB Engine for Python (preferred; requires matlab.engine)
+2. the MATLAB CLI (fallback; runs through matlab -batch)
 
-CLI 模式通过 .mat 文件在调用间保存/恢复 EEG 变量，解决每次新进程的问题。
-Engine 模式使用 run_in_executor 避免阻塞事件循环。
+CLI mode saves and restores the EEG variable between calls through a .mat file, which solves the fresh-process problem.
+Engine mode uses run_in_executor so the event loop is not blocked.
 """
 
 import asyncio
@@ -61,7 +61,7 @@ except ImportError:  # pragma: no cover - direct script execution support
 
 
 def _missing_required(name: str, arguments: dict[str, Any]) -> list[str]:
-    """检查 MCP input schema 中声明的必填参数。"""
+    """Check the required arguments declared in the MCP input schema."""
     return shared_missing_required(name, arguments)
 
 
@@ -81,17 +81,17 @@ def _validate_tool_contracts(name: str, arguments: dict[str, Any]) -> list[str]:
 
 
 def _normalize_tool_result(name: str, result: list[TextContent]) -> list[TextContent]:
-    """把旧处理器返回的纯文本错误转换为统一 JSON。"""
+    """Turn a plain-text error from a legacy handler into the uniform JSON shape."""
     if len(result) != 1 or result[0].type != "text":
         return result
 
     text = result[0].text.strip()
-    error_prefixes = ("错误:", "不支持的", "未知工具:")
+    error_prefixes = ("error:", "unsupported", "unknown tool:")
     if text.startswith(error_prefixes):
         return _error_response(
             "tool_returned_error",
             text,
-            next_step=f"检查 {name} 的参数和前置处理步骤，然后重试。",
+            next_step=f"check the arguments and prerequisite steps of {name}, then retry.",
         )
     return result
 
@@ -339,13 +339,13 @@ except ImportError:  # pragma: no cover - direct script execution support
 
 
 # ---------------------------------------------------------------------------
-# list_tools - 返回所有工具定义
+# list_tools: return every tool definition
 # ---------------------------------------------------------------------------
 
 
 @server.list_tools()
 async def list_tools() -> list[Tool]:
-    """列出所有可用的 EEGLAB MCP 工具。"""
+    """List every available EEGLAB MCP tool."""
     tools = build_tool_definitions()
     for tool in tools:
         tool.inputSchema = _client_schema(tool.inputSchema)
@@ -415,7 +415,7 @@ async def read_resource(uri: Any) -> list[ReadResourceContents]:
 
 
 # ---------------------------------------------------------------------------
-# call_tool - 分发到处理器
+# call_tool: dispatch to the handler
 # ---------------------------------------------------------------------------
 
 
@@ -461,7 +461,7 @@ def _analysis_window_errors(name: str, arguments: dict[str, Any]) -> list[str]:
 
 @server.call_tool(validate_input=False)
 async def call_tool(name: str, arguments: dict[str, Any]) -> Any:
-    """处理工具调用。"""
+    """Handle a tool call."""
     handlers = TOOL_HANDLERS
     registry_errors = validate_handler_map(handlers)
     if registry_errors:
@@ -476,8 +476,8 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> Any:
     if not handler:
         return _error_response(
             "unknown_tool",
-            f"未知工具: {name}",
-            next_step="调用 tools/list 查看可用的 eeglab_* 工具。当前口径为 39 个 legacy low-level 工具加 9 个 research workflow 工具。",
+            f"unknown tool: {name}",
+            next_step="call tools/list to see the available eeglab_* tools. The current surface is 37 legacy low-level tools plus 8 research workflow tools.",
         )
 
     if arguments is None:
@@ -486,8 +486,8 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> Any:
         payload = {
             "status": "error",
             "code": "invalid_arguments",
-            "error": "工具参数必须是 JSON object。",
-            "next_step": f"重新调用 {name}，并传入对象形式的 arguments。",
+            "error": "tool arguments must be a JSON object.",
+            "next_step": f"call {name} again with arguments as an object.",
         }
         if name in WORKFLOW_TOOL_NAMES:
             return _workflow_error_payload_from_plain(name, payload)
@@ -501,8 +501,8 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> Any:
         payload = {
             "status": "error",
             "code": "missing_required_arguments",
-            "error": f"{name} 缺少必填参数: {', '.join(missing)}",
-            "next_step": "补齐缺失参数后重试。",
+            "error": f"{name} is missing required arguments: {', '.join(missing)}",
+            "next_step": "supply the missing arguments, then retry.",
             "details": {"missing": missing},
         }
         if name in WORKFLOW_TOOL_NAMES:
@@ -514,8 +514,8 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> Any:
         payload = {
             "status": "error",
             "code": "invalid_arguments",
-            "error": f"{name} 参数不符合 schema: {'; '.join(validation_errors)}",
-            "next_step": "按工具 inputSchema 调整参数后重试。",
+            "error": f"{name} arguments do not match the schema: {'; '.join(validation_errors)}",
+            "next_step": "adjust the arguments to match the tool inputSchema, then retry.",
             "details": {"errors": validation_errors},
         }
         if name in WORKFLOW_TOOL_NAMES:
@@ -527,8 +527,8 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> Any:
         payload = {
             "status": "error",
             "code": "invalid_tool_contract",
-            "error": f"{name} 参数组合不合法: {'; '.join(contract_errors)}",
-            "next_step": "按工具说明补齐互相依赖的参数，或移除互斥参数后重试。",
+            "error": f"{name} has an invalid argument combination: {'; '.join(contract_errors)}",
+            "next_step": "supply the dependent arguments the tool documents, or drop the mutually exclusive ones, then retry.",
             "details": {"errors": contract_errors},
         }
         if name in WORKFLOW_TOOL_NAMES:
@@ -540,8 +540,8 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> Any:
         payload = {
             "status": "error",
             "code": "invalid_analysis_window",
-            "error": f"{name} 分析窗口不合法: {'; '.join(window_errors)}",
-            "next_step": "调整 epoch、baseline、time/frequency 窗口后重试。",
+            "error": f"{name} has an invalid analysis window: {'; '.join(window_errors)}",
+            "next_step": "adjust the epoch, baseline, time and frequency windows, then retry.",
             "details": {"errors": window_errors},
         }
         if name in WORKFLOW_TOOL_NAMES:
@@ -564,8 +564,10 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> Any:
                 payload = {
                     "status": "error",
                     "code": "official_gate_blocked",
-                    "error": f"{name} 被官方前置条件门控阻断。",
-                    "next_step": official_gate.get("safe_next_step", "补齐前置条件或提供显式 override_reason。"),
+                    "error": f"{name} is blocked by an official precondition gate.",
+                    "next_step": official_gate.get(
+                        "safe_next_step", "satisfy the preconditions or supply an explicit override_reason."
+                    ),
                     "details": official_gate,
                 }
                 if name in WORKFLOW_TOOL_NAMES:
@@ -580,8 +582,8 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> Any:
         payload = {
             "status": "error",
             "code": "missing_required_argument",
-            "error": f"{name} 缺少必填参数: {missing}",
-            "next_step": "补齐缺失参数后重试。",
+            "error": f"{name} is missing required arguments: {missing}",
+            "next_step": "supply the missing arguments, then retry.",
             "details": {"missing": [missing]},
         }
         if name in WORKFLOW_TOOL_NAMES:
@@ -592,8 +594,8 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> Any:
         payload = {
             "status": "error",
             "code": "tool_execution_error",
-            "error": f"工具执行错误 [{name}]: {str(e)}",
-            "next_step": "检查输入参数、MATLAB/EEGLAB 环境和当前 EEG 工作区状态后重试。",
+            "error": f"tool execution error [{name}]: {str(e)}",
+            "next_step": "check the input arguments, the MATLAB/EEGLAB environment and the current EEG workspace state, then retry.",
         }
         if details:
             payload["details"] = details

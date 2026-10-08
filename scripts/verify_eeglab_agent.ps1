@@ -53,14 +53,14 @@ if not ok:
     }
 
     Write-Host "step=framework"
-    Invoke-Checked python -B .\scripts\verify_framework.py
+    Invoke-Checked python -B (Join-Path $RepoRoot "scripts/verify_framework.py")
 
     Write-Host "step=official_alignment"
-    Invoke-Checked python -B .\scripts\verify_official_alignment.py
+    Invoke-Checked python -B (Join-Path $RepoRoot "scripts/verify_official_alignment.py")
 
     if ($Online) {
         Write-Host "step=official_alignment_online"
-        Invoke-Checked python -B .\scripts\verify_official_alignment.py --online
+        Invoke-Checked python -B (Join-Path $RepoRoot "scripts/verify_official_alignment.py") --online
     }
 
     Write-Host "verify_status=success"

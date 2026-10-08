@@ -1,1 +1,1 @@
-"""EEGLAB MCP Server 包初始化"""
+"""EEGLAB MCP server package initialization."""

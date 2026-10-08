@@ -1,8 +1,6 @@
 # EEGLAB MCP Agent
 
-[中文](README.zh-CN.md)
-
-EEGLAB MCP Agent is a local-first MCP server and research workflow Skill for MATLAB EEGLAB. It lets MCP-capable assistants use structured `eeglab_*` tools while preserving EEG research safeguards: provenance, event semantics, method preflight, official EEGLAB/SCCN alignment, and reproducible reporting.
+EEGLAB MCP Agent is a local-first MCP server for MATLAB EEGLAB. It lets any MCP-capable assistant use structured `eeglab_*` tools while preserving EEG research safeguards: provenance, event semantics, method preflight, official EEGLAB/SCCN alignment, and reproducible reporting.
 
 This project is for EEG signal-processing research workflows. It is not a clinical diagnosis system and must not be used for clinical claims.
 
@@ -19,6 +17,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 doctor
 
 Restart your MCP client, then ask for an EEG or EEGLAB task.
 
+`setup` registers the MCP server only. Add `-InstallSkill` if you also want the optional Codex Skill (see [Optional Skill](#optional-skill)).
+
 Prerequisites:
 
 - Python 3.10+
@@ -28,7 +28,7 @@ Prerequisites:
 
 ## Minimal MCP Config
 
-Register the server as `eeglab`. The Skill, prompts, resources, and workflow docs assume that name.
+Register the server as `eeglab`. The prompts, resources, and workflow docs assume that name.
 
 ```json
 {
@@ -58,34 +58,6 @@ For a new recording, start read-only:
 
 Do not start with ICA, source localization, one-click pipelines, or destructive preprocessing. Run planning and method preflight first.
 
-For research-grade EEG work, use this order:
-
-1. Load the `eeglab-analysis` Skill.
-2. Read `docs/` first, then `skills/eeglab-analysis/references/`.
-3. Plan with `eeglab_project_plan` or `eeglab_workflow_recommend`.
-4. Follow the canonical branch matrix for preprocessing, figures, and outputs.
-5. Export the protocol and final report.
-
-## Session Order
-
-Start with [EEGLAB Session Order](docs/homepage-session-order.md), then use the full [Canonical Session Checklist](docs/canonical-session-checklist.md).
-
-## Canonical Session Order
-
-1. Load the `eeglab-analysis` Skill.
-2. Read `docs/` first, then `skills/eeglab-analysis/references/`.
-3. Plan with `eeglab_project_plan` or `eeglab_workflow_recommend`.
-4. Run the read-only intake sequence.
-5. Audit event semantics before any event-locked branch.
-6. Run `eeglab_plugin_check` when plugins are needed.
-7. Run `eeglab_method_preflight` before every high-risk step.
-8. Follow the branch matrix exactly.
-9. Save only derivative outputs.
-10. Export the protocol.
-11. Generate the final report.
-
-Use real loaded EEG data and real project metadata only. Do not fabricate provenance, figures, outputs, or gate results.
-
 ## Common Commands
 
 | Task | Command |
@@ -100,39 +72,26 @@ Use real loaded EEG data and real project metadata only. Do not fabricate proven
 
 The dispatcher forwards to dedicated setup, verify, doctor, and uninstall scripts. Automation may call those lower-level scripts directly, but new users should start with `eeglab_agent.ps1`.
 
-## Official Coverage And Figure Index
-
-The project indexes official EEGLAB/SCCN topics broadly, but support levels stay conservative: `executable`, `gated_guidance`, `indexed_only`, or `out_of_scope`. Unsupported official plugins and advanced methods are listed for discovery and planning only; they are not execution promises.
-
-Default browsable figure coverage is provided through `scripts/advanced_figures/` and the `eeglab://scripts/advanced_figures/README.md` resource, including ERP, ERP-image, resting, spectral, time-frequency, ICA, connectivity, source, and STUDY figure families.
-
 ## What You Get
 
-- 48 exposed MCP tools: 39 low-level EEGLAB tool wrappers plus 9 research workflow tools.
-- 10 MCP prompts and 30 read-only MCP resources for clients that support guidance surfaces, including the canonical figure atlas, the official plugin family catalog, and the default advanced figure gallery index.
-- 50 official alignment claims and 39 method profiles mapped to EEGLAB/SCCN and related standards.
+- 45 exposed MCP tools: 37 low-level EEGLAB tool wrappers plus 8 research workflow tools.
+- 10 MCP prompts and 26 read-only MCP resources for clients that support guidance surfaces.
+- 1 versioned machine-readable alignment document at `eeglab://official/claims.json`, generated from the constants the gate enforces, so an external hub can cite claim ids without scraping the Skill markdown.
+- 47 official alignment claims and 39 method profiles mapped to EEGLAB/SCCN and related standards.
 - 56 machine-checkable workflow evals covering gates, reports, plugin gaps, and failure recovery.
 - A local-first runtime: EEG data stays on the user's machine.
 
-## Client And Skill Usage
+## Client Usage
 
-Any stdio MCP client can use the server. Codex, Claude Desktop, VS Code MCP integrations, Cursor, and other MCP-capable IDEs can all register it as `eeglab`.
+Any stdio MCP client can use the server. Codex, Claude Desktop, VS Code MCP integrations, Cursor, and other MCP-capable IDEs can all register it as `eeglab`. No Skill is required: the server carries its own guidance as MCP prompts and resources, for example:
 
-Skill-aware clients should install the `eeglab-analysis` Skill. MCP-only clients can read the same policy through MCP resources:
-
-- `eeglab://skill/SKILL.md`
 - `eeglab://references/workflows.md`
-- `eeglab://references/canonical-session-checklist.md`
-- `eeglab://references/branch-workflow-matrix.md`
-- `eeglab://references/figure-atlas.md`
-- `eeglab://official/figure-atlas.md`
-- `eeglab://official/plugin-family-catalog.md`
 - `eeglab://references/tools.md`
 - `eeglab://references/method-gates.md`
 - `eeglab://official/gate-policy.md`
-- `eeglab://scripts/advanced_figures/README.md`
+- `eeglab://skill/SKILL.md`
 
-The installed `eeglab-analysis` Skill bundle also mirrors `docs/figure-atlas.md` and the plugin-family catalog so figure-family rules stay aligned in both the repository and the bundled skill copy.
+For agent hubs and other external consumers, `eeglab://official/claims.json` is the machine-readable entry point. It carries the 47 alignment claims, the 39 method profiles with their requirements, and the tool-to-profile routing, with a `document_version` field. It is generated from the same constants `eeglab_method_preflight` enforces, so a cited claim id always matches the gate. It is research alignment metadata, not a clinical instrument, and confers no clinical use.
 
 If you also use a general MATLAB MCP, keep names separate:
 
@@ -142,17 +101,6 @@ matlab = generic MATLAB scripts and custom calculations
 ```
 
 Treat the two servers as isolated MATLAB sessions and pass data through explicit files such as `.set/.fdt`, `.mat`, `.csv`, `.png`, Markdown, or JSON reports.
-
-## Codex Plugin Wrapper
-
-This repository can also be exposed to Codex as a local plugin wrapper named `eeglab-analysis`.
-The wrapper points back to this checkout, so updates stay local and reproducible.
-
-After making changes that affect the wrapper or Skill bundle, refresh the installed plugin with the personal marketplace flow and open a new Codex thread so the updated Skill and MCP surface are picked up.
-
-```powershell
-codex plugin add eeglab-analysis@personal
-```
 
 ## Research Workflow
 
@@ -174,25 +122,6 @@ Core workflow tools:
 - `eeglab_plugin_check`: local plugin availability and support-level check.
 - `eeglab_protocol_export`: Markdown/JSON protocol reports with gates, claims, overrides, report fields, and limitations.
 - `eeglab_erp_light_workflow`: smoke-tested ERP chain into a derivative output path.
-- `eeglab_generate_report`: generate comprehensive research reports.
-
-## Official EEGLAB Preprocessing Order
-
-Based on official EEGLAB documentation and Makoto's preprocessing pipeline:
-
-### ERP/Task Data
-1. **High-pass filter** (1 Hz for ICA, 0.5 Hz for final analysis)
-2. **ASR/clean_rawdata** (bad channel rejection, artifact subspace reconstruction)
-3. **Re-reference** (average reference, before ICA)
-4. **Run ICA** (picard or runica)
-5. **ICLabel classification** (automated component labeling)
-6. **Flag/Remove components** (threshold: >80% for muscle, eye, heart, line noise)
-
-### Key Points
-- ICA learns a spatial unmixing model specific to the reference used during training
-- Re-referencing after ICA can degrade component interpretability
-- High-pass filtering at 1-2 Hz improves ICA decomposition quality
-- ASR should be run before ICA to remove bad channels and large artifacts
 
 ## Official Alignment And Safety
 
@@ -204,27 +133,6 @@ Event semantics are a hard gate. Boundary, impedance, segment start/end, and exc
 
 Unsupported official plugins or advanced methods are indexed and explained as `indexed_only` or guidance-only. They are not treated as executable support unless a dedicated MCP workflow, method gate, report template, and eval coverage exist.
 
-## Figure And Report Coverage
-
-The repository treats figures as branch-scoped deliverables, not decoration:
-
-- required figure families are branch-mandated
-- conditional figure families require explicit justification
-- guidance-only figure families are indexed in the official topic index and report fields even when no dedicated executor exists
-
-Typical families include ERP waveform, scalp topography, PSD spectra, ERSP/ITC heatmaps, ICA component diagnostics, sensor connectivity matrices, ERP-image/single-trial dynamics, and STUDY group-figure families where supported.
-
-For default browsable figure modules, see `scripts/advanced_figures/` or the MCP resource `eeglab://scripts/advanced_figures/README.md`. They mirror the same official figure atlas and stay visible alongside the canonical MCP workflow.
-
-## Documentation Authority
-
-The repository intentionally has two documentation layers:
-
-- `docs/` is the official-alignment authority layer for support levels, gate policy, plugin mapping, risk classification, tool support, topic coverage, and minimum report fields.
-- `skills/eeglab-analysis/references/` is the agent execution layer that turns the authority rules into concrete workflows, tool routing, event semantics, preprocessing decisions, report templates, and recovery steps.
-
-If `docs/` and `references/` disagree, follow `docs/` and update the affected `references/` file. Changes that affect tools, workflows, setup, report fields, gates, plugin support, or bundled Skill content must also update `README.md`, `README.zh-CN.md`, and `AGENTS.md` before the task is considered complete.
-
 ## Reporting And Reproducibility
 
 Final reports should include:
@@ -233,41 +141,20 @@ Final reports should include:
 - sampling rate, duration, channel count, reference, montage, channel-location coverage, event labels/counts, and history availability
 - filter, line-noise, ASR, rereference, ICA, ICLabel, epoch, baseline, frequency, rejection, and output parameters
 - `gate_results`, `method_profile_id`, `gate_status`, missing requirements, and critical missing requirements
-- branch workflow coverage: branch ID, branch mode, ordered steps, blocked steps, required figures, and required outputs
 - `source_claim_ids`, plugin status, override status, report-field coverage, and limitations
-- required/conditional/guidance-only figure families, figure descriptions, and figure generation notes
-- **所有生成的图片文件路径及简要说明**（如 ERP 波形图、地形图、时频图、PSD 图、ICA 成分图等）
 
 The protocol exporter must not overwrite EEG data files such as `.set`, `.fdt`, `.eeg`, `.vhdr`, `.vmrk`, `.edf`, `.bdf`, or `.cnt`.
-
-## Visualization Tools
-
-The following visualization tools are available for generating publication-quality figures:
-
-| Tool | Description | Output |
-|------|-------------|--------|
-| `eeglab_topoplot` | Scalp topography maps | PNG files for each time point/frequency band |
-| `eeglab_plot_erp` | ERP waveform plots | PNG files for each component/analysis |
-| `eeglab_plot_timefreq` | Time-frequency ERSP/ITC plots | PNG files for each channel/group |
-| `eeglab_plot_components` | ICA component plots (topography + spectrum) | PNG files for each component |
-| `eeglab_plot_psd` | Power spectral density plots | PNG files for each brain region |
-| `eeglab_plot_connectivity` | Connectivity matrix/network plots | PNG files for each frequency band |
-
-Default gallery entry point:
-
-```powershell
-python -m scripts.advanced_figures
-```
 
 ## Repository Map
 
 | Path | Purpose |
 | --- | --- |
 | `eeglab_mcp_server/` | Executable MCP server, tool schemas, handlers, registry, and official alignment map. |
-| `skills/eeglab-analysis/` | Research workflow Skill and agent references. |
-| `docs/` | Official coverage, support, risk, workflow, and report matrices. Also copied to global skill directory for agent access. |
+| `matlab/` | Python-free prototype: five read-only tools as MATLAB functions for the MATLAB MCP Core Server. See `matlab/README.md`. |
+| `skills/eeglab-analysis/` | Optional Codex Skill; its references are also served as MCP resources. |
+| `docs/` | Official coverage, support, risk, workflow, and report matrices. |
 | `configs/` | MCP client templates. |
-| `scripts/` | User dispatcher plus setup, doctor, uninstall, verification helpers, and default advanced figure gallery modules. |
+| `scripts/` | User dispatcher plus setup, doctor, uninstall, and verification helpers. |
 
 ## Development And Verification
 
@@ -293,6 +180,14 @@ python -m mypy --config-file eeglab_mcp_server\pyproject.toml eeglab_mcp_server
 
 The verifier checks tool counts, prompts/resources, handler registry, eval contracts, Skill references, official claim/profile/tool/resource synchronization, method gate behavior, support/plugin/report matrices, and optional live official EEGLAB/SCCN/BIDS URLs.
 
+## Optional Skill
+
+`skills/eeglab-analysis/` is an optional Skill for Codex and other Skill-aware clients. It restates the policy the server already exposes through MCP prompts and resources, so the server works the same without it. Install it with:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 setup -InstallSkill
+```
+
 ## Uninstall
 
 Preview first:
@@ -315,3 +210,9 @@ The uninstall path backs up the Codex config and Skill directory before removing
 - EEGLAB documentation: https://eeglab.org/
 - EEGLAB repository: https://github.com/sccn/eeglab
 - Official topic and support matrices: see `docs/` or the `eeglab://official/...` MCP resources.
+
+## Repository Maintenance
+
+This repository is licensed under Apache-2.0; see [LICENSE](LICENSE). Report vulnerabilities using [SECURITY.md](SECURITY.md). CODEOWNERS routes reviews to the maintainer, Dependabot checks Python dependencies and GitHub Actions weekly, and the Scorecard workflow evaluates repository security on main and on its weekly schedule. Development and portability checks remain in the existing CI workflow.
+
+With PowerShell 7 on Linux or macOS, run `pwsh -NoProfile -File scripts/eeglab_agent.ps1 verify` from the repository root. The verification dispatcher uses native paths when invoking Python; the existing Windows PowerShell command is also supported.

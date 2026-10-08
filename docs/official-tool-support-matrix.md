@@ -20,7 +20,6 @@ This matrix answers whether a specific MCP tool is officially aligned, whether i
 | `eeglab_plugin_check` | `read_only` | official plugin matrix | probes MATLAB path only | plugin availability, support_level, functions checked, next steps |
 | `eeglab_event_semantics_audit` | `read_only` | event/urevent and BIDS events policy | no data mutation | event roles, excluded markers, confirmed triggers, limitations |
 | `eeglab_protocol_export` | `read_only` or file write | report field matrix | may write a protocol artifact | all report-field matrix groups, outputs, limitations |
-| `eeglab_generate_report` | `executable` | report field matrix | writes report artifact | report title, abstract, recording, preprocessing, analysis, figures, results, discussion, limitations, appendix |
 | `eeglab_erp_light_workflow` | `gated_executable` | ERP/epoch and derivative gates | writes derivative ERP dataset | event semantics, filter/epoch/baseline parameters, output paths |
 
 ## Low-Level Tool Families
@@ -36,7 +35,7 @@ This matrix answers whether a specific MCP tool is officially aligned, whether i
 | ASR/clean_rawdata | `eeglab_clean_rawdata` | `gated_executable` | `clean_rawdata` | require continuous data, plugin availability, thresholds, derivative output |
 | ICA/ICLabel | `eeglab_run_ica`, `eeglab_classify_ica`, `eeglab_flag_components`, `eeglab_remove_components`, `eeglab_plot_components` | `gated_executable` | `run_ica`, `iclabel`, `remove_components` | ICLabel is decision support; component removal needs review/rationale |
 | ERP/epoching | `eeglab_epoch`, `eeglab_erp_analysis`, `eeglab_sort_epochs`, `eeglab_average_erp`, `eeglab_plot_erp` | `gated_executable` | `epoch` | confirmed condition triggers only; no boundary/impedance/segment-only epoching |
-| Spectral/time-frequency/connectivity | `eeglab_spectral`, `eeglab_timefreq`, `eeglab_connectivity`, `eeglab_plot_timefreq`, `eeglab_plot_psd`, `eeglab_plot_connectivity` | `gated_executable` | `spectral`, `timefreq`, `connectivity` | report frequency range, baseline/cycles, artifact policy, channel/ROI, interpretation limits |
+| Spectral/time-frequency/connectivity | `eeglab_spectral`, `eeglab_timefreq`, `eeglab_connectivity`, `eeglab_plot_timefreq` | `gated_executable` | `spectral`, `timefreq`, `connectivity` | report frequency range, baseline/cycles, artifact policy, channel/ROI, interpretation limits |
 | Topography | `eeglab_topoplot` | `gated_executable` | `topography` | requires usable channel locations and time/frequency selection |
 | Source/DIPFIT | `eeglab_source_settings`, `eeglab_source_localization` | `gated_executable` | `source` | requires ICA/source model, channel locations, DIPFIT, head model/template |
 | One-click pipeline | `eeglab_pipeline` | `gated_executable` | `pipeline` | use only when defaults are accepted and outputs are derivatives |

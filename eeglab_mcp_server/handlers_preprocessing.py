@@ -29,7 +29,7 @@ except ImportError:  # pragma: no cover - direct script execution support
 
 
 async def _eeglab_filter(args: dict) -> list[TextContent]:
-    """滤波处理。"""
+    """Filter the data."""
     filter_type = args["filter_type"]
     low_cutoff = args.get("low_cutoff")
     high_cutoff = args.get("high_cutoff")
@@ -40,8 +40,8 @@ async def _eeglab_filter(args: dict) -> list[TextContent]:
         if not notch_freq:
             return _error_response(
                 "missing_required_argument",
-                "陷波滤波需要指定 notch_freq 参数",
-                next_step="调用 eeglab_filter 时传入 notch_freq，例如 50 或 60。",
+                "notch filtering requires the notch_freq parameter",
+                next_step="pass notch_freq, for example 50 or 60, when calling eeglab_filter.",
                 details={"missing": ["notch_freq"]},
             )
         freqs = [notch_freq]
@@ -52,12 +52,7 @@ async def _eeglab_filter(args: dict) -> list[TextContent]:
                     freqs.append(hf)
         freqs_str = _arr(freqs)
         filter_code = f"""
-if exist('pop_cleanline', 'file')
-    EEG = pop_cleanline(EEG, 'linefreqs', {freqs_str}, 'bandwidth', 2, 'tau', 100, 'winsize', 4);
-    result.method = 'cleanline';
-else
-    error('CleanLine plugin is not installed. Please install CleanLine from EEGLAB menu: Tools > Manage EEGLAB extensions > CleanLine.');
-end
+EEG = pop_cleanline(EEG, 'linefreqs', {freqs_str}, 'bandwidth', 2, 'tau', 100, 'winsize', 4);
 result.filter_type = 'notch';
 result.notch_freqs = {freqs_str};
 """
@@ -65,20 +60,20 @@ result.notch_freqs = {freqs_str};
         if filter_type == "bandpass" and (low_cutoff is None or high_cutoff is None):
             return _error_response(
                 "missing_required_argument",
-                "带通滤波需要同时指定 low_cutoff 和 high_cutoff",
-                next_step="补齐 low_cutoff 和 high_cutoff 后重试。",
+                "bandpass filtering requires both low_cutoff and high_cutoff",
+                next_step="supply low_cutoff and high_cutoff, then retry.",
             )
         if filter_type == "highpass" and low_cutoff is None:
             return _error_response(
                 "missing_required_argument",
-                "高通滤波需要指定 low_cutoff",
-                next_step="补齐 low_cutoff 后重试。",
+                "highpass filtering requires low_cutoff",
+                next_step="supply low_cutoff, then retry.",
             )
         if filter_type == "lowpass" and high_cutoff is None:
             return _error_response(
                 "missing_required_argument",
-                "低通滤波需要指定 high_cutoff",
-                next_step="补齐 high_cutoff 后重试。",
+                "lowpass filtering requires high_cutoff",
+                next_step="supply high_cutoff, then retry.",
             )
 
         # pop_eegfiltnew in current EEGLAB/firfilt uses locutoff/hicutoff.
@@ -105,7 +100,7 @@ result.trials = EEG.trials;
 
 
 async def _eeglab_resample(args: dict) -> list[TextContent]:
-    """重采样。"""
+    """Resample the data."""
     new_srate = args["new_srate"]
 
     code = f"""
@@ -121,7 +116,7 @@ result.pnts = EEG.pnts;
 
 
 async def _eeglab_reref(args: dict) -> list[TextContent]:
-    """重参考。"""
+    """Re-reference the data."""
     ref_type = args["ref_type"]
     ref_channel = args.get("ref_channel", "")
     ref_channel_lit = matlab_string(ref_channel)
@@ -130,14 +125,14 @@ async def _eeglab_reref(args: dict) -> list[TextContent]:
         reref_code = """
 EEG = pop_reref(EEG, []);
 result.ref_type = 'average';
-result.ref_description = '所有通道平均参考（注意: 会使数据秩减1，ICA时需设pca=nchan-1）';
+result.ref_description = "average reference over all channels (note: this reduces the data rank by 1, so set pca=nchan-1 for ICA)";
 """
     elif ref_type == "channel":
         if not ref_channel:
             return _error_response(
                 "missing_required_argument",
-                "单通道参考需要指定 ref_channel 参数",
-                next_step="调用 eeglab_reref 时传入 ref_channel，例如 Cz。",
+                "single-channel reference requires the ref_channel parameter",
+                next_step="pass ref_channel, for example Cz, when calling eeglab_reref.",
                 details={"missing": ["ref_channel"]},
             )
         reref_code = f"""
@@ -149,13 +144,13 @@ result.ref_channel = {ref_channel_lit};
         reref_code = """
 EEG = pop_reref(EEG, [], 'keepref', 'on');
 result.ref_type = 'rest';
-result.ref_description = 'REST 参考';
+result.ref_description = "REST reference";
 """
     else:
         return _error_response(
             "invalid_arguments",
-            f"不支持的参考类型: {ref_type}",
-            next_step="ref_type 只能是 average、channel 或 rest。",
+            f"unsupported reference type: {ref_type}",
+            next_step="ref_type must be average, channel or rest.",
         )
 
     code = f"""
@@ -169,7 +164,7 @@ result.nbchan = EEG.nbchan;
 
 
 async def _eeglab_select_channels(args: dict) -> list[TextContent]:
-    """选择/排除通道。"""
+    """Select or exclude channels."""
     channels = args.get("channels", [])
     exclude_channels = args.get("exclude_channels", [])
 
@@ -190,8 +185,8 @@ result.excluded_channels = {excl_str};
     else:
         return _error_response(
             "missing_required_argument",
-            "请指定 channels 或 exclude_channels",
-            next_step="传入要保留或排除的通道列表后重试。",
+            "specify channels or exclude_channels",
+            next_step="pass the channel list to keep or to exclude, then retry.",
         )
 
     code = f"""
@@ -206,7 +201,7 @@ result.channel_labels = {{EEG.chanlocs.labels}};
 
 
 async def _eeglab_interpolate_channels(args: dict) -> list[TextContent]:
-    """通道插值。"""
+    """Interpolate channels."""
     ref_chanlocs = args.get("ref_chanlocs", "")
     method = args.get("method", "spherical")
     ref_chanlocs_lit = matlab_string(ref_chanlocs)
@@ -241,7 +236,7 @@ result.nbchan = EEG.nbchan;
 
 
 async def _eeglab_edit_channels(args: dict) -> list[TextContent]:
-    """编辑通道信息。"""
+    """Edit channel information."""
     action = args["action"]
 
     if action == "load_loc":
@@ -249,8 +244,8 @@ async def _eeglab_edit_channels(args: dict) -> list[TextContent]:
         if not loc_file:
             return _error_response(
                 "missing_required_argument",
-                "load_loc 操作需要指定 loc_file 参数",
-                next_step="传入 .loc/.ced 通道位置文件路径后重试。",
+                "the load_loc action requires the loc_file parameter",
+                next_step="pass the path of a .loc/.ced channel location file, then retry.",
                 details={"missing": ["loc_file"]},
             )
         loc_file_lit = matlab_string(loc_file)
@@ -264,8 +259,8 @@ result.loc_file = {loc_file_lit};
         if not rename_map:
             return _error_response(
                 "missing_required_argument",
-                "rename 操作需要指定 rename_map 参数",
-                next_step="传入旧通道名到新通道名的对象映射后重试。",
+                "the rename action requires the rename_map parameter",
+                next_step="pass a mapping of old channel names to new channel names, then retry.",
                 details={"missing": ["rename_map"]},
             )
         rename_cmds = ""
@@ -283,8 +278,8 @@ result.rename_map = struct();
     else:
         return _error_response(
             "invalid_arguments",
-            f"不支持的操作: {action}",
-            next_step="action 只能是 load_loc 或 rename。",
+            f"unsupported action: {action}",
+            next_step="action must be load_loc or rename.",
         )
 
     code = f"""
@@ -298,7 +293,7 @@ result.nbchan = EEG.nbchan;
 
 
 async def _eeglab_clean_line_noise(args: dict) -> list[TextContent]:
-    """专用工频噪声去除。"""
+    """Remove line noise with the dedicated tool."""
     line_freq = args.get("line_freq", 50)
     bandwidth = args.get("bandwidth", 2)
     tau = args.get("tau", 100)
@@ -306,12 +301,7 @@ async def _eeglab_clean_line_noise(args: dict) -> list[TextContent]:
 
     code = f"""
 {_maybe_init()}
-if exist('pop_cleanline', 'file')
-    EEG = pop_cleanline(EEG, 'linefreqs', [{line_freq}], 'bandwidth', {bandwidth}, 'tau', {tau}, 'winsize', {winsize});
-    result.method = 'cleanline';
-else
-    error('CleanLine plugin is not installed. Please install CleanLine from EEGLAB menu: Tools > Manage EEGLAB extensions > CleanLine.');
-end
+EEG = pop_cleanline(EEG, 'linefreqs', [{line_freq}], 'bandwidth', {bandwidth}, 'tau', {tau}, 'winsize', {winsize});
 result.line_freq = {line_freq};
 result.bandwidth = {bandwidth};
 result.tau = {tau};
@@ -325,7 +315,7 @@ result.srate = EEG.srate;
 
 
 async def _eeglab_clean_rawdata(args: dict) -> list[TextContent]:
-    """ASR 伪迹去除。"""
+    """Remove artifacts with ASR."""
     flatline = args.get("flatline_criterion", 5)
     channel_crit = args.get("channel_criterion", 0.8)
     line_noise_crit = args.get("line_noise_criterion", 4)
@@ -334,9 +324,6 @@ async def _eeglab_clean_rawdata(args: dict) -> list[TextContent]:
 
     code = f"""
 {_maybe_init()}
-if ~exist('pop_clean_rawdata', 'file')
-    error('clean_rawdata plugin is not installed. Please install it from EEGLAB menu: Tools > Manage EEGLAB extensions > clean_rawdata.');
-end
 EEG = pop_clean_rawdata(EEG, 'FlatlineCriterion', {flatline}, 'ChannelCriterion', {channel_crit}, 'LineNoiseCriterion', {line_noise_crit}, 'Highpass', [0.25 0.75], 'BurstCriterion', {burst_crit}, 'BurstRejection', 'on', 'WindowCriterion', {window_crit}, 'Distance', 'Euclidian', 'WindowCriterionTolerances', [-Inf 7]);
 result.flatline_criterion = {flatline};
 result.channel_criterion = {channel_crit};

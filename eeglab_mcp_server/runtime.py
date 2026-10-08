@@ -58,7 +58,7 @@ __all__ = [
 
 
 def _eeglab_init_code() -> str:
-    """生成 EEGLAB 初始化代码（仅首次调用时初始化）。"""
+    """Build the EEGLAB initialization code (initialization happens only on the first call)."""
     code = ""
     if cfg.EEGLAB_PATH:
         code += f"addpath(genpath({matlab_string(cfg.EEGLAB_PATH)})); "
@@ -67,7 +67,7 @@ def _eeglab_init_code() -> str:
 
 
 def _maybe_init() -> str:
-    """如果 EEGLAB 尚未初始化，则生成初始化代码。"""
+    """Return the initialization code when EEGLAB has not been initialized yet."""
     if matlab._mode == "cli":
         return _eeglab_init_code()
     if matlab.eeglab_initialized:
@@ -76,7 +76,7 @@ def _maybe_init() -> str:
 
 
 def _json_response(payload: dict[str, Any]) -> list[TextContent]:
-    """返回 MCP text content，内容始终是 JSON。"""
+    """Return MCP text content, always JSON."""
     return [TextContent(type="text", text=json.dumps(payload, ensure_ascii=False, indent=2))]
 
 
@@ -87,7 +87,7 @@ def _error_response(
     next_step: str = "",
     details: dict[str, Any] | None = None,
 ) -> list[TextContent]:
-    """生成统一的工具错误响应。"""
+    """Build a uniform tool error response."""
     payload: dict[str, Any] = {
         "status": "error",
         "code": code,

@@ -6,7 +6,11 @@ from pathlib import Path
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 SKILL_DIR = ROOT_DIR / "skills" / "eeglab-analysis"
+GENERATED_DIR = ROOT_DIR / "generated"
 DOCS_DIR = ROOT_DIR / "docs"
+CLAIMS_DOCUMENT_NAME = "eeglab-official-claims"
+CLAIMS_DOCUMENT_VERSION = "1.0.0"
+GENERATED_CLAIMS_JSON = GENERATED_DIR / "eeglab-official-claims.json"
 
 PROMPT_DEFINITIONS: dict[str, dict[str, str]] = {
     "eeglab_project_intake": {
@@ -112,6 +116,12 @@ PROMPT_DEFINITIONS: dict[str, dict[str, str]] = {
 }
 
 RESOURCE_FILES: dict[str, tuple[str, Path, str]] = {
+    "eeglab://official/claims.json": (
+        "EEGLAB Official Claims And Method Profiles",
+        GENERATED_CLAIMS_JSON,
+        "Versioned machine-readable alignment claims, method profiles and tool routing. Generated from the same "
+        "constants the gate enforces, so an external hub can cite claim ids without scraping the Skill markdown.",
+    ),
     "eeglab://skill/SKILL.md": (
         "EEGLAB Analysis Skill",
         SKILL_DIR / "SKILL.md",
@@ -121,16 +131,6 @@ RESOURCE_FILES: dict[str, tuple[str, Path, str]] = {
         "EEGLAB Workflow Reference",
         SKILL_DIR / "references" / "workflows.md",
         "Workflow recipes for inspection, preprocessing, ERP, time-frequency, ICA, STUDY, and source workflows.",
-    ),
-    "eeglab://references/branch-workflow-matrix.md": (
-        "EEGLAB Branch Workflow Matrix",
-        SKILL_DIR / "references" / "branch-workflow-matrix.md",
-        "Canonical branch workflow matrix defining required, conditional, and forbidden steps for ERP, resting-state, time-frequency, source, and STUDY analysis.",
-    ),
-    "eeglab://references/figure-atlas.md": (
-        "EEGLAB Figure Atlas",
-        SKILL_DIR / "references" / "figure-atlas.md",
-        "Canonical required, conditional, and guidance-only figure families for each analysis branch.",
     ),
     "eeglab://references/tools.md": (
         "EEGLAB Tool Reference",
@@ -237,11 +237,6 @@ RESOURCE_FILES: dict[str, tuple[str, Path, str]] = {
         DOCS_DIR / "official-plugin-map.md",
         "Plugin support matrix with support levels, function probes, claim IDs, dependent profiles, and next steps.",
     ),
-    "eeglab://official/plugin-family-catalog.md": (
-        "EEGLAB Official Plugin Family Catalog",
-        DOCS_DIR / "official-plugin-family-catalog.md",
-        "Discovery-only catalog for the broader official EEGLAB plugin families surfaced on the plugins page.",
-    ),
     "eeglab://official/risk-matrix.md": (
         "EEGLAB Official Risk Matrix",
         DOCS_DIR / "official-risk-matrix.md",
@@ -250,16 +245,6 @@ RESOURCE_FILES: dict[str, tuple[str, Path, str]] = {
     "eeglab://official/report-field-matrix.md": (
         "EEGLAB Official Report Field Matrix",
         DOCS_DIR / "official-report-field-matrix.md",
-        "Minimum reproducible report fields for recording, events, preprocessing, analysis, figure atlas, outputs, gates, and limitations.",
-    ),
-    "eeglab://official/figure-atlas.md": (
-        "EEGLAB Official Figure Atlas",
-        DOCS_DIR / "figure-atlas.md",
-        "Canonical static figure families, metadata, and interpretation scope by analysis branch.",
-    ),
-    "eeglab://scripts/advanced_figures/README.md": (
-        "EEGLAB Advanced Figure Gallery",
-        ROOT_DIR / "scripts" / "advanced_figures" / "README.md",
-        "Default browsable companion to the official figure atlas, with module-level Markdown and Python gallery entry points.",
+        "Minimum reproducible report fields for recording, events, preprocessing, analysis, outputs, gates, and limitations.",
     ),
 }

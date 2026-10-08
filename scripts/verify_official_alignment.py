@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 import urllib.request
 from pathlib import Path
@@ -10,7 +11,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from eeglab_mcp_server.official_alignment import (  # noqa: E402
+from eeglab_mcp_server.mcp_surfaces import RESOURCE_FILES
+from eeglab_mcp_server.official_alignment import (
+    CLAIMS_DOCUMENT_VERSION,
     HIGH_RISK_TOOL_NAMES,
     METHOD_PROFILES,
     OFFICIAL_CLAIMS,
@@ -18,12 +21,12 @@ from eeglab_mcp_server.official_alignment import (  # noqa: E402
     OFFICIAL_SOURCE_SNAPSHOT,
     OFFICIAL_TOPIC_INDEX,
     REPORT_FIELD_MATRIX,
+    build_official_claims_document,
     evaluate_method_preflight,
 )
-from eeglab_mcp_server.mcp_surfaces import RESOURCE_FILES  # noqa: E402
-from eeglab_mcp_server.schemas import workflow_tools  # noqa: E402
-from eeglab_mcp_server.tool_definitions import build_tool_definitions  # noqa: E402
-from eeglab_mcp_server.tool_registry import (  # noqa: E402
+from eeglab_mcp_server.schemas import workflow_tools
+from eeglab_mcp_server.tool_definitions import build_tool_definitions
+from eeglab_mcp_server.tool_registry import (
     TOOL_REGISTRY,
     validate_registry,
 )
@@ -113,7 +116,7 @@ def check_official_matrices() -> None:
         _require(mirror.get("commit"), f"{mirror_id} missing commit")
         _require(mirror.get("url"), f"{mirror_id} missing url")
 
-    _require(len(OFFICIAL_TOPIC_INDEX) >= 18, "official topic index too small")
+    _require(len(OFFICIAL_TOPIC_INDEX) >= 15, "official topic index too small")
     for topic_id, topic in OFFICIAL_TOPIC_INDEX.items():
         _require(topic.get("title"), f"{topic_id} missing title")
         support_level = topic.get("support_level")
@@ -169,17 +172,11 @@ def check_official_matrices() -> None:
                 f"{plugin_name} references unknown profile {profile_id}",
             )
 
-    _require(
-        "eeglab://official/plugin-family-catalog.md" in RESOURCE_FILES,
-        "official plugin family catalog resource missing",
-    )
-
     required_report_groups = {
         "recording_and_acquisition",
         "events_and_design",
         "preprocessing_parameters",
         "analysis_parameters",
-        "visualization_and_figures",
         "outputs_and_limits",
     }
     _require(
@@ -189,18 +186,6 @@ def check_official_matrices() -> None:
     for group, fields in REPORT_FIELD_MATRIX.items():
         _require(fields, f"report field matrix group empty: {group}")
 
-    figure_atlas = _read("docs/figure-atlas.md")
-    skill_figure_atlas = _read("skills/eeglab-analysis/docs/figure-atlas.md")
-    for term in (
-        "ERP image heatmap",
-        "ERSP / ITC heatmap",
-        "band-power topomaps",
-        "source / dipole review",
-        "grand-average ERP",
-    ):
-        _require(term.lower() in figure_atlas.lower(), f"figure atlas missing term: {term}")
-        _require(term.lower() in skill_figure_atlas.lower(), f"skill figure atlas missing term: {term}")
-
 
 def check_docs_and_skill() -> None:
     combined = "\n".join(
@@ -209,15 +194,12 @@ def check_docs_and_skill() -> None:
             _read("docs/official-topic-index.md"),
             _read("docs/official-support-matrix.md"),
             _read("docs/official-tool-support-matrix.md"),
-            _read("docs/official-plugin-family-catalog.md"),
             _read("docs/official-method-map.md"),
             _read("docs/official-gate-policy.md"),
             _read("docs/official-plugin-map.md"),
             _read("docs/official-risk-matrix.md"),
             _read("docs/official-report-field-matrix.md"),
             _read("skills/eeglab-analysis/SKILL.md"),
-            _read("skills/eeglab-analysis/docs/figure-atlas.md"),
-            _read("skills/eeglab-analysis/docs/official-report-field-matrix.md"),
             _read("skills/eeglab-analysis/references/official-gates.md"),
             _read("skills/eeglab-analysis/references/official-method-map.md"),
             _read("skills/eeglab-analysis/references/gate-policy.md"),
@@ -226,9 +208,8 @@ def check_docs_and_skill() -> None:
             _read("skills/eeglab-analysis/references/ica-iclabel-policy.md"),
             _read("skills/eeglab-analysis/references/bids-study-policy.md"),
             _read("skills/eeglab-analysis/references/source-policy.md"),
-        _read("skills/eeglab-analysis/references/report-protocol-templates.md"),
-        _read("skills/eeglab-analysis/references/branch-workflow-matrix.md"),
-        _read("skills/eeglab-analysis/references/tools.md"),
+            _read("skills/eeglab-analysis/references/report-protocol-templates.md"),
+            _read("skills/eeglab-analysis/references/tools.md"),
             _read("skills/eeglab-analysis/references/workflows.md"),
             _read("eeglab_mcp_server/evals.xml"),
         ]
@@ -251,10 +232,7 @@ def check_docs_and_skill() -> None:
         "gated_guidance",
         "topic index",
         "plugin matrix",
-        "plugin family catalog",
         "report field matrix",
-        "branch workflow matrix",
-        "branch-workflow-matrix.md",
         "tool support matrix",
         "eeglab://official/tool-support-matrix.md",
         "HED",
@@ -282,9 +260,6 @@ def check_docs_and_skill() -> None:
         "EEGLAB-STUDY-PRECOMP-001",
         "EEGLAB-ICCLUSTER-001",
         "EEGLAB-PLUGIN-DEV-001",
-        "EEGLAB-REVISION-001",
-        "EEGLAB-HARDWARE-001",
-        "EEGLAB-TUTORIAL-DATA-001",
         "EEGLAB-RELICA-001",
         "EEGLAB-VIEWPROPS-001",
         "EEGLAB-GETCHANLOCS-001",
@@ -317,7 +292,6 @@ def check_docs_and_skill() -> None:
     protocol_docs = "\n".join(
         [
             _read("skills/eeglab-analysis/references/report-protocol-templates.md"),
-            _read("skills/eeglab-analysis/references/branch-workflow-matrix.md"),
             _read("skills/eeglab-analysis/references/tools.md"),
             _read("skills/eeglab-analysis/references/workflows.md"),
         ]
@@ -327,8 +301,6 @@ def check_docs_and_skill() -> None:
         "gate_results",
         "source_claim_ids",
         "report_fields",
-        "branch_workflow",
-        "branch_completeness",
         "override_used",
         "override_reason",
         "blocked_requirements_acknowledged",
@@ -835,6 +807,44 @@ def check_online_sources() -> None:
             )
 
 
+def check_published_claims_document() -> None:
+    uri = "eeglab://official/claims.json"
+    _require(uri in RESOURCE_FILES, f"{uri} is not registered as a resource")
+    _title, path, _description = RESOURCE_FILES[uri]
+    _require(path.exists(), f"{uri} points at a missing file: {path}")
+
+    published = json.loads(path.read_text(encoding="utf-8"))
+    expected = build_official_claims_document()
+    _require(
+        published == expected,
+        f"{uri} is stale; regenerate it from build_official_claims_document()",
+    )
+    _require(published["claim_count"] == len(OFFICIAL_CLAIMS), "published claim_count does not match OFFICIAL_CLAIMS")
+    _require(
+        published["method_profile_count"] == len(METHOD_PROFILES),
+        "published method_profile_count does not match METHOD_PROFILES",
+    )
+    _require(
+        published["document_version"] == CLAIMS_DOCUMENT_VERSION,
+        "published document_version does not match CLAIMS_DOCUMENT_VERSION",
+    )
+    for claim_id, claim in published["claims"].items():
+        _require(
+            set(claim) == {"id", "title", "url", "applies_to", "requirement", "cited_on"},
+            f"{claim_id} has an unexpected published shape",
+        )
+    for profile_id, profile in published["method_profiles"].items():
+        for claim_id in profile["source_claim_ids"]:
+            _require(
+                claim_id in published["claims"],
+                f"{profile_id} cites unknown published claim {claim_id}",
+            )
+    _require(
+        "not a clinical device" in published["not_for_clinical_use"],
+        "published document must carry the non-clinical-use statement",
+    )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--online", action="store_true", help="Also check official URLs are reachable.")
@@ -845,6 +855,7 @@ def main() -> None:
     check_docs_and_skill()
     check_tool_contract_text()
     check_preflight_behavior()
+    check_published_claims_document()
     if args.online:
         check_online_sources()
 

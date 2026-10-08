@@ -13,7 +13,7 @@ except ImportError:  # pragma: no cover - direct script execution support
 
 
 async def _eeglab_source_localization(args: dict) -> list[TextContent]:
-    """源定位分析（偶极子拟合）。"""
+    """Run source localization (dipole fitting)."""
     component_indices = args.get("component_indices", [])
     head_model = args.get("head_model", "bem")
     template = args.get("template", "mni")
@@ -23,7 +23,7 @@ async def _eeglab_source_localization(args: dict) -> list[TextContent]:
     else:
         comp_str = "1:size(EEG.icaweights,1)"
 
-    # Bug fix: pop_dipfit_settings 需要完整参数
+    # Bug fix: pop_dipfit_settings needs the full argument set
     if head_model == "bem":
         hdmfile = "standard_bem.mat"
     else:
@@ -50,10 +50,7 @@ async def _eeglab_source_localization(args: dict) -> list[TextContent]:
 {_maybe_init()}
 if ~exist('EEG', 'var') || ~isstruct(EEG) || ~isfield(EEG, 'icaweights') || isempty(EEG.icaweights)
     result.status = 'error';
-    result.error = '尚未运行 ICA 分解，请先调用 eeglab_run_ica';
-elseif ~exist('pop_dipfit_settings', 'file')
-    result.status = 'error';
-    result.error = 'DIPFIT plugin is not installed. Please install it from EEGLAB menu: Tools > Manage EEGLAB extensions > DIPFIT.';
+    result.error = "ICA has not been run yet, call eeglab_run_ica first";
 else
     EEG = pop_dipfit_settings(EEG, 'hdmfile', {hdmfile_lit}, 'chanfile', {chanfile_lit}, 'mrifile', {mrifile_lit}, 'coordformat', {coord_lit});
     EEG = pop_multifit(EEG, {comp_str});
@@ -83,7 +80,7 @@ end
 
 
 async def _eeglab_source_settings(args: dict) -> list[TextContent]:
-    """Dipfit 模型设置。"""
+    """Configure the Dipfit model."""
     head_model = args.get("head_model", "bem")
     template = args.get("template", "mni")
     chanfile = args.get("chanfile", "")
@@ -110,18 +107,13 @@ async def _eeglab_source_settings(args: dict) -> list[TextContent]:
 
     code = f"""
 {_maybe_init()}
-if ~exist('pop_dipfit_settings', 'file')
-    result.status = 'error';
-    result.error = 'DIPFIT plugin is not installed. Please install it from EEGLAB menu: Tools > Manage EEGLAB extensions > DIPFIT.';
-else
-    EEG = pop_dipfit_settings(EEG, 'hdmfile', {hdmfile_lit}, 'chanfile', {chanfile_lit}, 'mrifile', {mrifile_lit}, 'coordformat', {coord_lit});
-    result.head_model = {head_model_lit};
-    result.template = {template_lit};
-    result.hdmfile = {hdmfile_lit};
-    result.chanfile = {chanfile_lit};
-    result.mrifile = {mrifile_lit};
-    result.coordformat = {coord_lit};
-end
+EEG = pop_dipfit_settings(EEG, 'hdmfile', {hdmfile_lit}, 'chanfile', {chanfile_lit}, 'mrifile', {mrifile_lit}, 'coordformat', {coord_lit});
+result.head_model = {head_model_lit};
+result.template = {template_lit};
+result.hdmfile = {hdmfile_lit};
+result.chanfile = {chanfile_lit};
+result.mrifile = {mrifile_lit};
+result.coordformat = {coord_lit};
 """
 
     result = await matlab.execute(code)

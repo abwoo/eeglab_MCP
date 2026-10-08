@@ -1,0 +1,2258 @@
+{
+  "document": "eeglab-official-claims",
+  "document_version": "1.0.0",
+  "cited_on": "2026-06-14",
+  "retrieved_on": "2026-06-14",
+  "claim_count": 47,
+  "method_profile_count": 39,
+  "support_level_values": [
+    "executable",
+    "gated_guidance",
+    "indexed_only",
+    "out_of_scope"
+  ],
+  "high_risk_tool_names": [
+    "eeglab_classify_ica",
+    "eeglab_clean_line_noise",
+    "eeglab_clean_rawdata",
+    "eeglab_connectivity",
+    "eeglab_edit_channels",
+    "eeglab_epoch",
+    "eeglab_erp_light_workflow",
+    "eeglab_filter",
+    "eeglab_flag_components",
+    "eeglab_import_bids",
+    "eeglab_interpolate_channels",
+    "eeglab_pipeline",
+    "eeglab_plot_timefreq",
+    "eeglab_reject_epochs",
+    "eeglab_remove_components",
+    "eeglab_reref",
+    "eeglab_resample",
+    "eeglab_run_ica",
+    "eeglab_source_localization",
+    "eeglab_source_settings",
+    "eeglab_spectral",
+    "eeglab_study_create",
+    "eeglab_study_design",
+    "eeglab_study_statistics",
+    "eeglab_timefreq",
+    "eeglab_topoplot"
+  ],
+  "claims": {
+    "EEGLAB-FUNC-001": {
+      "id": "EEGLAB-FUNC-001",
+      "title": "EEGLAB exposes user-facing pop_ functions and lower-level signal-processing functions.",
+      "url": "https://eeglab.org/tutorials/ConceptsGuide/EEGLAB_functions.html",
+      "applies_to": [
+        "all_tools",
+        "tool_descriptions",
+        "protocol"
+      ],
+      "requirement": "Map MCP tools to EEGLAB-style user operations and record underlying function families when possible.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-STRUCT-001": {
+      "id": "EEGLAB-STRUCT-001",
+      "title": "EEG datasets carry event, urevent, channel, history, and metadata structures.",
+      "url": "https://eeglab.org/tutorials/ConceptsGuide/Data_Structures.html",
+      "applies_to": [
+        "qc",
+        "events",
+        "provenance"
+      ],
+      "requirement": "Inspect and report EEG.event, EEG.urevent, channel locations, and EEG.history before scientific interpretation.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-EVENT-001": {
+      "id": "EEGLAB-EVENT-001",
+      "title": "Event semantics must be validated before event-locked analysis.",
+      "url": "https://eeglab.org/tutorials/ConceptsGuide/Data_Structures.html",
+      "applies_to": [
+        "epoch",
+        "erp",
+        "timefreq"
+      ],
+      "requirement": "Only confirmed task-condition triggers should drive epoching; boundary/QC/segment markers are not ERP triggers.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-FILT-001": {
+      "id": "EEGLAB-FILT-001",
+      "title": "Filtering changes the data and must be parameterized and reported.",
+      "url": "https://eeglab.org/tutorials/05_Preprocess/Filtering.html",
+      "applies_to": [
+        "filter",
+        "pipeline"
+      ],
+      "requirement": "Record cutoffs, rationale, and derivative-output strategy for filtering.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-ASR-001": {
+      "id": "EEGLAB-ASR-001",
+      "title": "clean_rawdata provides ASR and bad-channel/bad-segment cleaning.",
+      "url": "https://eeglab.org/plugins/clean_rawdata/",
+      "applies_to": [
+        "clean_rawdata",
+        "pipeline"
+      ],
+      "requirement": "Use clean_rawdata only when the plugin is available and thresholds/data-shape assumptions are recorded.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-ICA-001": {
+      "id": "EEGLAB-ICA-001",
+      "title": "ICA workflows require appropriate data preparation and rank/reference awareness.",
+      "url": "https://eeglab.org/tutorials/06_RejectArtifacts/RunICA.html",
+      "applies_to": [
+        "run_ica",
+        "pipeline"
+      ],
+      "requirement": "Check continuous-data suitability, bad-channel policy, and rank/reference decisions before ICA.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-ICLABEL-001": {
+      "id": "EEGLAB-ICLABEL-001",
+      "title": "ICLabel classifies ICA components after ICA decomposition.",
+      "url": "https://github.com/sccn/ICLabel",
+      "applies_to": [
+        "classify_ica",
+        "flag_components",
+        "remove_components"
+      ],
+      "requirement": "Require ICA weights and ICLabel availability before automated component classification.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-TF-001": {
+      "id": "EEGLAB-TF-001",
+      "title": "Time-frequency decomposition depends on event locking, baseline, cycles, and frequency settings.",
+      "url": "https://eeglab.org/tutorials/08_Plot_data/Time-Frequency_decomposition.html",
+      "applies_to": [
+        "timefreq",
+        "plot_timefreq"
+      ],
+      "requirement": "Report event-locking, baseline, cycles, frequency range, and output limitations for ERSP/ITC.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-DIPFIT-001": {
+      "id": "EEGLAB-DIPFIT-001",
+      "title": "DIPFIT source localization requires channel locations, model assumptions, and source resources.",
+      "url": "https://eeglab.org/plugins/dipfit/",
+      "applies_to": [
+        "source",
+        "source_settings"
+      ],
+      "requirement": "Require ICA/source model, channel locations, DIPFIT resources, and head model/template assumptions.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-BIDS-001": {
+      "id": "EEGLAB-BIDS-001",
+      "title": "EEGLAB supports BIDS import and STUDY workflows for group analysis.",
+      "url": "https://eeglab.org/tutorials/11_Scripting/Analyzing_EEG_BIDS_data_in_EEGLAB.html",
+      "applies_to": [
+        "import_bids",
+        "bids_export",
+        "study"
+      ],
+      "requirement": "Require BIDS/multi-subject structure, sidecar metadata, design variables, and locked single-subject preprocessing before BIDS/STUDY or group-statistics claims.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-BIDSEXPORT-001": {
+      "id": "EEGLAB-BIDSEXPORT-001",
+      "title": "EEG-BIDS export requires complete metadata and derivative provenance.",
+      "url": "https://eeglab.org/plugins/EEG-BIDS/",
+      "applies_to": [
+        "bids_export",
+        "derivatives",
+        "bids_metadata"
+      ],
+      "requirement": "Treat BIDS export as guidance-only unless EEG-BIDS export support, sidecars, channel/electrode metadata, event descriptions, and derivative provenance are complete.",
+      "cited_on": "2026-06-14"
+    },
+    "BIDS-EEG-001": {
+      "id": "BIDS-EEG-001",
+      "title": "BIDS EEG sidecars preserve acquisition, channel, electrode, and coordinate-system metadata.",
+      "url": "https://bids-specification.readthedocs.io/en/stable/modality-specific-files/electroencephalography.html",
+      "applies_to": [
+        "acquisition",
+        "bids_metadata",
+        "provenance"
+      ],
+      "requirement": "Record task, sampling, reference, power-line frequency, recording type, channel status, electrode positions, and coordinate-system metadata when treating data as BIDS-ready.",
+      "cited_on": "2026-06-14"
+    },
+    "BIDS-EVENTS-001": {
+      "id": "BIDS-EVENTS-001",
+      "title": "BIDS events.tsv files use onset/duration timing and events.json sidecars for column meanings.",
+      "url": "https://bids-specification.readthedocs.io/en/stable/modality-agnostic-files/events.html",
+      "applies_to": [
+        "events",
+        "event_semantics",
+        "bids_metadata"
+      ],
+      "requirement": "Require onset and duration columns, and describe trial_type/additional event columns in events.json before inferring task-condition semantics.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-COURSE-001": {
+      "id": "EEGLAB-COURSE-001",
+      "title": "EEGLAB course materials cover advanced BIDS, preprocessing, source/connectivity, ICA clustering, and statistics.",
+      "url": "https://github.com/sccn/EEGLAB_course",
+      "applies_to": [
+        "advanced_project",
+        "skill"
+      ],
+      "requirement": "Use staged project planning and explicit reporting for complex research workflows.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-IMPORT-001": {
+      "id": "EEGLAB-IMPORT-001",
+      "title": "EEGLAB import tutorials cover continuous, epoched, event, channel, and BIDS inputs.",
+      "url": "https://eeglab.org/tutorials/04_Import/Import.html",
+      "applies_to": [
+        "load_data",
+        "import_bids",
+        "provenance"
+      ],
+      "requirement": "Preserve source path, file format, sidecar availability, events, and channel-location assumptions after import.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-IMPORT-PLUGINS-001": {
+      "id": "EEGLAB-IMPORT-PLUGINS-001",
+      "title": "EEGLAB imports non-native EEG formats through plugin- or function-dependent paths.",
+      "url": "https://eeglab.org/tutorials/04_Import/Importing_Continuous_and_Epoched_Data.html",
+      "applies_to": [
+        "import_plugins",
+        "load_data",
+        "provenance"
+      ],
+      "requirement": "Record source format, importer/plugin path, event/channel mapping, and raw-file preservation before treating imported data as analysis-ready.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-EXPORT-001": {
+      "id": "EEGLAB-EXPORT-001",
+      "title": "EEGLAB export workflows are format-dependent and must preserve derivative provenance.",
+      "url": "https://eeglab.org/tutorials/misc/Exporting_Data.html",
+      "applies_to": [
+        "data_export",
+        "derivatives",
+        "provenance"
+      ],
+      "requirement": "Treat non-.set export as guidance-only unless the target format, plugin/function path, metadata completeness, and derivative output are explicit.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-HED-001": {
+      "id": "EEGLAB-HED-001",
+      "title": "HEDTools supports HED event annotation workflows for EEGLAB data.",
+      "url": "https://github.com/sccn/HEDTools",
+      "applies_to": [
+        "hed",
+        "event_semantics",
+        "bids_metadata"
+      ],
+      "requirement": "Use HED as structured event metadata only when tags/schema/version or equivalent event descriptions are recorded.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-HISTORY-001": {
+      "id": "EEGLAB-HISTORY-001",
+      "title": "EEGLAB history can be used to recover GUI operations into reproducible scripts.",
+      "url": "https://eeglab.org/tutorials/11_Scripting/Using_EEGLAB_history.html",
+      "applies_to": [
+        "history_scripting",
+        "provenance",
+        "batch"
+      ],
+      "requirement": "Review EEG.history-derived scripts, parameterize paths/outputs, and record deviations before treating them as batch protocols.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-EVENTSCRIPT-001": {
+      "id": "EEGLAB-EVENTSCRIPT-001",
+      "title": "EEGLAB event-processing scripts can modify event labels, latencies, and selections.",
+      "url": "https://eeglab.org/tutorials/11_Scripting/Event_Processing_command_line.html",
+      "applies_to": [
+        "event_script_modification",
+        "events",
+        "provenance"
+      ],
+      "requirement": "Record event modification rules, latency units, urevent preservation/relinking, and semantic validation before event-script changes support analysis.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-MFF-001": {
+      "id": "EEGLAB-MFF-001",
+      "title": "MFF-matlab-io is an official EEGLAB plugin path for EGI MFF import/export.",
+      "url": "https://eeglab.org/plugins/MFF-matlab-io/",
+      "applies_to": [
+        "import_plugins",
+        "data_export",
+        "mff"
+      ],
+      "requirement": "Treat MFF import/export as plugin-dependent and report event/channel metadata mapping and derivative output status.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-NWB-001": {
+      "id": "EEGLAB-NWB-001",
+      "title": "NWB-io is an official EEGLAB plugin path for NWB import/export guidance.",
+      "url": "https://eeglab.org/plugins/NWB-io/",
+      "applies_to": [
+        "import_plugins",
+        "data_export",
+        "nwb"
+      ],
+      "requirement": "Treat NWB exchange as plugin-dependent guidance unless importer/exporter availability and metadata mapping are explicit.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-BVA-001": {
+      "id": "EEGLAB-BVA-001",
+      "title": "BVA-io is an official EEGLAB plugin path for BrainVision import/export.",
+      "url": "https://eeglab.org/plugins/BVA-io/",
+      "applies_to": [
+        "import_plugins",
+        "data_export",
+        "brainvision"
+      ],
+      "requirement": "Treat BrainVision import/export as plugin-dependent and preserve marker/channel/header provenance.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-CHANLOC-001": {
+      "id": "EEGLAB-CHANLOC-001",
+      "title": "Channel locations are required for topographic and source-level interpretation.",
+      "url": "https://eeglab.org/tutorials/04_Import/Channel_Locations.html",
+      "applies_to": [
+        "channel_locations",
+        "topoplot",
+        "source",
+        "interpolation"
+      ],
+      "requirement": "Check channel-location coverage before topography, interpolation, source localization, or montage-dependent claims.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-REREF-001": {
+      "id": "EEGLAB-REREF-001",
+      "title": "Rereferencing changes the signal and affects rank/reference interpretation.",
+      "url": "https://eeglab.org/tutorials/05_Preprocess/rereferencing.html",
+      "applies_to": [
+        "reref",
+        "ica",
+        "preprocessing"
+      ],
+      "requirement": "Record reference choice and rank/reference implications before rereferencing or ICA interpretation.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-RESAMPLE-001": {
+      "id": "EEGLAB-RESAMPLE-001",
+      "title": "Resampling changes sampling rate and must preserve analysis-relevant frequency content.",
+      "url": "https://eeglab.org/tutorials/05_Preprocess/resampling.html",
+      "applies_to": [
+        "resample",
+        "preprocessing"
+      ],
+      "requirement": "Record target sampling rate and justify it relative to the frequency content needed for analysis.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-LINE-001": {
+      "id": "EEGLAB-LINE-001",
+      "title": "Line-noise handling should be explicit and plugin-dependent when CleanLine/Zapline-style tools are used.",
+      "url": "https://eeglab.org/plugins/cleanline/",
+      "applies_to": [
+        "line_noise",
+        "cleanline",
+        "zapline",
+        "preprocessing"
+      ],
+      "requirement": "Record power-line frequency, method, parameters, and plugin availability for line-noise cleanup.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-REJECT-001": {
+      "id": "EEGLAB-REJECT-001",
+      "title": "Artifact and epoch rejection require explicit thresholds, review policy, and retained-data reporting.",
+      "url": "https://eeglab.org/tutorials/06_RejectArtifacts/",
+      "applies_to": [
+        "reject_epochs",
+        "artifact_rejection",
+        "qc"
+      ],
+      "requirement": "Record rejection criteria and retained/rejected data before interpreting cleaned or epoched results.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-EPOCH-001": {
+      "id": "EEGLAB-EPOCH-001",
+      "title": "Extracting epochs depends on valid event codes, time windows, and baseline assumptions.",
+      "url": "https://eeglab.org/tutorials/07_Extract_epochs/Extracting_Data_Epochs.html",
+      "applies_to": [
+        "epoch",
+        "erp",
+        "timefreq"
+      ],
+      "requirement": "Report event labels, epoch windows, baseline windows, and trial counts after epoch extraction.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-ERP-001": {
+      "id": "EEGLAB-ERP-001",
+      "title": "ERP averaging and plotting require validated epochs, channel/ROI choices, and condition definitions.",
+      "url": "https://eeglab.org/tutorials/08_Plot_data/Data_Averaging.html",
+      "applies_to": [
+        "erp",
+        "plot_erp",
+        "average_erp"
+      ],
+      "requirement": "Report condition definitions, channels/ROIs, time windows, and rejected-trial context for ERP outputs.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-SPECTRAL-001": {
+      "id": "EEGLAB-SPECTRAL-001",
+      "title": "Spectral analyses require explicit channels, frequency ranges, and data-shape assumptions.",
+      "url": "https://eeglab.org/tutorials/08_Plot_data/Plotting_Channel_Spectra_and_Maps.html",
+      "applies_to": [
+        "spectral",
+        "connectivity",
+        "resting"
+      ],
+      "requirement": "Record channel/ROI set, frequency range, data shape, artifact policy, and interpretation limits for spectra/connectivity.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-TOPO-001": {
+      "id": "EEGLAB-TOPO-001",
+      "title": "Topographic maps require channel locations and valid time/frequency selections.",
+      "url": "https://eeglab.org/tutorials/08_Plot_data/Plotting_Channel_Spectra_and_Maps.html",
+      "applies_to": [
+        "topoplot",
+        "visualization"
+      ],
+      "requirement": "Require channel-location coverage before topographic plots or scalp-map interpretation.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-STUDY-001": {
+      "id": "EEGLAB-STUDY-001",
+      "title": "STUDY creation, design, precomputation, visualization, clustering, and statistics are separate group-analysis stages.",
+      "url": "https://eeglab.org/tutorials/10_Group_analysis/",
+      "applies_to": [
+        "study",
+        "study_precompute",
+        "study_visualization",
+        "group_statistics",
+        "ica_clustering"
+      ],
+      "requirement": "Lock single-subject preprocessing, subject/session metadata, design variables, measure type, precomputation state, alpha, and correction before group claims.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-STUDY-PRECOMP-001": {
+      "id": "EEGLAB-STUDY-PRECOMP-001",
+      "title": "STUDY measures must be precomputed before group visualization, clustering, or statistics.",
+      "url": "https://eeglab.org/tutorials/10_Group_analysis/study_data_visualization_tools.html",
+      "applies_to": [
+        "study_precompute",
+        "study_visualization",
+        "study_statistics"
+      ],
+      "requirement": "Require a STUDY design, selected measure family, precomputation parameters, and saved derivatives before claiming group-level measures.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-ICCLUSTER-001": {
+      "id": "EEGLAB-ICCLUSTER-001",
+      "title": "STUDY ICA clustering depends on ICA decompositions, measures, clustering features, and review.",
+      "url": "https://eeglab.org/tutorials/10_Group_analysis/component_clustering_tools.html",
+      "applies_to": [
+        "ica_clustering",
+        "study",
+        "source"
+      ],
+      "requirement": "Treat ICA clustering as guidance-only unless ICA, channel/source assumptions, clustering features, outlier policy, and review criteria are explicit.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-LIMO-001": {
+      "id": "EEGLAB-LIMO-001",
+      "title": "LIMO is an EEGLAB plugin path for GLM/statistical EEG workflows.",
+      "url": "https://eeglab.org/plugins/limo/",
+      "applies_to": [
+        "limo",
+        "statistics",
+        "study"
+      ],
+      "requirement": "Treat LIMO as guidance-only unless plugin availability, design matrix, first/second-level model, and correction policy are explicit.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-SIFT-001": {
+      "id": "EEGLAB-SIFT-001",
+      "title": "SIFT covers source information flow/connectivity workflows with model-fitting and validation requirements.",
+      "url": "https://eeglab.org/plugins/SIFT/",
+      "applies_to": [
+        "sift",
+        "connectivity",
+        "mvar"
+      ],
+      "requirement": "Treat SIFT as guidance-only unless plugin availability, stationarity/model order, validation, and statistics are explicit.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-PLUGIN-001": {
+      "id": "EEGLAB-PLUGIN-001",
+      "title": "EEGLAB plugin workflows must be checked before plugin-dependent claims or execution.",
+      "url": "https://eeglab.org/plugins/",
+      "applies_to": [
+        "plugin_check",
+        "plugin_matrix",
+        "advanced_project"
+      ],
+      "requirement": "Probe plugin/function availability and report support level before plugin-dependent workflows.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-PLUGIN-DEV-001": {
+      "id": "EEGLAB-PLUGIN-DEV-001",
+      "title": "EEGLAB plugin tutorials explain how to write functions, GUIs, and eegplugin_ extensions.",
+      "url": "https://eeglab.org/tutorials/contribute/design_plugin.html",
+      "applies_to": [
+        "plugin_development",
+        "advanced_project",
+        "skill"
+      ],
+      "requirement": "Use the plugin tutorial and extension pages to scope new EEGLAB extensions, but do not treat them as executable analysis workflows.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-RELICA-001": {
+      "id": "EEGLAB-RELICA-001",
+      "title": "RELICA estimates the reliability of ICA decompositions and can optionally run on NSG.",
+      "url": "https://eeglab.org/plugins/relica/",
+      "applies_to": [
+        "relica",
+        "ica",
+        "advanced_project"
+      ],
+      "requirement": "Treat RELICA as an ICA-reliability planning workflow that depends on an existing ICA decomposition and bootstrap settings.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-VIEWPROPS-001": {
+      "id": "EEGLAB-VIEWPROPS-001",
+      "title": "Viewprops extends pop_prop for component and channel inspection with ICLabel-aware display.",
+      "url": "https://eeglab.org/plugins/viewprops/",
+      "applies_to": [
+        "viewprops",
+        "ica",
+        "iclabel"
+      ],
+      "requirement": "Use Viewprops as a review and visualization aid after ICA, not as a substitute for ICA or component review.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-GETCHANLOCS-001": {
+      "id": "EEGLAB-GETCHANLOCS-001",
+      "title": "get_chanlocs digitizes 3-D head images into EEG.chanlocs for plotting and source localization.",
+      "url": "https://eeglab.org/plugins/get_chanlocs/",
+      "applies_to": [
+        "get_chanlocs",
+        "channel_locations",
+        "source"
+      ],
+      "requirement": "Use get_chanlocs when 3-D head images and fiducials exist and the goal is to populate or repair channel locations.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-ROICONNECT-001": {
+      "id": "EEGLAB-ROICONNECT-001",
+      "title": "ROIconnect performs source-level ROI connectivity analysis with atlas-defined regions.",
+      "url": "https://eeglab.org/plugins/roiconnect/",
+      "applies_to": [
+        "roiconnect",
+        "connectivity",
+        "source"
+      ],
+      "requirement": "Use ROIconnect only when a source model, ROI atlas, and connectivity metric are defined.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-EEGSTATS-001": {
+      "id": "EEGLAB-EEGSTATS-001",
+      "title": "EEGstats computes band power, alpha peak frequency, and alpha asymmetry for EEGLAB datasets and STUDYs.",
+      "url": "https://eeglab.org/plugins/eegstats/",
+      "applies_to": [
+        "eegstats",
+        "spectral",
+        "study"
+      ],
+      "requirement": "Use EEGstats when frequency-band definitions, channel selections, and dataset or STUDY scope are recorded.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-AMICA-001": {
+      "id": "EEGLAB-AMICA-001",
+      "title": "AMICA is an advanced ICA plugin path with separate installation and reporting requirements.",
+      "url": "https://eeglab.org/plugins/amica/",
+      "applies_to": [
+        "amica",
+        "run_ica",
+        "advanced_project"
+      ],
+      "requirement": "Treat AMICA as indexed guidance unless plugin availability, algorithm choice, rank/PCA settings, compute strategy, and reproducible output paths are explicit.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-NSG-001": {
+      "id": "EEGLAB-NSG-001",
+      "title": "NSGportal enables remote/HPC EEGLAB workflows outside local-first execution.",
+      "url": "https://eeglab.org/plugins/nsgportal/",
+      "applies_to": [
+        "nsgportal",
+        "remote_compute",
+        "advanced_project"
+      ],
+      "requirement": "Treat NSG remote execution as out of the local MCP execution surface unless credentials, upload policy, remote job provenance, and a dedicated integration are explicit.",
+      "cited_on": "2026-06-14"
+    },
+    "EEGLAB-PIPELINE-001": {
+      "id": "EEGLAB-PIPELINE-001",
+      "title": "EEGLAB automated pipelines bundle import, cleaning, ICA/ICLabel, epoching, and reporting choices.",
+      "url": "https://eeglab.org/tutorials/11_Scripting/automated_pipeline.html",
+      "applies_to": [
+        "pipeline",
+        "protocol",
+        "batch"
+      ],
+      "requirement": "Use one-click/batch pipelines only after defaults, outputs, events, and plugin prerequisites are accepted and recorded.",
+      "cited_on": "2026-06-14"
+    }
+  },
+  "method_profiles": {
+    "epoch": {
+      "aliases": [
+        "erp",
+        "epoch",
+        "eeglab_epoch",
+        "eeglab_erp_light_workflow"
+      ],
+      "tool_names": [
+        "eeglab_epoch",
+        "eeglab_erp_light_workflow"
+      ],
+      "source_claim_ids": [
+        "EEGLAB-EVENT-001",
+        "EEGLAB-STRUCT-001"
+      ],
+      "requirements": [
+        {
+          "id": "confirmed_condition_events",
+          "severity": "critical",
+          "check": "confirmed_condition_events",
+          "text": "Confirmed task-condition/trigger events are required for epoching."
+        },
+        {
+          "id": "no_boundary_epoching",
+          "severity": "critical",
+          "check": "no_only_nonanalysis_events",
+          "text": "Boundary, impedance, excluded, or segment-only markers must not be used as ERP triggers."
+        },
+        {
+          "id": "epoch_windows_recorded",
+          "severity": "advisory",
+          "check": "epoch_windows_recorded",
+          "text": "Epoch and baseline windows should be recorded."
+        }
+      ],
+      "not_recommended": [
+        "Do not epoch around boundary, impedance, excluded, or segment-only markers."
+      ]
+    },
+    "timefreq": {
+      "aliases": [
+        "timefreq",
+        "ersp",
+        "itc",
+        "eeglab_timefreq",
+        "eeglab_plot_timefreq"
+      ],
+      "tool_names": [
+        "eeglab_timefreq",
+        "eeglab_plot_timefreq"
+      ],
+      "source_claim_ids": [
+        "EEGLAB-TF-001",
+        "EEGLAB-EVENT-001",
+        "EEGLAB-EPOCH-001"
+      ],
+      "requirements": [
+        {
+          "id": "confirmed_condition_events",
+          "severity": "critical",
+          "check": "confirmed_condition_events",
+          "text": "ERSP/ITC needs confirmed event locking or a justified continuous-data design."
+        },
+        {
+          "id": "baseline_recorded",
+          "severity": "critical",
+          "check": "baseline_recorded",
+          "text": "Baseline settings must be specified and recorded."
+        },
+        {
+          "id": "frequency_settings_recorded",
+          "severity": "advisory",
+          "check": "frequency_settings_recorded",
+          "text": "Frequency range and cycles/wavelet settings should be recorded."
+        }
+      ],
+      "not_recommended": [
+        "Do not report ERSP/ITC effects without event/baseline/frequency settings."
+      ]
+    },
+    "clean_rawdata": {
+      "aliases": [
+        "clean_rawdata",
+        "asr",
+        "eeglab_clean_rawdata"
+      ],
+      "tool_names": [
+        "eeglab_clean_rawdata"
+      ],
+      "source_claim_ids": [
+        "EEGLAB-ASR-001"
+      ],
+      "requirements": [
+        {
+          "id": "continuous_data",
+          "severity": "critical",
+          "check": "continuous_data",
+          "text": "clean_rawdata/ASR should operate on continuous data unless a justified exception is recorded."
+        },
+        {
+          "id": "plugin_clean_rawdata_available",
+          "severity": "critical",
+          "check": "plugin_clean_rawdata_available",
+          "text": "clean_rawdata plugin/function must be available."
+        },
+        {
+          "id": "thresholds_recorded",
+          "severity": "critical",
+          "check": "thresholds_recorded",
+          "text": "ASR/bad-channel thresholds must be recorded."
+        },
+        {
+          "id": "derivative_output_planned",
+          "severity": "critical",
+          "check": "derivative_output_planned",
+          "text": "Cleaned output must be treated as a derivative, not a raw overwrite."
+        }
+      ],
+      "not_recommended": [
+        "Do not apply ASR to epoched-only data without explicit override and rationale."
+      ]
+    },
+    "run_ica": {
+      "aliases": [
+        "ica",
+        "run_ica",
+        "eeglab_run_ica"
+      ],
+      "tool_names": [
+        "eeglab_run_ica"
+      ],
+      "source_claim_ids": [
+        "EEGLAB-ICA-001"
+      ],
+      "requirements": [
+        {
+          "id": "continuous_data",
+          "severity": "critical",
+          "check": "continuous_data",
+          "text": "ICA normally requires suitable continuous data or a justified design."
+        },
+        {
+          "id": "rank_reference_reviewed",
+          "severity": "critical",
+          "check": "rank_reference_reviewed",
+          "text": "Rank/reference decisions must be reviewed before ICA."
+        },
+        {
+          "id": "bad_channel_policy_defined",
+          "severity": "critical",
+          "check": "bad_channel_policy_defined",
+          "text": "Bad-channel handling policy must be defined before ICA."
+        }
+      ],
+      "not_recommended": [
+        "Do not run ICA casually on epoched-only data or after unresolved rank/reference changes."
+      ]
+    },
+    "iclabel": {
+      "aliases": [
+        "iclabel",
+        "classify_ica",
+        "flag_components",
+        "eeglab_classify_ica",
+        "eeglab_flag_components"
+      ],
+      "tool_names": [
+        "eeglab_classify_ica",
+        "eeglab_flag_components"
+      ],
+      "source_claim_ids": [
+        "EEGLAB-ICLABEL-001"
+      ],
+      "requirements": [
+        {
+          "id": "has_ica",
+          "severity": "critical",
+          "check": "has_ica",
+          "text": "ICA weights must exist before ICLabel classification."
+        },
+        {
+          "id": "plugin_iclabel_available",
+          "severity": "critical",
+          "check": "plugin_iclabel_available",
+          "text": "ICLabel plugin/function must be available."
+        }
+      ],
+      "not_recommended": [
+        "Do not interpret ICLabel probabilities as automatic removal decisions without review."
+      ]
+    },
+    "remove_components": {
+      "aliases": [
+        "remove_components",
+        "subcomp",
+        "eeglab_remove_components"
+      ],
+      "tool_names": [
+        "eeglab_remove_components"
+      ],
+      "source_claim_ids": [
+        "EEGLAB-ICLABEL-001"
+      ],
+      "requirements": [
+        {
+          "id": "has_ica",
+          "severity": "critical",
+          "check": "has_ica",
+          "text": "ICA weights must exist before component removal."
+        },
+        {
+          "id": "component_reviewed",
+          "severity": "critical",
+          "check": "component_reviewed",
+          "text": "Components must be reviewed or explicit thresholds recorded before removal."
+        },
+        {
+          "id": "derivative_output_planned",
+          "severity": "critical",
+          "check": "derivative_output_planned",
+          "text": "Component-removed output must be saved as a derivative."
+        }
+      ],
+      "not_recommended": [
+        "Do not auto-remove components without threshold/rationale reporting."
+      ]
+    },
+    "source": {
+      "aliases": [
+        "source",
+        "dipfit",
+        "source_localization",
+        "eeglab_source_localization",
+        "eeglab_source_settings"
+      ],
+      "tool_names": [
+        "eeglab_source_localization",
+        "eeglab_source_settings"
+      ],
+      "source_claim_ids": [
+        "EEGLAB-DIPFIT-001",
+        "EEGLAB-CHANLOC-001"
+      ],
+      "requirements": [
+        {
+          "id": "has_ica",
+          "severity": "critical",
+          "check": "has_ica",
+          "text": "ICA/source components or an explicit source model must exist."
+        },
+        {
+          "id": "has_channel_locations",
+          "severity": "critical",
+          "check": "has_channel_locations",
+          "text": "Channel locations must be complete and appropriate."
+        },
+        {
+          "id": "plugin_dipfit_available",
+          "severity": "critical",
+          "check": "plugin_dipfit_available",
+          "text": "DIPFIT resources must be available."
+        },
+        {
+          "id": "head_model_defined",
+          "severity": "critical",
+          "check": "head_model_defined",
+          "text": "Head model/template assumptions must be defined."
+        }
+      ],
+      "not_recommended": [
+        "Do not make anatomical certainty claims from missing montage/model prerequisites."
+      ]
+    },
+    "bids_import": {
+      "aliases": [
+        "bids",
+        "bids_import",
+        "import_bids",
+        "eeglab_import_bids"
+      ],
+      "tool_names": [
+        "eeglab_import_bids"
+      ],
+      "source_claim_ids": [
+        "EEGLAB-BIDS-001",
+        "EEGLAB-IMPORT-001",
+        "BIDS-EEG-001",
+        "BIDS-EVENTS-001"
+      ],
+      "requirements": [
+        {
+          "id": "bids_or_sidecars_available",
+          "severity": "critical",
+          "check": "bids_or_sidecars_available",
+          "text": "BIDS import requires a BIDS root, sidecars, or an explicit BIDS metadata path."
+        },
+        {
+          "id": "plugin_eegbids_available",
+          "severity": "critical",
+          "check": "plugin_eegbids_available",
+          "text": "EEG-BIDS/pop_importbids must be available before BIDS import."
+        },
+        {
+          "id": "bids_events_have_onset_duration",
+          "severity": "advisory",
+          "check": "bids_events_have_onset_duration",
+          "text": "events.tsv onset and duration columns should be confirmed before treating imported events as BIDS-valid."
+        }
+      ],
+      "not_recommended": [
+        "Do not treat a BIDS import as analysis-ready until acquisition, event, and sidecar metadata gates are also reviewed."
+      ]
+    },
+    "study_create": {
+      "aliases": [
+        "study_create",
+        "eeglab_study_create"
+      ],
+      "tool_names": [
+        "eeglab_study_create"
+      ],
+      "source_claim_ids": [
+        "EEGLAB-BIDS-001",
+        "EEGLAB-STUDY-001",
+        "EEGLAB-COURSE-001"
+      ],
+      "requirements": [
+        {
+          "id": "multi_subject_or_bids",
+          "severity": "critical",
+          "check": "multi_subject_or_bids",
+          "text": "STUDY creation requires multi-subject datasets or a BIDS/STUDY project structure."
+        },
+        {
+          "id": "single_subject_protocol_locked",
+          "severity": "advisory",
+          "check": "single_subject_protocol_locked",
+          "text": "Single-subject preprocessing protocol should be locked before treating the STUDY as statistics-ready."
+        }
+      ],
+      "not_recommended": [
+        "Do not treat STUDY creation as approval for group statistics; design and statistics gates remain separate."
+      ]
+    },
+    "study_design": {
+      "aliases": [
+        "study_design",
+        "eeglab_study_design"
+      ],
+      "tool_names": [
+        "eeglab_study_design"
+      ],
+      "source_claim_ids": [
+        "EEGLAB-STUDY-001",
+        "EEGLAB-COURSE-001"
+      ],
+      "requirements": [
+        {
+          "id": "multi_subject_or_bids",
+          "severity": "critical",
+          "check": "multi_subject_or_bids",
+          "text": "STUDY design requires multi-subject or BIDS/STUDY organization."
+        },
+        {
+          "id": "design_variables_defined",
+          "severity": "critical",
+          "check": "design_variables_defined",
+          "text": "Design variables and levels must be defined before creating a STUDY design."
+        },
+        {
+          "id": "single_subject_protocol_locked",
+          "severity": "advisory",
+          "check": "single_subject_protocol_locked",
+          "text": "Single-subject preprocessing protocol should be locked before design-level interpretation."
+        }
+      ],
+      "not_recommended": [
+        "Do not interpret a design until subject/session metadata and preprocessing assumptions are documented."
+      ]
+    },
+    "study_statistics": {
+      "aliases": [
+        "study_statistics",
+        "eeglab_study_statistics"
+      ],
+      "tool_names": [
+        "eeglab_study_statistics"
+      ],
+      "source_claim_ids": [
+        "EEGLAB-STUDY-001",
+        "EEGLAB-COURSE-001"
+      ],
+      "requirements": [
+        {
+          "id": "multi_subject_or_bids",
+          "severity": "critical",
+          "check": "multi_subject_or_bids",
+          "text": "STUDY/group analysis needs multi-subject or BIDS/STUDY organization."
+        },
+        {
+          "id": "single_subject_protocol_locked",
+          "severity": "critical",
+          "check": "single_subject_protocol_locked",
+          "text": "Single-subject preprocessing protocol must be locked before group statistics."
+        },
+        {
+          "id": "design_variables_defined",
+          "severity": "critical",
+          "check": "design_variables_defined",
+          "text": "Design variables and levels must be defined."
+        },
+        {
+          "id": "study_measure_recorded",
+          "severity": "critical",
+          "check": "study_measure_recorded",
+          "text": "The STUDY measure/precomputed measure family must be recorded before statistics."
+        },
+        {
+          "id": "correction_policy_recorded",
+          "severity": "critical",
+          "check": "correction_policy_recorded",
+          "text": "Alpha and multiple-comparison correction policy must be recorded before group statistics."
+        }
+      ],
+      "not_recommended": [
+        "Do not run group statistics before design variables and preprocessing assumptions are locked."
+      ]
+    },
+    "study_precompute": {
+      "aliases": [
+        "study_precompute",
+        "precompute",
+        "std_precomp",
+        "study_measures",
+        "study_visualization"
+      ],
+      "tool_names": [],
+      "source_claim_ids": [
+        "EEGLAB-STUDY-001",
+        "EEGLAB-STUDY-PRECOMP-001"
+      ],
+      "requirements": [
+        {
+          "id": "multi_subject_or_bids",
+          "severity": "critical",
+          "check": "multi_subject_or_bids",
+          "text": "STUDY precompute requires a multi-subject/BIDS STUDY project."
+        },
+        {
+          "id": "design_variables_defined",
+          "severity": "critical",
+          "check": "design_variables_defined",
+          "text": "STUDY design variables should be known before precomputing group measures."
+        },
+        {
+          "id": "single_subject_protocol_locked",
+          "severity": "critical",
+          "check": "single_subject_protocol_locked",
+          "text": "Single-subject preprocessing protocol must be locked before group measure precompute."
+        },
+        {
+          "id": "study_measure_recorded",
+          "severity": "critical",
+          "check": "study_measure_recorded",
+          "text": "Precomputed STUDY measure family and parameters must be recorded."
+        },
+        {
+          "id": "derivative_output_planned",
+          "severity": "critical",
+          "check": "derivative_output_planned",
+          "text": "Precomputed measure outputs must be stored as derivatives."
+        }
+      ],
+      "not_recommended": [
+        "Do not interpret STUDY plots or statistics until the relevant measures have been precomputed and recorded."
+      ]
+    },
+    "ica_clustering": {
+      "aliases": [
+        "ica_clustering",
+        "component_clustering",
+        "study_clustering",
+        "cluster_ics"
+      ],
+      "tool_names": [],
+      "source_claim_ids": [
+        "EEGLAB-STUDY-001",
+        "EEGLAB-STUDY-PRECOMP-001",
+        "EEGLAB-ICCLUSTER-001",
+        "EEGLAB-ICA-001"
+      ],
+      "requirements": [
+        {
+          "id": "multi_subject_or_bids",
+          "severity": "critical",
+          "check": "multi_subject_or_bids",
+          "text": "ICA clustering is a STUDY/group workflow and requires multi-subject organization."
+        },
+        {
+          "id": "has_ica",
+          "severity": "critical",
+          "check": "has_ica",
+          "text": "Subject-level ICA decompositions must exist before ICA clustering."
+        },
+        {
+          "id": "study_measure_recorded",
+          "severity": "critical",
+          "check": "study_measure_recorded",
+          "text": "Clustering measure/feature family must be recorded."
+        },
+        {
+          "id": "clustering_policy_recorded",
+          "severity": "critical",
+          "check": "clustering_policy_recorded",
+          "text": "Clustering features, distance metric, cluster count/algorithm, and outlier policy must be recorded."
+        },
+        {
+          "id": "component_reviewed",
+          "severity": "advisory",
+          "check": "component_reviewed",
+          "text": "Cluster/component review criteria should be documented before interpretation."
+        }
+      ],
+      "not_recommended": [
+        "Do not treat ICA clusters as anatomical sources without source/head-model assumptions and review."
+      ]
+    },
+    "study": {
+      "aliases": [
+        "study",
+        "study_ready_check",
+        "bids_study"
+      ],
+      "tool_names": [],
+      "source_claim_ids": [
+        "EEGLAB-BIDS-001",
+        "EEGLAB-STUDY-001",
+        "EEGLAB-COURSE-001"
+      ],
+      "requirements": [
+        {
+          "id": "multi_subject_or_bids",
+          "severity": "critical",
+          "check": "multi_subject_or_bids",
+          "text": "STUDY/group analysis needs multi-subject or BIDS/STUDY organization."
+        },
+        {
+          "id": "single_subject_protocol_locked",
+          "severity": "critical",
+          "check": "single_subject_protocol_locked",
+          "text": "Single-subject preprocessing protocol must be locked before group statistics."
+        },
+        {
+          "id": "design_variables_defined",
+          "severity": "critical",
+          "check": "design_variables_defined",
+          "text": "Design variables and levels must be defined."
+        }
+      ],
+      "not_recommended": [
+        "Do not run group statistics before design variables and preprocessing assumptions are locked."
+      ]
+    },
+    "derivative_processing": {
+      "aliases": [
+        "filter",
+        "resample",
+        "reref",
+        "reject_epochs",
+        "line_noise",
+        "eeglab_filter",
+        "eeglab_resample",
+        "eeglab_reref",
+        "eeglab_reject_epochs",
+        "eeglab_clean_line_noise"
+      ],
+      "tool_names": [
+        "eeglab_filter",
+        "eeglab_resample",
+        "eeglab_reref",
+        "eeglab_reject_epochs",
+        "eeglab_clean_line_noise"
+      ],
+      "source_claim_ids": [
+        "EEGLAB-FILT-001",
+        "EEGLAB-RESAMPLE-001",
+        "EEGLAB-REREF-001",
+        "EEGLAB-REJECT-001",
+        "EEGLAB-FUNC-001"
+      ],
+      "requirements": [
+        {
+          "id": "raw_input_preserved",
+          "severity": "critical",
+          "check": "raw_input_preserved",
+          "text": "Raw input must be preserved before destructive preprocessing."
+        },
+        {
+          "id": "derivative_output_planned",
+          "severity": "critical",
+          "check": "derivative_output_planned",
+          "text": "Derivative output path/strategy must be planned."
+        },
+        {
+          "id": "parameters_recorded",
+          "severity": "advisory",
+          "check": "parameters_recorded",
+          "text": "Processing parameters should be recorded in the report/protocol."
+        }
+      ],
+      "not_recommended": [
+        "Do not overwrite raw data after filtering/resampling/rereferencing/rejection."
+      ]
+    },
+    "acquisition_provenance": {
+      "aliases": [
+        "acquisition",
+        "acquisition_metadata",
+        "recording_metadata",
+        "provenance",
+        "raw_preservation"
+      ],
+      "tool_names": [],
+      "source_claim_ids": [
+        "EEGLAB-IMPORT-001",
+        "EEGLAB-STRUCT-001",
+        "BIDS-EEG-001"
+      ],
+      "requirements": [
+        {
+          "id": "raw_input_preserved",
+          "severity": "critical",
+          "check": "raw_input_preserved",
+          "text": "Original EEG recordings and source sidecars must be preserved read-only."
+        },
+        {
+          "id": "derivative_output_planned",
+          "severity": "critical",
+          "check": "derivative_output_planned",
+          "text": "Destructive processing must write to a derivative output path."
+        },
+        {
+          "id": "reference_or_montage_recorded",
+          "severity": "critical",
+          "check": "reference_or_montage_recorded",
+          "text": "Reference, ground, montage, or cap layout must be recorded or explicitly marked missing."
+        },
+        {
+          "id": "power_line_frequency_recorded",
+          "severity": "critical",
+          "check": "power_line_frequency_recorded",
+          "text": "Power-line frequency must be recorded before line-noise, filtering, or analysis-ready claims."
+        },
+        {
+          "id": "acquisition_filters_recorded",
+          "severity": "critical",
+          "check": "acquisition_filters_recorded",
+          "text": "Hardware/software acquisition filter notes must be recorded or explicitly marked unavailable."
+        },
+        {
+          "id": "task_or_acquisition_system_recorded",
+          "severity": "advisory",
+          "check": "task_or_acquisition_system_recorded",
+          "text": "Task description and acquisition system should be recorded for reproducibility."
+        },
+        {
+          "id": "impedance_or_quality_recorded",
+          "severity": "advisory",
+          "check": "impedance_or_quality_recorded",
+          "text": "Impedance or channel-quality notes should be recorded when available."
+        }
+      ],
+      "not_recommended": [
+        "Do not claim a dataset is analysis-ready when acquisition reference, line frequency, acquisition filters, or raw/derivative policy are unknown."
+      ]
+    },
+    "bids_metadata": {
+      "aliases": [
+        "bids_metadata",
+        "bids_sidecars",
+        "hed",
+        "events_json",
+        "eeglab_import_bids"
+      ],
+      "tool_names": [],
+      "source_claim_ids": [
+        "EEGLAB-BIDS-001",
+        "EEGLAB-IMPORT-001",
+        "BIDS-EEG-001",
+        "BIDS-EVENTS-001"
+      ],
+      "requirements": [
+        {
+          "id": "bids_or_sidecars_available",
+          "severity": "critical",
+          "check": "bids_or_sidecars_available",
+          "text": "BIDS/HED metadata work requires a BIDS path, events sidecars, HED tags, or an explicit event-code map."
+        },
+        {
+          "id": "bids_eeg_sidecar_complete",
+          "severity": "critical",
+          "check": "bids_eeg_sidecar_complete",
+          "text": "BIDS EEG metadata should include *_eeg.json, *_channels.tsv, *_electrodes.tsv, and *_coordsystem.json or equivalent explicit provenance."
+        },
+        {
+          "id": "bids_events_have_onset_duration",
+          "severity": "critical",
+          "check": "bids_events_have_onset_duration",
+          "text": "BIDS events.tsv must include onset and duration columns for event timing."
+        },
+        {
+          "id": "event_metadata_described",
+          "severity": "critical",
+          "check": "event_metadata_described",
+          "text": "Condition/event semantics must be described by events.json, HED, or a validated lab codebook."
+        },
+        {
+          "id": "bids_event_columns_described",
+          "severity": "critical",
+          "check": "bids_event_columns_described",
+          "text": "trial_type and additional events.tsv columns must have events.json descriptions before condition-level interpretation."
+        }
+      ],
+      "not_recommended": [
+        "Do not infer condition semantics from events.tsv labels alone when sidecar descriptions are missing."
+      ]
+    },
+    "bids_export": {
+      "aliases": [
+        "bids_export",
+        "export_bids",
+        "pop_exportbids",
+        "bids_derivative",
+        "bids_publication"
+      ],
+      "tool_names": [],
+      "source_claim_ids": [
+        "EEGLAB-BIDSEXPORT-001",
+        "EEGLAB-BIDS-001",
+        "BIDS-EEG-001",
+        "BIDS-EVENTS-001"
+      ],
+      "requirements": [
+        {
+          "id": "plugin_eegbids_available",
+          "severity": "critical",
+          "check": "plugin_eegbids_available",
+          "text": "EEG-BIDS export functions must be available before BIDS export claims."
+        },
+        {
+          "id": "bids_eeg_sidecar_complete",
+          "severity": "critical",
+          "check": "bids_eeg_sidecar_complete",
+          "text": "BIDS export needs complete EEG/channel/electrode/coordinate metadata or documented equivalents."
+        },
+        {
+          "id": "bids_events_have_onset_duration",
+          "severity": "critical",
+          "check": "bids_events_have_onset_duration",
+          "text": "Exported events must have onset and duration timing."
+        },
+        {
+          "id": "event_metadata_described",
+          "severity": "critical",
+          "check": "event_metadata_described",
+          "text": "Event columns need events.json, HED, or codebook descriptions before BIDS export claims."
+        },
+        {
+          "id": "derivative_output_planned",
+          "severity": "critical",
+          "check": "derivative_output_planned",
+          "text": "BIDS export output must be a separate derivative/export directory."
+        },
+        {
+          "id": "software_versions_recorded",
+          "severity": "advisory",
+          "check": "software_versions_recorded",
+          "text": "EEGLAB, plugin, and processing version/provenance should be recorded for exported derivatives."
+        }
+      ],
+      "not_recommended": [
+        "Do not claim BIDS export support through this MCP without a dedicated export tool; keep it to planning/reporting unless implemented."
+      ]
+    },
+    "import_plugins": {
+      "aliases": [
+        "import_plugins",
+        "foreign_format_import",
+        "biosig",
+        "file_io",
+        "file-io",
+        "mff_import",
+        "nwb_import",
+        "brainvision_import",
+        "bva_import"
+      ],
+      "tool_names": [],
+      "source_claim_ids": [
+        "EEGLAB-IMPORT-PLUGINS-001",
+        "EEGLAB-IMPORT-001",
+        "EEGLAB-MFF-001",
+        "EEGLAB-NWB-001",
+        "EEGLAB-BVA-001"
+      ],
+      "requirements": [
+        {
+          "id": "source_format_recorded",
+          "severity": "critical",
+          "check": "source_format_recorded",
+          "text": "The source file format and importer path must be recorded before import-readiness claims."
+        },
+        {
+          "id": "plugin_import_available",
+          "severity": "critical",
+          "check": "plugin_import_available",
+          "text": "The plugin/function needed for the requested non-native import format must be available."
+        },
+        {
+          "id": "import_event_channel_mapping_recorded",
+          "severity": "critical",
+          "check": "import_event_channel_mapping_recorded",
+          "text": "Event and channel/header mapping assumptions must be recorded after plugin-dependent import."
+        },
+        {
+          "id": "raw_input_preserved",
+          "severity": "critical",
+          "check": "raw_input_preserved",
+          "text": "Original files and sidecars must be preserved before import conversion or cleanup."
+        }
+      ],
+      "not_recommended": [
+        "Do not treat plugin-imported event/channel metadata as validated until the mapping is reviewed."
+      ]
+    },
+    "data_export": {
+      "aliases": [
+        "data_export",
+        "export_data",
+        "external_export",
+        "brainvision_export",
+        "bva_export",
+        "mff_export",
+        "nwb_export"
+      ],
+      "tool_names": [],
+      "source_claim_ids": [
+        "EEGLAB-EXPORT-001",
+        "EEGLAB-MFF-001",
+        "EEGLAB-NWB-001",
+        "EEGLAB-BVA-001"
+      ],
+      "requirements": [
+        {
+          "id": "export_format_supported",
+          "severity": "critical",
+          "check": "export_format_supported",
+          "text": "The requested export format must be supported by built-in EEGLAB save or an available plugin/function."
+        },
+        {
+          "id": "derivative_output_planned",
+          "severity": "critical",
+          "check": "derivative_output_planned",
+          "text": "Exported data must be written as a derivative, not over raw inputs."
+        },
+        {
+          "id": "export_metadata_complete",
+          "severity": "critical",
+          "check": "export_metadata_complete",
+          "text": "Channel, event, header, and sidecar metadata needed by the target format must be complete or explicitly limited."
+        },
+        {
+          "id": "software_versions_recorded",
+          "severity": "advisory",
+          "check": "software_versions_recorded",
+          "text": "EEGLAB, exporter/plugin, and processing version/provenance should be recorded for exported derivatives."
+        }
+      ],
+      "not_recommended": [
+        "Do not claim non-.set export support through this MCP unless a dedicated export workflow and validation are added."
+      ]
+    },
+    "hed_event_annotation": {
+      "aliases": [
+        "hed",
+        "hed_tags",
+        "hed_event_annotation",
+        "hedtools",
+        "event_annotation"
+      ],
+      "tool_names": [],
+      "source_claim_ids": [
+        "EEGLAB-HED-001",
+        "BIDS-EVENTS-001"
+      ],
+      "requirements": [
+        {
+          "id": "event_metadata_described",
+          "severity": "critical",
+          "check": "event_metadata_described",
+          "text": "Event labels/columns must be described by HED, events.json, or a validated codebook."
+        },
+        {
+          "id": "hed_schema_recorded",
+          "severity": "critical",
+          "check": "hed_schema_recorded",
+          "text": "HED schema/version or equivalent event-codebook provenance must be recorded."
+        },
+        {
+          "id": "event_code_map_validated",
+          "severity": "advisory",
+          "check": "event_code_map_validated",
+          "text": "Condition-code mapping should be validated before event-locked interpretation."
+        }
+      ],
+      "not_recommended": [
+        "Do not treat HED tags as confirmed ERP triggers until condition semantics are validated."
+      ]
+    },
+    "history_scripting": {
+      "aliases": [
+        "history_scripting",
+        "eeglab_history_script",
+        "batch_script",
+        "script_from_history"
+      ],
+      "tool_names": [],
+      "source_claim_ids": [
+        "EEGLAB-HISTORY-001",
+        "EEGLAB-FUNC-001",
+        "EEGLAB-PIPELINE-001"
+      ],
+      "requirements": [
+        {
+          "id": "processing_history_recorded",
+          "severity": "critical",
+          "check": "processing_history_recorded",
+          "text": "EEG.history or equivalent current-session processing history must be available."
+        },
+        {
+          "id": "script_from_history_reviewed",
+          "severity": "critical",
+          "check": "script_from_history_reviewed",
+          "text": "History-derived scripts must be reviewed for paths, dataset state, parameters, and outputs."
+        },
+        {
+          "id": "parameters_recorded",
+          "severity": "advisory",
+          "check": "parameters_recorded",
+          "text": "Script parameters should be explicit rather than hidden in GUI defaults."
+        },
+        {
+          "id": "derivative_output_planned",
+          "severity": "advisory",
+          "check": "derivative_output_planned",
+          "text": "Batch scripts should write derivative outputs rather than overwrite raw inputs."
+        }
+      ],
+      "not_recommended": [
+        "Do not run copied GUI history as a batch protocol before reviewing paths, defaults, and output policy."
+      ]
+    },
+    "event_script_modification": {
+      "aliases": [
+        "event_script_modification",
+        "event_recode",
+        "modify_events",
+        "event_latency_shift",
+        "urevent_repair"
+      ],
+      "tool_names": [],
+      "source_claim_ids": [
+        "EEGLAB-EVENTSCRIPT-001",
+        "EEGLAB-STRUCT-001",
+        "EEGLAB-EVENT-001"
+      ],
+      "requirements": [
+        {
+          "id": "event_modification_rule_recorded",
+          "severity": "critical",
+          "check": "event_modification_rule_recorded",
+          "text": "Event recoding, deletion, or latency-shift rules must be recorded before scripted event changes."
+        },
+        {
+          "id": "event_latency_units_recorded",
+          "severity": "critical",
+          "check": "event_latency_units_recorded",
+          "text": "Event latency units and sampling-rate assumptions must be recorded before scripted latency edits."
+        },
+        {
+          "id": "urevent_preserved_or_relinked",
+          "severity": "critical",
+          "check": "urevent_preserved_or_relinked",
+          "text": "urevent links must be preserved, relinked, or explicitly reported as a limitation."
+        },
+        {
+          "id": "event_metadata_described",
+          "severity": "advisory",
+          "check": "event_metadata_described",
+          "text": "Modified event meanings should be documented by HED, events.json, behavioral logs, or a lab codebook."
+        }
+      ],
+      "not_recommended": [
+        "Do not use scripted event modifications to create condition triggers without a validated codebook or behavioral log."
+      ]
+    },
+    "channel_locations": {
+      "aliases": [
+        "channel_locations",
+        "chanlocs",
+        "montage",
+        "interpolate_channels",
+        "edit_channels",
+        "eeglab_interpolate_channels",
+        "eeglab_edit_channels"
+      ],
+      "tool_names": [
+        "eeglab_interpolate_channels",
+        "eeglab_edit_channels"
+      ],
+      "source_claim_ids": [
+        "EEGLAB-CHANLOC-001"
+      ],
+      "requirements": [
+        {
+          "id": "has_channel_locations_or_repair_plan",
+          "severity": "critical",
+          "check": "has_channel_locations_or_repair_plan",
+          "text": "Channel-location metadata must be available or a concrete montage repair/interpolation plan must be supplied."
+        },
+        {
+          "id": "parameters_recorded",
+          "severity": "advisory",
+          "check": "parameters_recorded",
+          "text": "Channel-location file, rename map, interpolation method, and excluded channels should be recorded."
+        }
+      ],
+      "not_recommended": [
+        "Do not interpret scalp maps, interpolation quality, or source locations without usable channel coordinates."
+      ]
+    },
+    "line_noise": {
+      "aliases": [
+        "line_noise",
+        "cleanline",
+        "zapline",
+        "eeglab_clean_line_noise"
+      ],
+      "tool_names": [
+        "eeglab_clean_line_noise"
+      ],
+      "source_claim_ids": [
+        "EEGLAB-LINE-001",
+        "EEGLAB-FILT-001"
+      ],
+      "requirements": [
+        {
+          "id": "line_noise_parameters_recorded",
+          "severity": "critical",
+          "check": "line_noise_parameters_recorded",
+          "text": "Line-noise frequency, method, and affected harmonics/windows must be recorded."
+        },
+        {
+          "id": "derivative_output_planned",
+          "severity": "critical",
+          "check": "derivative_output_planned",
+          "text": "Line-noise-cleaned output must be treated as a derivative."
+        }
+      ],
+      "not_recommended": [
+        "Do not apply 50/60 Hz cleanup without confirming the local mains frequency and reporting the method."
+      ]
+    },
+    "spectral": {
+      "aliases": [
+        "spectral",
+        "spectrum",
+        "spectra",
+        "resting",
+        "eeglab_spectral"
+      ],
+      "tool_names": [
+        "eeglab_spectral"
+      ],
+      "source_claim_ids": [
+        "EEGLAB-SPECTRAL-001"
+      ],
+      "requirements": [
+        {
+          "id": "frequency_settings_recorded",
+          "severity": "critical",
+          "check": "frequency_settings_recorded",
+          "text": "Spectral analysis requires an explicit frequency range or band definition."
+        },
+        {
+          "id": "artifact_policy_recorded",
+          "severity": "critical",
+          "check": "artifact_policy_recorded",
+          "text": "Artifact handling and data-shape suitability must be documented before spectral interpretation."
+        },
+        {
+          "id": "channels_recorded",
+          "severity": "advisory",
+          "check": "channels_recorded",
+          "text": "Channels or ROIs should be recorded for spectra/band-power summaries."
+        }
+      ],
+      "not_recommended": [
+        "Do not make resting-state claims from epoched-only derivatives unless the design explicitly supports it."
+      ]
+    },
+    "connectivity": {
+      "aliases": [
+        "connectivity",
+        "coherence",
+        "plv",
+        "eeglab_connectivity"
+      ],
+      "tool_names": [
+        "eeglab_connectivity"
+      ],
+      "source_claim_ids": [
+        "EEGLAB-SPECTRAL-001",
+        "EEGLAB-SIFT-001"
+      ],
+      "requirements": [
+        {
+          "id": "frequency_settings_recorded",
+          "severity": "critical",
+          "check": "frequency_settings_recorded",
+          "text": "Connectivity requires an explicit frequency range and method."
+        },
+        {
+          "id": "artifact_policy_recorded",
+          "severity": "critical",
+          "check": "artifact_policy_recorded",
+          "text": "Artifact policy and channel/ROI selection must be documented before connectivity interpretation."
+        },
+        {
+          "id": "connectivity_limits_recorded",
+          "severity": "advisory",
+          "check": "connectivity_limits_recorded",
+          "text": "Sensor/source space, causality limits, and model assumptions should be reported."
+        }
+      ],
+      "not_recommended": [
+        "Do not interpret sensor-level connectivity as anatomical connectivity without source/model validation."
+      ]
+    },
+    "topography": {
+      "aliases": [
+        "topography",
+        "topoplot",
+        "scalp_map",
+        "eeglab_topoplot"
+      ],
+      "tool_names": [
+        "eeglab_topoplot"
+      ],
+      "source_claim_ids": [
+        "EEGLAB-TOPO-001",
+        "EEGLAB-CHANLOC-001"
+      ],
+      "requirements": [
+        {
+          "id": "has_channel_locations",
+          "severity": "critical",
+          "check": "has_channel_locations",
+          "text": "Topographic maps require usable channel locations."
+        },
+        {
+          "id": "parameters_recorded",
+          "severity": "advisory",
+          "check": "parameters_recorded",
+          "text": "Topographic time/frequency window and plotting parameters should be recorded."
+        }
+      ],
+      "not_recommended": [
+        "Do not produce or interpret scalp maps when channel locations are missing or incomplete."
+      ]
+    },
+    "limo_statistics": {
+      "aliases": [
+        "limo",
+        "limo_statistics",
+        "glm",
+        "single_trial_model"
+      ],
+      "tool_names": [],
+      "source_claim_ids": [
+        "EEGLAB-LIMO-001",
+        "EEGLAB-STUDY-001"
+      ],
+      "requirements": [
+        {
+          "id": "plugin_limo_available",
+          "severity": "critical",
+          "check": "plugin_limo_available",
+          "text": "LIMO workflows require LIMO plugin availability."
+        },
+        {
+          "id": "statistical_design_defined",
+          "severity": "critical",
+          "check": "statistical_design_defined",
+          "text": "First-level/second-level model, design variables, and contrasts must be defined."
+        },
+        {
+          "id": "correction_policy_recorded",
+          "severity": "critical",
+          "check": "correction_policy_recorded",
+          "text": "Correction and alpha policy must be recorded before LIMO statistical claims."
+        }
+      ],
+      "not_recommended": [
+        "Do not claim LIMO support from the MCP unless plugin availability and a dedicated model/reporting protocol are confirmed."
+      ]
+    },
+    "amica_ica": {
+      "aliases": [
+        "amica",
+        "runamica",
+        "runamica15",
+        "pop_runamica"
+      ],
+      "tool_names": [],
+      "source_claim_ids": [
+        "EEGLAB-AMICA-001",
+        "EEGLAB-ICA-001",
+        "EEGLAB-PLUGIN-001"
+      ],
+      "requirements": [
+        {
+          "id": "plugin_amica_available",
+          "severity": "critical",
+          "check": "plugin_amica_available",
+          "text": "AMICA plugin/functions must be available before AMICA-specific ICA claims."
+        },
+        {
+          "id": "continuous_data",
+          "severity": "critical",
+          "check": "continuous_data",
+          "text": "AMICA should be planned on suitable continuous data unless a justified design is recorded."
+        },
+        {
+          "id": "rank_reference_reviewed",
+          "severity": "critical",
+          "check": "rank_reference_reviewed",
+          "text": "Rank, PCA, and reference choices must be reviewed before AMICA."
+        },
+        {
+          "id": "compute_strategy_recorded",
+          "severity": "critical",
+          "check": "compute_strategy_recorded",
+          "text": "AMICA compute strategy, output directory, and reproducibility settings must be recorded."
+        },
+        {
+          "id": "derivative_output_planned",
+          "severity": "critical",
+          "check": "derivative_output_planned",
+          "text": "AMICA outputs must be written to a derivative directory."
+        }
+      ],
+      "not_recommended": [
+        "Do not route AMICA execution through generic ICA tools unless an AMICA-specific workflow and eval coverage are added."
+      ]
+    },
+    "sift_connectivity": {
+      "aliases": [
+        "sift",
+        "groupsift",
+        "mvar",
+        "granger",
+        "source_connectivity"
+      ],
+      "tool_names": [],
+      "source_claim_ids": [
+        "EEGLAB-SIFT-001"
+      ],
+      "requirements": [
+        {
+          "id": "plugin_sift_available",
+          "severity": "critical",
+          "check": "plugin_sift_available",
+          "text": "SIFT workflows require SIFT/groupSIFT plugin availability."
+        },
+        {
+          "id": "model_validation_recorded",
+          "severity": "critical",
+          "check": "model_validation_recorded",
+          "text": "MVAR/source connectivity requires model order, stationarity, and validation reporting."
+        },
+        {
+          "id": "correction_policy_recorded",
+          "severity": "advisory",
+          "check": "correction_policy_recorded",
+          "text": "SIFT statistics and multiple-comparison policy should be recorded."
+        }
+      ],
+      "not_recommended": [
+        "Do not run or claim SIFT connectivity support through this MCP without a dedicated SIFT execution workflow."
+      ]
+    },
+    "nsg_remote": {
+      "aliases": [
+        "nsg",
+        "nsgportal",
+        "pop_nsg",
+        "remote_compute",
+        "hpc"
+      ],
+      "tool_names": [],
+      "source_claim_ids": [
+        "EEGLAB-NSG-001",
+        "EEGLAB-PLUGIN-001",
+        "EEGLAB-COURSE-001"
+      ],
+      "requirements": [
+        {
+          "id": "plugin_nsg_available",
+          "severity": "critical",
+          "check": "plugin_nsg_available",
+          "text": "NSGportal plugin/functions must be available for NSG planning."
+        },
+        {
+          "id": "remote_compute_approved",
+          "severity": "critical",
+          "check": "remote_compute_approved",
+          "text": "User approval, credentials policy, and data-upload policy must be explicit before remote compute."
+        },
+        {
+          "id": "job_provenance_recorded",
+          "severity": "critical",
+          "check": "job_provenance_recorded",
+          "text": "Remote job parameters, upload/download paths, and reproducibility records must be planned."
+        }
+      ],
+      "not_recommended": [
+        "Do not execute remote NSG jobs through this local MCP unless a dedicated secure integration is implemented."
+      ]
+    },
+    "plugin_development": {
+      "aliases": [
+        "plugin_development",
+        "design_plugin",
+        "eegplugin",
+        "eegplugin_authoring",
+        "extension_authoring"
+      ],
+      "tool_names": [],
+      "source_claim_ids": [
+        "EEGLAB-PLUGIN-DEV-001",
+        "EEGLAB-PLUGIN-001"
+      ],
+      "requirements": [
+        {
+          "id": "plugin_goal_defined",
+          "severity": "critical",
+          "check": "plugin_goal_defined",
+          "text": "The plugin goal, target user operation, and intended EEGLAB integration point must be defined."
+        },
+        {
+          "id": "eeglab_function_family_recorded",
+          "severity": "critical",
+          "check": "eeglab_function_family_recorded",
+          "text": "The intended pop_/eeg_/low-level function family and GUI/command-line boundary must be recorded."
+        },
+        {
+          "id": "validation_plan_recorded",
+          "severity": "advisory",
+          "check": "validation_plan_recorded",
+          "text": "A plugin validation, sample-data, and documentation plan should be recorded before claiming research support."
+        }
+      ],
+      "not_recommended": [
+        "Do not treat plugin authoring guidance as support for executing a new analysis plugin through this MCP."
+      ]
+    },
+    "relica_reliability": {
+      "aliases": [
+        "relica",
+        "relica_reliability",
+        "ica_reliability",
+        "bootstrap_ica"
+      ],
+      "tool_names": [],
+      "source_claim_ids": [
+        "EEGLAB-RELICA-001",
+        "EEGLAB-ICA-001",
+        "EEGLAB-PLUGIN-001"
+      ],
+      "requirements": [
+        {
+          "id": "plugin_relica_available",
+          "severity": "critical",
+          "check": "plugin_relica_available",
+          "text": "RELICA plugin/functions must be available before ICA reliability claims."
+        },
+        {
+          "id": "has_ica",
+          "severity": "critical",
+          "check": "has_ica",
+          "text": "A subject-level ICA decomposition must exist before RELICA reliability review."
+        },
+        {
+          "id": "bootstrap_settings_recorded",
+          "severity": "critical",
+          "check": "bootstrap_settings_recorded",
+          "text": "Bootstrap/resampling settings, number of decompositions, and compute strategy must be recorded."
+        },
+        {
+          "id": "component_reviewed",
+          "severity": "advisory",
+          "check": "component_reviewed",
+          "text": "Components and reliability summaries should be reviewed before interpretation."
+        }
+      ],
+      "not_recommended": [
+        "Do not claim RELICA reliability support unless plugin availability, ICA state, and bootstrap settings are explicit."
+      ]
+    },
+    "viewprops_review": {
+      "aliases": [
+        "viewprops",
+        "pop_viewprops",
+        "component_properties",
+        "component_review_view"
+      ],
+      "tool_names": [],
+      "source_claim_ids": [
+        "EEGLAB-VIEWPROPS-001",
+        "EEGLAB-ICLABEL-001",
+        "EEGLAB-ICA-001"
+      ],
+      "requirements": [
+        {
+          "id": "plugin_viewprops_available",
+          "severity": "critical",
+          "check": "plugin_viewprops_available",
+          "text": "Viewprops plugin/functions must be available for Viewprops-specific review claims."
+        },
+        {
+          "id": "has_ica",
+          "severity": "critical",
+          "check": "has_ica",
+          "text": "ICA weights must exist before component-property review."
+        },
+        {
+          "id": "component_reviewed",
+          "severity": "advisory",
+          "check": "component_reviewed",
+          "text": "The reviewed component set and classifier/source evidence should be documented."
+        }
+      ],
+      "not_recommended": [
+        "Do not substitute Viewprops availability for an ICA/ICLabel/component-removal review policy."
+      ]
+    },
+    "get_chanlocs_digitization": {
+      "aliases": [
+        "get_chanlocs",
+        "get_chanlocs_digitization",
+        "electrode_digitization",
+        "head_image_chanlocs"
+      ],
+      "tool_names": [],
+      "source_claim_ids": [
+        "EEGLAB-GETCHANLOCS-001",
+        "EEGLAB-CHANLOC-001"
+      ],
+      "requirements": [
+        {
+          "id": "plugin_get_chanlocs_available",
+          "severity": "critical",
+          "check": "plugin_get_chanlocs_available",
+          "text": "get_chanlocs plugin/functions must be available before digitization claims."
+        },
+        {
+          "id": "head_image_or_digitization_source_recorded",
+          "severity": "critical",
+          "check": "head_image_or_digitization_source_recorded",
+          "text": "3-D head images, electrode photos, or digitization source files must be recorded."
+        },
+        {
+          "id": "fiducials_recorded",
+          "severity": "critical",
+          "check": "fiducials_recorded",
+          "text": "Fiducials and coordinate/reference assumptions must be recorded before channel-location repair claims."
+        },
+        {
+          "id": "channel_location_repair_planned",
+          "severity": "advisory",
+          "check": "channel_location_repair_planned",
+          "text": "A plan for writing/reviewing EEG.chanlocs should be documented."
+        }
+      ],
+      "not_recommended": [
+        "Do not claim source/topography readiness from get_chanlocs until channel coordinates are reviewed in EEG.chanlocs."
+      ]
+    },
+    "roiconnect_source_connectivity": {
+      "aliases": [
+        "roiconnect",
+        "roi_connectivity",
+        "source_roi_connectivity",
+        "roi_connect"
+      ],
+      "tool_names": [],
+      "source_claim_ids": [
+        "EEGLAB-ROICONNECT-001",
+        "EEGLAB-DIPFIT-001",
+        "EEGLAB-SPECTRAL-001"
+      ],
+      "requirements": [
+        {
+          "id": "plugin_roiconnect_available",
+          "severity": "critical",
+          "check": "plugin_roiconnect_available",
+          "text": "ROIconnect plugin/functions must be available before ROIconnect-specific claims."
+        },
+        {
+          "id": "source_model_available",
+          "severity": "critical",
+          "check": "source_model_available",
+          "text": "A source model or source-level ROI activity representation must be available."
+        },
+        {
+          "id": "roi_atlas_recorded",
+          "severity": "critical",
+          "check": "roi_atlas_recorded",
+          "text": "ROI atlas/parcellation and region selection must be recorded."
+        },
+        {
+          "id": "connectivity_metric_recorded",
+          "severity": "critical",
+          "check": "connectivity_metric_recorded",
+          "text": "Connectivity metric, frequency/time window, and statistical interpretation limits must be recorded."
+        }
+      ],
+      "not_recommended": [
+        "Do not interpret ROIconnect outputs as anatomical connectivity without source-model, atlas, and statistics validation."
+      ]
+    },
+    "eegstats_metrics": {
+      "aliases": [
+        "eegstats",
+        "eegstats_metrics",
+        "band_power_stats",
+        "alpha_peak",
+        "alpha_asymmetry"
+      ],
+      "tool_names": [],
+      "source_claim_ids": [
+        "EEGLAB-EEGSTATS-001",
+        "EEGLAB-SPECTRAL-001",
+        "EEGLAB-STUDY-001"
+      ],
+      "requirements": [
+        {
+          "id": "plugin_eegstats_available",
+          "severity": "critical",
+          "check": "plugin_eegstats_available",
+          "text": "EEGstats plugin/functions must be available before EEGstats-specific claims."
+        },
+        {
+          "id": "frequency_settings_recorded",
+          "severity": "critical",
+          "check": "frequency_settings_recorded",
+          "text": "Band definitions, alpha-peak search range, or frequency settings must be recorded."
+        },
+        {
+          "id": "channels_recorded",
+          "severity": "critical",
+          "check": "channels_recorded",
+          "text": "Channels, ROIs, or STUDY component sets must be recorded for band-power/asymmetry metrics."
+        },
+        {
+          "id": "artifact_policy_recorded",
+          "severity": "advisory",
+          "check": "artifact_policy_recorded",
+          "text": "Artifact policy and cleaned-data scope should be recorded before interpreting summary metrics."
+        }
+      ],
+      "not_recommended": [
+        "Do not claim EEGstats results through this MCP unless plugin availability and metric settings are documented."
+      ]
+    },
+    "pipeline": {
+      "aliases": [
+        "pipeline",
+        "eeglab_pipeline"
+      ],
+      "tool_names": [
+        "eeglab_pipeline"
+      ],
+      "source_claim_ids": [
+        "EEGLAB-PIPELINE-001",
+        "EEGLAB-ASR-001",
+        "EEGLAB-ICA-001",
+        "EEGLAB-EVENT-001"
+      ],
+      "requirements": [
+        {
+          "id": "raw_input_preserved",
+          "severity": "critical",
+          "check": "raw_input_preserved",
+          "text": "Raw input must be preserved before pipeline execution."
+        },
+        {
+          "id": "derivative_output_planned",
+          "severity": "critical",
+          "check": "derivative_output_planned",
+          "text": "Pipeline output must go to a derivative directory."
+        },
+        {
+          "id": "pipeline_defaults_accepted",
+          "severity": "critical",
+          "check": "pipeline_defaults_accepted",
+          "text": "The user must accept bundled defaults before one-click pipeline execution."
+        }
+      ],
+      "not_recommended": [
+        "Do not use one-click pipelines when the user needs transparent parameter-by-parameter control."
+      ]
+    }
+  },
+  "tool_to_profile": {
+    "eeglab_epoch": "epoch",
+    "eeglab_erp_light_workflow": "epoch",
+    "eeglab_timefreq": "timefreq",
+    "eeglab_plot_timefreq": "timefreq",
+    "eeglab_clean_rawdata": "clean_rawdata",
+    "eeglab_run_ica": "run_ica",
+    "eeglab_classify_ica": "iclabel",
+    "eeglab_flag_components": "iclabel",
+    "eeglab_remove_components": "remove_components",
+    "eeglab_source_localization": "source",
+    "eeglab_source_settings": "source",
+    "eeglab_import_bids": "bids_import",
+    "eeglab_study_create": "study_create",
+    "eeglab_study_design": "study_design",
+    "eeglab_study_statistics": "study_statistics",
+    "eeglab_filter": "derivative_processing",
+    "eeglab_resample": "derivative_processing",
+    "eeglab_reref": "derivative_processing",
+    "eeglab_reject_epochs": "derivative_processing",
+    "eeglab_clean_line_noise": "line_noise",
+    "eeglab_interpolate_channels": "channel_locations",
+    "eeglab_edit_channels": "channel_locations",
+    "eeglab_spectral": "spectral",
+    "eeglab_connectivity": "connectivity",
+    "eeglab_topoplot": "topography",
+    "eeglab_pipeline": "pipeline"
+  },
+  "not_for_clinical_use": "This document describes research-grade alignment with EEGLAB and SCCN sources. It is not a clinical device, makes no diagnostic claim, and confers no clinical use."
+}

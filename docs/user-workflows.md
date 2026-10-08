@@ -2,34 +2,11 @@
 
 These workflows are designed for users who want fast progress without losing research rigor.
 
-## Canonical End-To-End Order
-
-Use this order for every EEG analysis session:
-
-1. Load the `eeglab-analysis` Skill.
-2. Read the official docs first, then the skill references.
-3. Plan the project with `eeglab_project_plan` or `eeglab_workflow_recommend`.
-4. Run the read-only intake: `eeglab_init` -> `eeglab_load_data` -> `eeglab_qc_report` -> `eeglab_info` -> `eeglab_get_events` -> `eeglab_history`.
-5. Audit event semantics with `eeglab_event_semantics_audit` before any event-locked branch.
-6. Run `eeglab_plugin_check` when the branch depends on plugins.
-7. Run `eeglab_method_preflight` before every high-risk step.
-8. Follow the branch matrix exactly for preprocessing, analysis, figures, and required outputs.
-9. Save only derivative outputs; never overwrite raw EEG files.
-10. Export the protocol with `eeglab_protocol_export`.
-11. Generate the final report with `eeglab_generate_report` or `scripts/generate_eeg_report.py`.
-
-## Data Integrity Rules
-
-- Use real loaded EEG data and real project metadata only.
-- Do not fabricate event labels, channel locations, outputs, figures, gate results, or provenance.
-- If a required field is missing, record the gap instead of inventing a value.
-- Keep all machine-generated content in English.
-
 ## 1. quick_qc
 
 Goal: inspect a dataset without modifying it.
 
-Use when the user says: "看看这个数据", "先检查一下", "load and QC", or gives a new file with no goal yet.
+Use when the user asks to look at the data, asks for a check first, says "load and QC", or hands over a new file with no goal yet.
 
 Tool path:
 

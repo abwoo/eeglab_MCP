@@ -15,18 +15,18 @@ except ImportError:  # pragma: no cover - direct script execution support
 def build_tool_definitions() -> list[Tool]:
     """Build raw tool definitions with complete schemas for internal validation."""
     tools = [
-        # ===== 第 1 类：数据管理 =====
+        # ===== Category 1: data management =====
         Tool(
             name="eeglab_init",
-            description="初始化 EEGLAB 环境。在执行任何 EEGLAB 操作前必须先调用此工具。"
-            "会启动 MATLAB 并加载 EEGLAB（无界面模式）。"
-            "可选指定 EEGLAB 安装路径，否则使用环境变量 EEGLAB_PATH。",
+            description="Initialize the EEGLAB environment. Must be called before any other EEGLAB operation."
+            "Starts MATLAB and loads EEGLAB without the GUI."
+            "Optionally pass the EEGLAB installation path; otherwise the EEGLAB_PATH environment variable is used.",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "eeglab_path": {
                         "type": "string",
-                        "description": "EEGLAB 安装目录的绝对路径。例如: C:/eeglab2024.0 或 /home/user/eeglab",
+                        "description": "Absolute path of the EEGLAB installation directory, for example C:/eeglab2024.0 or /home/user/eeglab",
                     }
                 },
                 "required": [],
@@ -34,19 +34,19 @@ def build_tool_definitions() -> list[Tool]:
         ),
         Tool(
             name="eeglab_load_data",
-            description="加载 EEG 数据文件。支持 EEGLAB 原生格式(.set/.fdt)、BrainVision(.vhdr)、"
-            "EDF/EDF+(.edf)、BioSemi(.bdf)、Neuroscan(.cnt) 等格式。"
-            "加载后数据存储在 MATLAB 工作区的 EEG 变量中，可供后续分析工具使用。",
+            description="Load an EEG data file. Supports the native EEGLAB formats (.set/.fdt), BrainVision (.vhdr),"
+            "EDF/EDF+ (.edf), BioSemi (.bdf), Neuroscan (.cnt) and similar formats."
+            "After loading, the data is stored in the EEG variable of the MATLAB workspace and is available to later analysis tools.",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "filepath": {
                         "type": "string",
-                        "description": "EEG 数据文件的绝对路径。例如: C:/data/subject01.set",
+                        "description": "Absolute path of the EEG data file, for example C:/data/subject01.set",
                     },
                     "filename": {
                         "type": "string",
-                        "description": "文件名（当 filepath 仅指定目录时需要）。例如: subject01.set",
+                        "description": "File name, needed when filepath points at a directory only, for example subject01.set",
                     },
                 },
                 "required": ["filepath"],
@@ -54,18 +54,18 @@ def build_tool_definitions() -> list[Tool]:
         ),
         Tool(
             name="eeglab_save_data",
-            description="保存当前 EEG 数据到文件（.set 格式）。"
-            "在执行破坏性操作（如滤波、ICA 去伪迹）后建议保存数据。",
+            description="Save the current EEG data to a .set file."
+            "Saving after a destructive operation such as filtering or ICA artifact removal is recommended.",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "filepath": {
                         "type": "string",
-                        "description": "保存文件的绝对路径。例如: C:/data/subject01_filtered.set",
+                        "description": "Absolute path of the file to save, for example C:/data/subject01_filtered.set",
                     },
                     "filename": {
                         "type": "string",
-                        "description": "保存的文件名。例如: subject01_filtered.set",
+                        "description": "Name of the file to save, for example subject01_filtered.set",
                     },
                 },
                 "required": ["filepath"],
@@ -73,19 +73,19 @@ def build_tool_definitions() -> list[Tool]:
         ),
         Tool(
             name="eeglab_import_bids",
-            description="导入 BIDS 格式数据集。BIDS (Brain Imaging Data Structure) 是神经科学数据组织的标准格式。"
-            "导入后自动创建 STUDY 和 ALLEEG，可进行组级别分析。",
+            description="Import a BIDS dataset. BIDS (Brain Imaging Data Structure) is the standard for organizing neuroscience data."
+            "A STUDY and ALLEEG are created on import so that group-level analysis is possible.",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "bids_path": {
                         "type": "string",
-                        "description": "BIDS 数据集根目录的绝对路径",
+                        "description": "Absolute path of the BIDS dataset root directory",
                     },
                     "study_name": {
                         "type": "string",
                         "default": "MyStudy",
-                        "description": "STUDY 名称",
+                        "description": "STUDY name",
                     },
                 },
                 "required": ["bids_path"],
@@ -93,25 +93,25 @@ def build_tool_definitions() -> list[Tool]:
         ),
         Tool(
             name="eeglab_info",
-            description="获取当前 EEG 数据集的详细信息。包括通道数、采样率、数据点数、试次数、"
-            "时间窗口、通道标签、事件类型、ICA 状态等。用于了解数据概况和验证处理结果。",
+            description="Return details of the current EEG dataset, including channel count, sampling rate, data points, trial count,"
+            "time window, channel labels, event types and ICA status. Use it to survey the data and to verify processing results.",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "include_channels": {
                         "type": "boolean",
                         "default": True,
-                        "description": "是否包含通道标签列表",
+                        "description": "Include the list of channel labels",
                     },
                     "include_events": {
                         "type": "boolean",
                         "default": True,
-                        "description": "是否包含事件类型列表",
+                        "description": "Include the list of event types",
                     },
                     "include_ica": {
                         "type": "boolean",
                         "default": True,
-                        "description": "是否包含 ICA 信息",
+                        "description": "Include ICA information",
                     },
                 },
                 "required": [],
@@ -119,41 +119,41 @@ def build_tool_definitions() -> list[Tool]:
         ),
         Tool(
             name="eeglab_history",
-            description="获取当前 EEG 数据集的操作历史记录。记录了从加载数据以来执行的所有 EEGLAB 操作。"
-            "可用于追踪分析流程、验证处理步骤、复现分析过程。",
+            description="Return the operation history of the current EEG dataset, recording every EEGLAB operation since the data was loaded."
+            "Use it to trace the analysis flow, to verify processing steps and to reproduce an analysis.",
             inputSchema={"type": "object", "properties": {}, "required": []},
         ),
-        # ===== 第 2 类：预处理 =====
+        # ===== Category 2: preprocessing =====
         Tool(
             name="eeglab_filter",
-            description="对 EEG 数据进行滤波处理。支持带通(bandpass)、高通(highpass)、低通(lowpass)和陷波(notch)滤波。"
-            "使用 EEGLAB 推荐的 pop_eegfiltnew (FIR Hamming 窗) 和 pop_cleanline (陷波)。"
-            "专业建议: ERP研究用 0.1-40Hz 带通; 时频研究用 0.5-80Hz 带通; "
-            "50Hz(中国/欧洲)或60Hz(美国)陷波去工频; ICA 前建议高通 1Hz 滤波。",
+            description="Filter the EEG data. Supports bandpass, highpass, lowpass and notch filtering."
+            "It uses the EEGLAB-recommended pop_eegfiltnew (FIR, Hamming window) and pop_cleanline (notch)."
+            "Guidance: use a 0.1-40 Hz bandpass for ERP work and a 0.5-80 Hz bandpass for time-frequency work; "
+            "notch out line noise at 50 Hz (China/Europe) or 60 Hz (US); a 1 Hz highpass before ICA is recommended.",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "filter_type": {
                         "type": "string",
                         "enum": ["bandpass", "highpass", "lowpass", "notch"],
-                        "description": "滤波类型: bandpass(带通), highpass(高通), lowpass(低通), notch(陷波)",
+                        "description": "Filter type: bandpass, highpass, lowpass or notch",
                     },
                     "low_cutoff": {
                         "type": "number",
-                        "description": "低截止频率(Hz)。带通/高通时必填。常用值: 0.1(去漂移), 0.5, 1(ICA前推荐)",
+                        "description": "Low cutoff in Hz, required for bandpass and highpass. Common values: 0.1 to remove drift, 0.5, 1 (recommended before ICA)",
                     },
                     "high_cutoff": {
                         "type": "number",
-                        "description": "高截止频率(Hz)。带通/低通时必填。常用值: 30, 40, 80, 100",
+                        "description": "High cutoff in Hz, required for bandpass and lowpass. Common values: 30, 40, 80, 100",
                     },
                     "notch_freq": {
                         "type": "number",
-                        "description": "陷波频率(Hz)。notch 类型时必填。50(中国/欧洲)或60(美国)",
+                        "description": "Notch frequency in Hz, required when the type is notch. 50 (China/Europe) or 60 (US)",
                     },
                     "notch_harmonics": {
                         "type": "boolean",
                         "default": True,
-                        "description": "是否同时去除陷波频率的谐波(如100Hz, 150Hz)",
+                        "description": "Also remove the harmonics of the notch frequency, for example 100 Hz and 150 Hz",
                     },
                 },
                 "required": ["filter_type"],
@@ -161,14 +161,14 @@ def build_tool_definitions() -> list[Tool]:
         ),
         Tool(
             name="eeglab_resample",
-            description="对 EEG 数据进行重采样。降低采样率可减少数据量和计算时间。"
-            "专业建议: 降采样前应先加低通抗混叠滤波; 常用目标采样率: 250Hz(ERP), 500Hz(时频)。",
+            description="Resample the EEG data. Lowering the sampling rate reduces both the data size and the computation time."
+            "Guidance: apply a lowpass anti-aliasing filter before downsampling; common target rates are 250 Hz for ERP and 500 Hz for time-frequency work.",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "new_srate": {
                         "type": "number",
-                        "description": "目标采样率(Hz)。例如: 250, 500",
+                        "description": "Target sampling rate in Hz, for example 250 or 500",
                     }
                 },
                 "required": ["new_srate"],
@@ -176,21 +176,21 @@ def build_tool_definitions() -> list[Tool]:
         ),
         Tool(
             name="eeglab_reref",
-            description="对 EEG 数据进行重参考。支持平均参考(所有通道均值)、单通道参考(如 Cz, 乳突)和 REST 参考。"
-            "专业建议: 平均参考是最常用的参考方式，适用于大多数研究场景; "
-            "平均参考会使数据秩减 1，ICA 时需设置 pca=nchan-1; "
-            "ICA 通常在重参考前运行，或使用平均参考。",
+            description="Re-reference the EEG data. Supports average reference (the mean of all channels), a single-channel reference such as Cz or a mastoid electrode, and REST reference."
+            "Guidance: average reference is the most common choice and suits most research settings; "
+            "average reference reduces the data rank by 1, so set pca=nchan-1 for ICA; "
+            "ICA is usually run before re-referencing, or with average reference.",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "ref_type": {
                         "type": "string",
                         "enum": ["average", "channel", "rest"],
-                        "description": "参考类型: average(平均参考), channel(单通道参考), rest(REST参考)",
+                        "description": "Reference type: average, channel or rest",
                     },
                     "ref_channel": {
                         "type": "string",
-                        "description": "参考通道标签。ref_type 为 channel 时必填。例如: 'Cz', 'M1', 'A1'",
+                        "description": "Reference channel label, required when ref_type is channel, for example 'Cz', 'M1', 'A1'",
                     },
                 },
                 "required": ["ref_type"],
@@ -198,21 +198,21 @@ def build_tool_definitions() -> list[Tool]:
         ),
         Tool(
             name="eeglab_select_channels",
-            description="选择或排除特定通道。用于去除坏通道或只保留感兴趣的区域。"
-            "专业建议: ICA 前应去除明显坏通道，但保留足够通道数; "
-            "去除通道后再做 ICA 会降低成分数。",
+            description="Select or exclude specific channels, either to drop bad channels or to keep only a region of interest."
+            "Guidance: drop clearly bad channels before ICA while keeping enough channels; "
+            "removing channels before ICA lowers the number of components.",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "channels": {
                         "type": "array",
                         "items": {"type": "string"},
-                        "description": "要保留的通道标签列表。例如: ['Fz','Cz','Pz']。与 exclude_channels 二选一",
+                        "description": "Channel labels to keep, for example ['Fz','Cz','Pz']. Mutually exclusive with exclude_channels",
                     },
                     "exclude_channels": {
                         "type": "array",
                         "items": {"type": "string"},
-                        "description": "要排除的通道标签列表。例如: ['EOG1','EOG2','EMG']。与 channels 二选一",
+                        "description": "Channel labels to exclude, for example ['EOG1','EOG2','EMG']. Mutually exclusive with channels",
                     },
                 },
                 "required": [],
@@ -220,21 +220,21 @@ def build_tool_definitions() -> list[Tool]:
         ),
         Tool(
             name="eeglab_interpolate_channels",
-            description="通道插值。使用球面样条插值法从周围通道估计坏通道的信号。"
-            "专业建议: 应在 ICA 去伪迹后使用，而非之前; "
-            "可使用 urchanlocs 恢复之前删除的通道。",
+            description="Interpolate channels, estimating the signal of a bad channel from its neighbours with spherical splines."
+            "Guidance: run this after ICA artifact removal rather than before; "
+            "urchanlocs can restore channels that were removed earlier.",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "ref_chanlocs": {
                         "type": "string",
-                        "description": "参考通道位置。'urchanlocs' 恢复原始通道，或指定 .loc 文件路径。留空则使用当前通道位置",
+                        "description": "Channel locations to reference: 'urchanlocs' restores the original channels, or give the path of a .loc file. Leave empty to use the current channel locations",
                     },
                     "method": {
                         "type": "string",
                         "enum": ["spherical", "v4"],
                         "default": "spherical",
-                        "description": "插值方法: spherical(球面样条,推荐) 或 v4(双调和样条)",
+                        "description": "Interpolation method: spherical (spherical splines, recommended) or v4 (biharmonic splines)",
                     },
                 },
                 "required": [],
@@ -242,23 +242,23 @@ def build_tool_definitions() -> list[Tool]:
         ),
         Tool(
             name="eeglab_edit_channels",
-            description="编辑通道信息。加载 .loc 位置文件、重命名通道等。"
-            "专业建议: 加载数据后应检查通道位置是否正确，否则地形图和源定位结果会出错。",
+            description="Edit channel information, for example loading a .loc location file or renaming channels."
+            "Guidance: check the channel locations after loading, otherwise topomaps and source results will be wrong.",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "action": {
                         "type": "string",
                         "enum": ["load_loc", "rename"],
-                        "description": "操作类型: load_loc(加载位置文件), rename(重命名通道)",
+                        "description": "Action: load_loc to load a location file, or rename to rename channels",
                     },
                     "loc_file": {
                         "type": "string",
-                        "description": "通道位置文件路径(.loc/.ced)。action 为 load_loc 时必填",
+                        "description": "Path of the channel location file (.loc/.ced), required when action is load_loc",
                     },
                     "rename_map": {
                         "type": "object",
-                        "description": '重命名映射，键为旧名称，值为新名称。action 为 rename 时必填。例如: {"Fp1":"E1", "Fp2":"E2"}',
+                        "description": 'Rename map keyed by the old name with the new name as the value, required when action is rename, for example {"Fp1":"E1", "Fp2":"E2"}',
                     },
                 },
                 "required": ["action"],
@@ -266,31 +266,31 @@ def build_tool_definitions() -> list[Tool]:
         ),
         Tool(
             name="eeglab_clean_line_noise",
-            description="专用工频噪声去除工具。使用 clean_rawdata 插件的 pop_cleanline 函数。"
-            "比简单陷波滤波更精确，可自适应估计和去除工频及其谐波。"
-            "需要 clean_rawdata 插件。专业建议: 如果数据有明显的 50/60Hz 工频干扰，优先使用此工具。",
+            description="Dedicated line-noise removal, using pop_cleanline from the clean_rawdata plugin."
+            "It is more accurate than plain notch filtering because it estimates the line noise and its harmonics adaptively."
+            "It needs the clean_rawdata plugin. Guidance: prefer this tool when the data has clear 50/60 Hz line noise.",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "line_freq": {
                         "type": "number",
                         "default": 50,
-                        "description": "工频频率(Hz)。50(中国/欧洲)或60(美国)",
+                        "description": "Line noise frequency in Hz: 50 (China/Europe) or 60 (US)",
                     },
                     "bandwidth": {
                         "type": "number",
                         "default": 2,
-                        "description": "陷波带宽(Hz)",
+                        "description": "Notch bandwidth in Hz",
                     },
                     "tau": {
                         "type": "number",
                         "default": 100,
-                        "description": "平滑参数 tau",
+                        "description": "Smoothing parameter tau",
                     },
                     "winsize": {
                         "type": "number",
                         "default": 4,
-                        "description": "窗口大小(秒)",
+                        "description": "Window size in seconds",
                     },
                 },
                 "required": [],
@@ -298,49 +298,49 @@ def build_tool_definitions() -> list[Tool]:
         ),
         Tool(
             name="eeglab_clean_rawdata",
-            description="ASR (Artifact Subspace Reconstruction) 伪迹去除。使用 clean_rawdata 插件。"
-            "可自动检测和修复坏通道、去除高幅伪迹。"
-            "专业建议: 在连续数据上运行（分段前）; ICA 前使用可提高 ICA 质量; "
-            "burst_criterion: 5=激进, 20=保守, 40=温和。需要 clean_rawdata 插件。",
+            description="ASR (Artifact Subspace Reconstruction) artifact removal, using the clean_rawdata plugin."
+            "It detects and repairs bad channels and removes high-amplitude artifacts automatically."
+            "Guidance: run it on continuous data before epoching; using it before ICA improves ICA quality; "
+            "burst_criterion: 5 is aggressive, 20 conservative, 40 mild. It needs the clean_rawdata plugin.",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "flatline_criterion": {
                         "type": "number",
                         "default": 5,
-                        "description": "平线检测阈值(秒)。通道信号标准差接近0超过此时长则标记为坏通道",
+                        "description": "Flatline detection threshold in seconds. A channel whose signal standard deviation stays near zero for this long is marked as bad",
                     },
                     "channel_criterion": {
                         "type": "number",
                         "default": 0.8,
-                        "description": "坏通道检测阈值(相关系数)。低于此值的通道被标记为坏通道",
+                        "description": "Bad-channel detection threshold as a correlation coefficient. Channels below this value are marked as bad",
                     },
                     "line_noise_criterion": {
                         "type": "number",
                         "default": 4,
-                        "description": "工频噪声检测阈值(Z分数)",
+                        "description": "Line-noise detection threshold in Z units",
                     },
                     "burst_criterion": {
                         "type": "number",
                         "default": 20,
-                        "description": "突发伪迹检测阈值(Z分数)。5=激进, 20=保守, 40=温和",
+                        "description": "Burst artifact detection threshold in Z units: 5 is aggressive, 20 conservative, 40 mild",
                     },
                     "window_criterion": {
                         "type": "number",
                         "default": 0.25,
-                        "description": "坏时间段检测阈值(比例)。超过此比例的窗口被标记为坏段",
+                        "description": "Bad-segment detection threshold as a proportion. Windows above this proportion are marked as bad segments",
                     },
                 },
                 "required": [],
             },
         ),
-        # ===== 第 3 类：ICA 与伪迹处理 =====
+        # ===== Category 3: ICA and artifact handling =====
         Tool(
             name="eeglab_run_ica",
-            description="对 EEG 数据运行 ICA（独立成分分析）分解。ICA 用于分离脑源信号和伪迹成分（眼电、肌电、心电等）。"
-            "专业建议: ICA 前建议高通 1Hz 滤波; 不要在 ICA 前做基线校正; "
-            "平均参考会使秩减 1，需设置 pca=nchan-1; "
-            "runica 和 picard 是 EEGLAB 内置算法; fastica 需要单独插件。",
+            description="Run an ICA (independent component analysis) decomposition on the EEG data. ICA separates brain sources from artifact components such as ocular, muscle and cardiac activity."
+            "Guidance: a 1 Hz highpass before ICA is recommended; do not baseline-correct before ICA; "
+            "average reference reduces the rank by 1, so set pca=nchan-1; "
+            "runica and picard ship with EEGLAB, while fastica needs a separate plugin.",
             inputSchema={
                 "type": "object",
                 "properties": {
@@ -348,21 +348,21 @@ def build_tool_definitions() -> list[Tool]:
                         "type": "string",
                         "enum": ["runica", "picard"],
                         "default": "runica",
-                        "description": "ICA 算法: runica(Infomax,默认稳定), picard(速度与精度平衡,推荐)",
+                        "description": "ICA algorithm: runica (Infomax, stable by default) or picard (a balance of speed and accuracy, recommended)",
                     },
                     "pca_components": {
                         "type": "integer",
-                        "description": "PCA 降维后的成分数。不填则等于通道数。平均参考后建议设为 nchan-1",
+                        "description": "Number of components after PCA reduction. Leave empty to use the channel count. After average reference, nchan-1 is recommended",
                     },
                     "extended": {
                         "type": "boolean",
                         "default": True,
-                        "description": "是否使用扩展 Infomax(可分离超高斯和亚高斯分布)。推荐开启以更好地分离肌电伪迹",
+                        "description": "Use extended Infomax, which can separate super- and sub-Gaussian sources. Enabling it improves muscle artifact separation",
                     },
                     "max_steps": {
                         "type": "integer",
                         "default": 512,
-                        "description": "最大迭代步数。默认512，大数据集可增加到1000-2000",
+                        "description": "Maximum number of iterations. Defaults to 512; 1000 to 2000 is reasonable for large datasets",
                     },
                 },
                 "required": [],
@@ -370,16 +370,16 @@ def build_tool_definitions() -> list[Tool]:
         ),
         Tool(
             name="eeglab_classify_ica",
-            description="使用 ICLabel 自动分类 ICA 成分。ICLabel 是基于深度学习的自动分类工具，"
-            "将每个 IC 成分分为: Brain(脑源), Muscle(肌电), Eye(眼电), Heart(心电), "
-            "Line_Noise(工频), Channel_Noise(通道噪声), Other(其他) 七类。"
-            "分类结果包含每个成分属于各类别的概率。需先运行 ICA 分解。需要 ICLabel 插件。",
+            description="Classify ICA components automatically with ICLabel. ICLabel is a deep-learning based classifier that "
+            "assigns each component to one of seven classes: Brain, Muscle, Eye, Heart, "
+            "Line_Noise, Channel_Noise and Other."
+            "The result carries the probability of each class for every component. Run the ICA decomposition first. It needs the ICLabel plugin.",
             inputSchema={"type": "object", "properties": {}, "required": []},
         ),
         Tool(
             name="eeglab_flag_components",
-            description="根据 ICLabel 分类概率标记 ICA 成分。可设置各类别的概率阈值来决定哪些成分应被标记为伪迹。"
-            "专业建议: 常用策略是标记 Brain 概率低于 0.2 的成分，或标记 Muscle/Eye 概率高于 0.8 的成分。",
+            description="Mark ICA components from the ICLabel probabilities. Set a probability threshold per class to decide which components count as artifacts."
+            "Guidance: a common strategy marks components whose Brain probability is below 0.2, or whose Muscle or Eye probability is above 0.8.",
             inputSchema={
                 "type": "object",
                 "properties": {
@@ -388,49 +388,49 @@ def build_tool_definitions() -> list[Tool]:
                         "items": {"type": "number"},
                         "minItems": 2,
                         "maxItems": 2,
-                        "description": "Brain 类别概率范围 [min, max]，超出此范围标记。例如: [0, 0.2] 标记 Brain<20% 的",
+                        "description": "Brain class probability range [min, max]; components outside it are marked, for example [0, 0.2] marks Brain below 20%",
                     },
                     "muscle_range": {
                         "type": "array",
                         "items": {"type": "number"},
                         "minItems": 2,
                         "maxItems": 2,
-                        "description": "Muscle 类别概率范围 [min, max]，在此范围内标记。例如: [0.8, 1] 标记 Muscle>80%",
+                        "description": "Muscle class probability range [min, max]; components inside it are marked, for example [0.8, 1] marks Muscle above 80%",
                     },
                     "eye_range": {
                         "type": "array",
                         "items": {"type": "number"},
                         "minItems": 2,
                         "maxItems": 2,
-                        "description": "Eye 类别概率范围 [min, max]。例如: [0.8, 1]",
+                        "description": "Eye class probability range [min, max], for example [0.8, 1]",
                     },
                     "heart_range": {
                         "type": "array",
                         "items": {"type": "number"},
                         "minItems": 2,
                         "maxItems": 2,
-                        "description": "Heart 类别概率范围 [min, max]。例如: [0.8, 1]",
+                        "description": "Heart class probability range [min, max], for example [0.8, 1]",
                     },
                     "line_noise_range": {
                         "type": "array",
                         "items": {"type": "number"},
                         "minItems": 2,
                         "maxItems": 2,
-                        "description": "Line_Noise 类别概率范围 [min, max]",
+                        "description": "Line_Noise class probability range [min, max]",
                     },
                     "channel_noise_range": {
                         "type": "array",
                         "items": {"type": "number"},
                         "minItems": 2,
                         "maxItems": 2,
-                        "description": "Channel_Noise 类别概率范围 [min, max]",
+                        "description": "Channel_Noise class probability range [min, max]",
                     },
                     "other_range": {
                         "type": "array",
                         "items": {"type": "number"},
                         "minItems": 2,
                         "maxItems": 2,
-                        "description": "Other 类别概率范围 [min, max]",
+                        "description": "Other class probability range [min, max]",
                     },
                 },
                 "required": [],
@@ -438,20 +438,20 @@ def build_tool_definitions() -> list[Tool]:
         ),
         Tool(
             name="eeglab_remove_components",
-            description="移除指定的 ICA 伪迹成分并重建 EEG 数据。根据 ICLabel 分类结果或手动选择，"
-            "移除非脑源成分（如眼电、肌电、心电、工频噪声等）。"
-            "这是 ICA 去伪迹的核心步骤。建议先运行 eeglab_classify_ica 查看分类结果再决定移除哪些成分。",
+            description="Remove selected ICA artifact components and rebuild the EEG data, either from the ICLabel classification or from a manual selection, dropping "
+            "non-brain components such as ocular, muscle, cardiac and line noise."
+            "This is the core step of ICA artifact removal. Run eeglab_classify_ica first to see the classification before deciding what to remove.",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "component_indices": {
                         "type": "array",
                         "items": {"type": "integer"},
-                        "description": "要移除的 IC 成分索引列表(从1开始)。例如: [2, 5, 7, 10]",
+                        "description": "Indices of the IC components to remove, counted from 1, for example [2, 5, 7, 10]",
                     },
                     "auto_remove_brain_threshold": {
                         "type": "number",
-                        "description": "自动移除模式: Brain 类别概率低于此阈值的成分将被移除。例如: 0.3 表示保留 Brain 概率>=30% 的成分。不填则使用手动 component_indices",
+                        "description": "Automatic removal mode: components whose Brain probability is below this threshold are removed. For example 0.3 keeps the components with a Brain probability of 30 percent or more. Leave empty to use the manual component_indices",
                     },
                 },
                 "required": [],
@@ -459,9 +459,9 @@ def build_tool_definitions() -> list[Tool]:
         ),
         Tool(
             name="eeglab_reject_epochs",
-            description="试次拒绝。根据阈值或联合概率方法拒绝包含伪迹的试次。"
-            "专业建议: 分段后使用; 阈值应根据数据幅度设置（通常 ±100μV）; "
-            "联合概率方法可检测多通道联合异常。",
+            description="Reject trials. Reject artifact-contaminated trials by threshold or by joint probability."
+            "Guidance: use it after epoching; set the threshold from the data amplitude, usually plus or minus 100 microvolts; "
+            "the joint probability method detects abnormalities that are only visible across channels.",
             inputSchema={
                 "type": "object",
                 "properties": {
@@ -469,7 +469,7 @@ def build_tool_definitions() -> list[Tool]:
                         "type": "string",
                         "enum": ["threshold", "joint_probability"],
                         "default": "threshold",
-                        "description": "拒绝方法: threshold(阈值), joint_probability(联合概率)",
+                        "description": "Rejection method: threshold or joint_probability",
                     },
                     "threshold": {
                         "type": "array",
@@ -477,17 +477,17 @@ def build_tool_definitions() -> list[Tool]:
                         "minItems": 2,
                         "maxItems": 2,
                         "default": [-100, 100],
-                        "description": "阈值范围[下限μV, 上限μV]。method 为 threshold 时使用",
+                        "description": "Threshold range [lower microvolts, upper microvolts], used when method is threshold",
                     },
                     "channels": {
                         "type": "array",
                         "items": {"type": "string"},
-                        "description": "检测的通道列表。留空则使用所有通道",
+                        "description": "Channels to inspect. Leave empty to use all channels",
                     },
                     "jp_threshold": {
                         "type": "number",
                         "default": 3,
-                        "description": "联合概率的 Z 分数阈值。method 为 joint_probability 时使用",
+                        "description": "Z threshold for joint probability, used when method is joint_probability",
                     },
                 },
                 "required": [],
@@ -495,44 +495,44 @@ def build_tool_definitions() -> list[Tool]:
         ),
         Tool(
             name="eeglab_get_events",
-            description="获取当前 EEG 数据集的事件信息。查看可用事件类型和数量。"
-            "用于了解数据中有哪些标记事件，以便后续分段和分析。",
+            description="Return event information for the current EEG dataset, listing the available event types and their counts."
+            "Use it to find out which markers the data contains before epoching and analysis.",
             inputSchema={"type": "object", "properties": {}, "required": []},
         ),
-        # ===== 第 4 类：分段与 ERP =====
+        # ===== Category 4: epoching and ERP =====
         Tool(
             name="eeglab_epoch",
-            description="对连续 EEG 数据进行分段和基线校正。根据事件类型将数据切分为试次。"
-            "分段是 ERP 分析的必要步骤。专业建议: 常用时间窗 [-200, 800]ms (P300), "
-            "[-200, 500]ms (N170); 基线校正使用刺激前时间段消除直流偏移; "
-            "基线窗口通常与刺激前窗口相同。",
+            description="Epoch the continuous EEG data and apply baseline correction, cutting the data into trials by event type."
+            "Epoching is required for ERP analysis. Guidance: common windows are [-200, 800] ms for P300 and "
+            "[-200, 500] ms for N170; baseline correction removes the DC offset over the pre-stimulus period; "
+            "the baseline window is usually the same as the pre-stimulus window.",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "event_types": {
                         "type": "array",
                         "items": {"type": "string"},
-                        "description": "用于分段的事件类型列表。例如: ['target', 'standard']。留空则使用所有事件",
+                        "description": "Event types to epoch on, for example ['target', 'standard']. Leave empty to use all events",
                     },
                     "pre_stimulus": {
                         "type": "number",
                         "default": -0.2,
-                        "description": "刺激前时间窗口(秒)。例如: -0.2 表示刺激前200ms",
+                        "description": "Pre-stimulus time window in seconds, for example -0.2 for the 200 ms before the stimulus",
                     },
                     "post_stimulus": {
                         "type": "number",
                         "default": 0.8,
-                        "description": "刺激后时间窗口(秒)。例如: 0.8 表示刺激后800ms",
+                        "description": "Post-stimulus time window in seconds, for example 0.8 for the 800 ms after the stimulus",
                     },
                     "baseline_start": {
                         "type": "number",
                         "default": -0.2,
-                        "description": "基线校正起始时间(秒)。通常与 pre_stimulus 相同",
+                        "description": "Baseline correction start in seconds, usually the same as pre_stimulus",
                     },
                     "baseline_end": {
                         "type": "number",
                         "default": 0,
-                        "description": "基线校正结束时间(秒)。通常为0(刺激 onset)",
+                        "description": "Baseline correction end in seconds, usually 0 at stimulus onset",
                     },
                 },
                 "required": [],
@@ -540,34 +540,34 @@ def build_tool_definitions() -> list[Tool]:
         ),
         Tool(
             name="eeglab_erp_analysis",
-            description="ERP（事件相关电位）分析。计算各条件的平均 ERP 波形，支持按条件分组、"
-            "选择通道、指定时间窗口。输出各条件在各通道的 ERP 均值、峰值及潜伏期。"
-            "专业建议: 常用 ERP 成分: N1(80-150ms), P2(150-280ms), "
-            "N170(140-200ms,颞枕区), P300(250-500ms,中央顶区), N400(300-500ms,中央区)。",
+            description="ERP (event-related potential) analysis. Computes the average ERP waveform per condition, with grouping by condition, "
+            "channel selection and a configurable time window. It reports the mean, the peak and the latency for each condition and channel."
+            "Guidance: common ERP components are N1 at 80-150 ms, P2 at 150-280 ms, "
+            "N170 at 140-200 ms over temporo-occipital sites, P300 at 250-500 ms over centro-parietal sites and N400 at 300-500 ms over central sites.",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "channels": {
                         "type": "array",
                         "items": {"type": "string"},
-                        "description": "分析的通道列表。例如: ['Fz', 'Cz', 'Pz']。留空则分析所有通道",
+                        "description": "Channels to analyse, for example ['Fz', 'Cz', 'Pz']. Leave empty to analyse all channels",
                     },
                     "time_window": {
                         "type": "array",
                         "items": {"type": "number"},
                         "minItems": 2,
                         "maxItems": 2,
-                        "description": "分析的时间窗口[起始ms, 结束ms]。例如: [250, 500] 分析 P300 成分",
+                        "description": "Analysis time window [start ms, end ms], for example [250, 500] to analyse the P300 component",
                     },
                     "peak_detection": {
                         "type": "boolean",
                         "default": True,
-                        "description": "是否在指定时间窗口内检测峰值(最大正波和最大负波)",
+                        "description": "Detect the peak, that is the largest positive and the largest negative wave, inside the given time window",
                     },
                     "conditions": {
                         "type": "array",
                         "items": {"type": "string"},
-                        "description": "按条件分组分析。留空则分析所有试次的平均",
+                        "description": "Analyse grouped by condition. Leave empty to average across all trials",
                     },
                 },
                 "required": [],
@@ -575,14 +575,14 @@ def build_tool_definitions() -> list[Tool]:
         ),
         Tool(
             name="eeglab_sort_epochs",
-            description="按条件排序试次。将试次按事件类型分组排序，便于后续分组分析。"
-            "专业建议: 分段后使用; 排序后可用 eeglab_erp_analysis 按条件分析。",
+            description="Sort trials by condition, grouping and ordering the trials by event type so that the grouped analysis can follow."
+            "Guidance: use it after epoching; once the trials are sorted, eeglab_erp_analysis can analyse them by condition.",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "sort_by": {
                         "type": "string",
-                        "description": "排序依据的事件类型字段名。例如: 'type'",
+                        "description": "Event type field name to sort on, for example 'type'",
                     }
                 },
                 "required": ["sort_by"],
@@ -590,40 +590,40 @@ def build_tool_definitions() -> list[Tool]:
         ),
         Tool(
             name="eeglab_average_erp",
-            description="ERP 平均。按条件分组计算 ERP 平均波形。"
-            "专业建议: 通常在分段和基线校正后使用; "
-            "可按事件类型分组计算各条件的平均 ERP。",
+            description="Average the ERP, computing the average ERP waveform per condition."
+            "Guidance: usually run after epoching and baseline correction; "
+            "it can group by event type to average the ERP per condition.",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "conditions": {
                         "type": "array",
                         "items": {"type": "string"},
-                        "description": "按条件分组。留空则计算所有试次的总体平均",
+                        "description": "Group by condition. Leave empty to average across all trials",
                     },
                     "channels": {
                         "type": "array",
                         "items": {"type": "string"},
-                        "description": "计算的通道列表。留空则计算所有通道",
+                        "description": "Channels to average. Leave empty to average all channels",
                     },
                 },
                 "required": [],
             },
         ),
-        # ===== 第 5 类：频域与时频 =====
+        # ===== Category 5: frequency domain and time-frequency =====
         Tool(
             name="eeglab_spectral",
-            description="频谱/功率谱密度(PSD)分析。使用 Welch 方法计算各通道的功率谱密度。"
-            "输出各频段(Delta/Theta/Alpha/Beta/Gamma)的绝对功率和相对功率。"
-            "专业建议: 频段定义: Delta(0.5-4Hz), Theta(4-8Hz), Alpha(8-13Hz), "
-            "Beta(13-30Hz), Gamma(30-80Hz); 静息态分析常用此工具。",
+            description="Spectral or power spectral density (PSD) analysis, computing the power spectral density of each channel with the Welch method."
+            "It reports the absolute and the relative power of the Delta, Theta, Alpha, Beta and Gamma bands."
+            "Guidance: the bands are Delta 0.5-4 Hz, Theta 4-8 Hz, Alpha 8-13 Hz, "
+            "Beta 13-30 Hz and Gamma 30-80 Hz; this tool is the usual choice for resting-state analysis.",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "channels": {
                         "type": "array",
                         "items": {"type": "string"},
-                        "description": "分析的通道列表。例如: ['Oz', 'Pz']。留空则分析所有通道",
+                        "description": "Channels to analyse, for example ['Oz', 'Pz']. Leave empty to analyse all channels",
                     },
                     "freq_range": {
                         "type": "array",
@@ -631,12 +631,12 @@ def build_tool_definitions() -> list[Tool]:
                         "minItems": 2,
                         "maxItems": 2,
                         "default": [0.5, 100],
-                        "description": "频率范围[最低Hz, 最高Hz]。默认: [0.5, 100]",
+                        "description": "Frequency range [lowest Hz, highest Hz]. Defaults to [0.5, 100]",
                     },
                     "band_power": {
                         "type": "boolean",
                         "default": True,
-                        "description": "是否计算各频段(Delta/Theta/Alpha/Beta/Gamma)的功率",
+                        "description": "Compute the band power of the Delta, Theta, Alpha, Beta and Gamma bands",
                     },
                 },
                 "required": [],
@@ -644,18 +644,18 @@ def build_tool_definitions() -> list[Tool]:
         ),
         Tool(
             name="eeglab_timefreq",
-            description="时频分析。计算 EEG 信号的事件相关谱扰动(ERSP)和跨试次相干性(ITC)。"
-            "支持 Morlet 小波变换。"
-            "ERSP 反映各频段能量随时间的变化; ITC 反映各频段相位锁定程度。"
-            "专业建议: 频率范围 3-80Hz; 周期数 3-10(低频到高频线性增长); "
-            "需要分段数据。",
+            description="Time-frequency analysis. Computes the event-related spectral perturbation (ERSP) and the inter-trial coherence (ITC) of the EEG signal."
+            "It supports the Morlet wavelet transform."
+            "ERSP reflects how the energy of each band varies over time, while ITC reflects how strongly the phase is locked in each band."
+            "Guidance: a frequency range of 3-80 Hz with 3-10 cycles growing linearly from low to high frequency; "
+            "it needs epoched data.",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "channels": {
                         "type": "array",
                         "items": {"type": "string"},
-                        "description": "分析的通道列表。例如: ['Cz', 'Pz']。留空则分析所有通道",
+                        "description": "Channels to analyse, for example ['Cz', 'Pz']. Leave empty to analyse all channels",
                     },
                     "freq_range": {
                         "type": "array",
@@ -663,7 +663,7 @@ def build_tool_definitions() -> list[Tool]:
                         "minItems": 2,
                         "maxItems": 2,
                         "default": [3, 80],
-                        "description": "频率范围[最低Hz, 最高Hz]。例如: [3, 80]",
+                        "description": "Frequency range [lowest Hz, highest Hz], for example [3, 80]",
                     },
                     "cycles": {
                         "type": "array",
@@ -671,7 +671,7 @@ def build_tool_definitions() -> list[Tool]:
                         "minItems": 2,
                         "maxItems": 3,
                         "default": [3, 10],
-                        "description": "小波周期数。2个值: [起始, 结束]; 3个值: [起始, 增长率, 结束]。默认: [3, 10]",
+                        "description": "Number of wavelet cycles. Two values: [start, end]; three values: [start, step, end]. Defaults to [3, 10]",
                     },
                     "baseline": {
                         "type": "array",
@@ -679,13 +679,13 @@ def build_tool_definitions() -> list[Tool]:
                         "minItems": 2,
                         "maxItems": 2,
                         "default": [-200, 0],
-                        "description": "基线窗口[起始ms, 结束ms]。默认: [-200, 0] 刺激前200ms",
+                        "description": "Baseline window [start ms, end ms]. Defaults to [-200, 0], the 200 ms before the stimulus",
                     },
                     "output_type": {
                         "type": "string",
                         "enum": ["ersp", "itc", "both"],
                         "default": "both",
-                        "description": "输出类型: ersp(仅功率), itc(仅相位一致性), both(两者)",
+                        "description": "Output type: ersp for power only, itc for phase consistency only, or both",
                     },
                 },
                 "required": [],
@@ -693,22 +693,22 @@ def build_tool_definitions() -> list[Tool]:
         ),
         Tool(
             name="eeglab_connectivity",
-            description="功能连接分析。计算通道间的相干性(Coherence)和相位锁定值(PLV)。"
-            "专业建议: 相干性反映两个信号在不同频率上的线性关系; "
-            "PLV 反映相位同步程度; 常用于静息态脑网络分析。",
+            description="Functional connectivity analysis, computing the coherence and the phase locking value (PLV) between channels."
+            "Guidance: coherence reflects the linear relationship between two signals at a given frequency; "
+            "PLV reflects phase synchronisation; both are common in resting-state brain network analysis.",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "channels": {
                         "type": "array",
                         "items": {"type": "string"},
-                        "description": "分析的通道列表。留空则分析所有通道",
+                        "description": "Channels to analyse. Leave empty to analyse all channels",
                     },
                     "method": {
                         "type": "string",
                         "enum": ["coherence", "plv"],
                         "default": "coherence",
-                        "description": "连接性度量: coherence(相干性), plv(相位锁定值)",
+                        "description": "Connectivity measure: coherence or plv",
                     },
                     "freq_range": {
                         "type": "array",
@@ -716,213 +716,149 @@ def build_tool_definitions() -> list[Tool]:
                         "minItems": 2,
                         "maxItems": 2,
                         "default": [8, 13],
-                        "description": "频率范围[最低Hz, 最高Hz]。默认: [8, 13] Alpha 频段",
+                        "description": "Frequency range [lowest Hz, highest Hz]. Defaults to [8, 13], the Alpha band",
                     },
                 },
                 "required": [],
             },
         ),
-        # ===== 第 6 类：可视化 =====
+        # ===== Category 6: visualization =====
         Tool(
             name="eeglab_topoplot",
-            description="绘制头皮地形图(Topography)。将 EEG 信号在头皮上的分布以等高线图形式展示。"
-            "支持绘制特定时间点或时间窗的平均电位分布。图形保存为 PNG 文件。",
+            description="Plot a scalp topomap, showing the distribution of the EEG signal over the scalp as contour lines."
+            "It can plot the average potential at a given time point or across a time window. The figure is saved as a PNG file.",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "time_point": {
                         "type": "number",
-                        "description": "绘制的时间点(ms)。例如: 300 表示刺激后300ms。与 time_window 二选一",
+                        "description": "Time point to plot in ms, for example 300 for the 300 ms after the stimulus. Mutually exclusive with time_window",
                     },
                     "time_window": {
                         "type": "array",
                         "items": {"type": "number"},
                         "minItems": 2,
                         "maxItems": 2,
-                        "description": "绘制的时间窗平均值[起始ms, 结束ms]。例如: [250, 350] 表示 P300 时间窗。与 time_point 二选一",
+                        "description": "Average over the plotted time window [start ms, end ms], for example [250, 350] for the P300 window. Mutually exclusive with time_point",
                     },
                     "channels": {
                         "type": "array",
                         "items": {"type": "string"},
-                        "description": "绘制的通道列表。留空则使用所有通道",
+                        "description": "Channels to plot. Leave empty to use all channels",
                     },
                     "output_path": {
                         "type": "string",
-                        "description": "输出图片的绝对路径。例如: C:/results/topo_300ms.png",
+                        "description": "Absolute path of the output image, for example C:/results/topo_300ms.png",
                     },
-                    "title": {"type": "string", "description": "图形标题"},
+                    "title": {"type": "string", "description": "Figure title"},
                 },
                 "required": ["output_path"],
             },
         ),
         Tool(
             name="eeglab_plot_erp",
-            description="绘制 ERP 波形图。显示指定通道的 ERP 平均波形。"
-            "支持按条件分组绘制、添加置信区间。图形保存为 PNG 文件。",
+            description="Plot ERP waveforms, showing the average ERP waveform of the given channels."
+            "It can plot per condition and can add confidence intervals. The figure is saved as a PNG file.",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "channels": {
                         "type": "array",
                         "items": {"type": "string"},
-                        "description": "绘制的通道列表。例如: ['Fz', 'Cz', 'Pz']",
+                        "description": "Channels to plot, for example ['Fz', 'Cz', 'Pz']",
                     },
                     "conditions": {
                         "type": "array",
                         "items": {"type": "string"},
-                        "description": "按条件分组绘制。留空则绘制所有试次平均",
+                        "description": "Plot per condition. Leave empty to plot the average across all trials",
                     },
                     "output_path": {
                         "type": "string",
-                        "description": "输出图片的绝对路径",
+                        "description": "Absolute path of the output image",
                     },
-                    "title": {"type": "string", "description": "图形标题"},
+                    "title": {"type": "string", "description": "Figure title"},
                 },
                 "required": ["channels", "output_path"],
             },
         ),
         Tool(
             name="eeglab_plot_timefreq",
-            description="绘制时频图。显示指定通道的 ERSP 和/或 ITC 时频图。"
-            "需要先运行 eeglab_timefreq 获取时频数据。图形保存为 PNG 文件。",
+            description="Plot time-frequency figures, showing the ERSP and/or ITC of the given channel."
+            "Run eeglab_timefreq first to obtain the time-frequency data. The figure is saved as a PNG file.",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "channel": {
                         "type": "string",
-                        "description": "绘制的通道标签。例如: 'Cz'",
+                        "description": "Channel label to plot, for example 'Cz'",
                     },
                     "output_path": {
                         "type": "string",
-                        "description": "输出图片的绝对路径",
+                        "description": "Absolute path of the output image",
                     },
                     "plot_ersp": {
                         "type": "boolean",
                         "default": True,
-                        "description": "是否绘制 ERSP 图",
+                        "description": "Plot the ERSP figure",
                     },
                     "plot_itc": {
                         "type": "boolean",
                         "default": True,
-                        "description": "是否绘制 ITC 图",
+                        "description": "Plot the ITC figure",
                     },
-                    "title": {"type": "string", "description": "图形标题"},
+                    "title": {"type": "string", "description": "Figure title"},
                 },
                 "required": ["channel", "output_path"],
             },
         ),
         Tool(
             name="eeglab_plot_components",
-            description="绘制 ICA 成分图。显示每个 IC 成分的头皮拓扑图和功率谱。"
-            "用于人工检查和判断 ICA 成分性质。图形保存为 PNG 文件。"
-            "专业建议: 需先运行 ICA 分解; 可结合 ICLabel 分类结果判断成分性质。",
+            description="Plot ICA component figures, showing the scalp topomap and the power spectrum of each component."
+            "Use them to inspect the components and to judge their nature by hand. The figures are saved as PNG files."
+            "Guidance: run the ICA decomposition first, and combine the figures with the ICLabel classification to judge the components.",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "component_indices": {
                         "type": "array",
                         "items": {"type": "integer"},
-                        "description": "要绘制的 IC 成分索引列表(从1开始)。留空则绘制前 10 个",
+                        "description": "Indices of the IC components to plot, counted from 1. Leave empty to plot the first 10",
                     },
                     "output_path": {
                         "type": "string",
-                        "description": "输出图片的绝对路径",
+                        "description": "Absolute path of the output image",
                     },
-                    "title": {"type": "string", "description": "图形标题"},
+                    "title": {"type": "string", "description": "Figure title"},
                 },
                 "required": ["output_path"],
             },
         ),
-        Tool(
-            name="eeglab_plot_psd",
-            description="绘制功率谱密度(PSD)图。显示指定通道的功率谱密度。"
-            "支持按频段分析、多通道叠加。图形保存为 PNG 文件。",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "channels": {
-                        "type": "array",
-                        "items": {"type": "string"},
-                        "description": "绘制的通道列表。例如: ['Oz', 'Pz']。留空则绘制所有通道",
-                    },
-                    "output_path": {
-                        "type": "string",
-                        "description": "输出图片的绝对路径",
-                    },
-                    "freq_range": {
-                        "type": "array",
-                        "items": {"type": "number"},
-                        "minItems": 2,
-                        "maxItems": 2,
-                        "default": [0.5, 100],
-                        "description": "频率范围[最低Hz, 最高Hz]。默认: [0.5, 100]",
-                    },
-                    "title": {"type": "string", "description": "图形标题"},
-                },
-                "required": ["output_path"],
-            },
-        ),
-        Tool(
-            name="eeglab_plot_connectivity",
-            description="绘制连接性矩阵图。显示通道间的相干性或PLV连接矩阵。"
-            "用于可视化脑功能网络连接。图形保存为 PNG 文件。",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "channels": {
-                        "type": "array",
-                        "items": {"type": "string"},
-                        "description": "分析的通道列表。例如: ['Fz', 'Cz', 'Pz']。留空则分析所有通道",
-                    },
-                    "output_path": {
-                        "type": "string",
-                        "description": "输出图片的绝对路径",
-                    },
-                    "method": {
-                        "type": "string",
-                        "enum": ["coherence", "plv"],
-                        "default": "coherence",
-                        "description": "连接性度量: coherence(相干性), plv(相位锁定值)",
-                    },
-                    "freq_range": {
-                        "type": "array",
-                        "items": {"type": "number"},
-                        "minItems": 2,
-                        "maxItems": 2,
-                        "default": [8, 13],
-                        "description": "频率范围[最低Hz, 最高Hz]。默认: [8, 13] Alpha 频段",
-                    },
-                    "title": {"type": "string", "description": "图形标题"},
-                },
-                "required": ["output_path"],
-            },
-        ),
-        # ===== 第 7 类：源定位 =====
+        # ===== Category 7: source localization =====
         Tool(
             name="eeglab_source_localization",
-            description="源定位分析（偶极子拟合）。使用 EEGLAB 内置的 Dipfit 工具对 ICA 成分进行偶极子拟合，"
-            "估计脑内信号源的位置。需要先运行 ICA 分解。"
-            "输出偶极子的 MNI 坐标、残差方差等。专业建议: 拟合前需确保通道位置正确; "
-            "残差方差 < 15% 表示拟合良好。需要 Dipfit 插件（EEGLAB 内置）。",
+            description="Source localization by dipole fitting, using the Dipfit tool built into EEGLAB to fit dipoles to the ICA components "
+            "and estimate where the intracranial sources sit. Run the ICA decomposition first."
+            "It reports the MNI coordinates of the dipoles, the residual variance and more. Guidance: the channel locations must be correct before fitting; "
+            "a residual variance below 15 percent means a good fit. It needs the Dipfit plugin, which ships with EEGLAB.",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "component_indices": {
                         "type": "array",
                         "items": {"type": "integer"},
-                        "description": "要拟合的 IC 成分索引列表。留空则拟合所有成分",
+                        "description": "Indices of the IC components to fit. Leave empty to fit every component",
                     },
                     "head_model": {
                         "type": "string",
                         "enum": ["bem", "spherical"],
                         "default": "bem",
-                        "description": "头模型类型: bem(边界元模型,推荐) 或 spherical(球模型,快速)",
+                        "description": "Head model type: bem (boundary element model, recommended) or spherical (spherical model, fast)",
                     },
                     "template": {
                         "type": "string",
                         "enum": ["mni", "colin27"],
                         "default": "mni",
-                        "description": "模板脑: mni(MNI305,默认) 或 colin27(Colin27 高分辨率)",
+                        "description": "Template brain: mni (MNI305, default) or colin27 (the high-resolution Colin27)",
                     },
                 },
                 "required": [],
@@ -930,9 +866,9 @@ def build_tool_definitions() -> list[Tool]:
         ),
         Tool(
             name="eeglab_source_settings",
-            description="Dipfit 模型设置。配置头模型、模板脑、通道位置文件等参数。"
-            "专业建议: 在运行源定位前应先设置正确的参数; "
-            "BEM 模型更精确但计算更慢; 球模型快速但精度较低。",
+            description="Dipfit model settings, configuring the head model, the template brain and the channel location file."
+            "Guidance: set the correct parameters before running source localization; "
+            "the BEM model is more accurate but slower, while the spherical model is fast but less accurate.",
             inputSchema={
                 "type": "object",
                 "properties": {
@@ -940,48 +876,48 @@ def build_tool_definitions() -> list[Tool]:
                         "type": "string",
                         "enum": ["bem", "spherical"],
                         "default": "bem",
-                        "description": "头模型类型: bem(边界元模型) 或 spherical(球模型)",
+                        "description": "Head model type: bem (boundary element model) or spherical (spherical model)",
                     },
                     "template": {
                         "type": "string",
                         "enum": ["mni", "colin27"],
                         "default": "mni",
-                        "description": "模板脑: mni(MNI305) 或 colin27(Colin27)",
+                        "description": "Template brain: mni (MNI305) or colin27 (Colin27)",
                     },
                     "chanfile": {
                         "type": "string",
-                        "description": "通道位置文件路径。留空使用默认",
+                        "description": "Channel location file path. Leave empty to use the default",
                     },
                     "mrifile": {
                         "type": "string",
-                        "description": "MRI 模板文件路径。留空使用默认",
+                        "description": "MRI template file path. Leave empty to use the default",
                     },
                 },
                 "required": [],
             },
         ),
-        # ===== 第 8 类：组分析与 Pipeline =====
+        # ===== Category 8: group analysis and pipelines =====
         Tool(
             name="eeglab_study_create",
-            description="创建 EEGLAB STUDY 用于组级别分析。可从 BIDS 目录或多个 .set 文件创建。"
-            "专业建议: STUDY 是 EEGLAB 进行组级别分析的基础; "
-            "创建后需定义实验设计才能进行统计检验。",
+            description="Create an EEGLAB STUDY for group-level analysis, either from a BIDS directory or from several .set files."
+            "Guidance: the STUDY is the basis for group-level analysis in EEGLAB; "
+            "the experimental design must be defined before any statistical test.",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "bids_path": {
                         "type": "string",
-                        "description": "BIDS 数据集根目录路径。与 dataset_paths 二选一",
+                        "description": "Path of the BIDS dataset root. Mutually exclusive with dataset_paths",
                     },
                     "study_name": {
                         "type": "string",
                         "default": "MyStudy",
-                        "description": "STUDY 名称",
+                        "description": "STUDY name",
                     },
                     "dataset_paths": {
                         "type": "array",
                         "items": {"type": "string"},
-                        "description": "EEG 数据文件路径列表。与 bids_path 二选一",
+                        "description": "List of EEG data file paths. Mutually exclusive with bids_path",
                     },
                 },
                 "required": [],
@@ -989,27 +925,27 @@ def build_tool_definitions() -> list[Tool]:
         ),
         Tool(
             name="eeglab_study_design",
-            description="定义 STUDY 实验设计。设置自变量及其水平，用于后续统计检验。"
-            "专业建议: 必须在统计检验前定义设计; "
-            "可定义多个自变量（如组别×条件）。",
+            description="Define the STUDY experimental design, setting the independent variables and their levels for the later statistical test."
+            "Guidance: the design must be defined before the statistical test; "
+            "several independent variables can be defined, for example group by condition.",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "design_name": {
                         "type": "string",
                         "default": "Design1",
-                        "description": "设计名称",
+                        "description": "Design name",
                     },
                     "variable_name": {
                         "type": "string",
                         "default": "condition",
-                        "description": "自变量名称。例如: 'condition', 'group'",
+                        "description": "Independent variable name, for example 'condition' or 'group'",
                     },
                     "variable_values": {
                         "type": "array",
                         "items": {"type": "string"},
                         "default": ["target", "standard"],
-                        "description": "自变量水平。例如: ['control', 'patient'] 或 ['target', 'standard']",
+                        "description": "Levels of the independent variable, for example ['control', 'patient'] or ['target', 'standard']",
                     },
                 },
                 "required": [],
@@ -1017,9 +953,9 @@ def build_tool_definitions() -> list[Tool]:
         ),
         Tool(
             name="eeglab_study_statistics",
-            description="STUDY 统计检验。使用聚类置换检验进行组级别统计推断。"
-            "专业建议: 聚类置换检验可有效控制多重比较; "
-            "常用阈值: p < 0.05, 聚类阈值 FDR 或 FWE 校正。",
+            description="STUDY statistical test, using a cluster permutation test for group-level statistical inference."
+            "Guidance: a cluster permutation test controls multiple comparisons effectively; "
+            "the usual thresholds are p below 0.05 with FDR or FWE correction at the cluster level.",
             inputSchema={
                 "type": "object",
                 "properties": {
@@ -1027,18 +963,18 @@ def build_tool_definitions() -> list[Tool]:
                         "type": "string",
                         "enum": ["erp", "spectrum", "ersp"],
                         "default": "erp",
-                        "description": "统计检验的测量类型: erp(ERP波形), spectrum(频谱), ersp(时频)",
+                        "description": "Measurement type for the test: erp for the ERP waveform, spectrum, or ersp for time-frequency",
                     },
                     "alpha": {
                         "type": "number",
                         "default": 0.05,
-                        "description": "显著性水平。默认: 0.05",
+                        "description": "Significance level. Defaults to 0.05",
                     },
                     "correction": {
                         "type": "string",
                         "enum": ["fdr", "bonferroni", "cluster", "none"],
                         "default": "fdr",
-                        "description": "多重比较校正方法: fdr(FDR), bonferroni(Bonferroni), cluster(聚类), none(无校正)",
+                        "description": "Multiple comparison correction: fdr, bonferroni, cluster or none",
                     },
                 },
                 "required": [],
@@ -1046,37 +982,37 @@ def build_tool_definitions() -> list[Tool]:
         ),
         Tool(
             name="eeglab_pipeline",
-            description="一键流程生成。根据分析类型自动生成完整的预处理和分析流程。"
-            "支持 ERP 分析流程、静息态分析流程和时频分析流程。"
-            "专业建议: ERP 流程: 滤波→ASR→重参考→ICA→ICLabel→去伪迹→插值→分段→基线→保存; "
-            "静息态流程: 滤波→ASR→重参考→ICA→ICLabel→去伪迹→频谱分析→保存。",
+            description="Generate a complete pipeline. It builds the full preprocessing and analysis pipeline for the chosen analysis type."
+            "It supports the ERP, resting-state and time-frequency pipelines."
+            "Guidance: the ERP pipeline is filter, ASR, re-reference, ICA, ICLabel, artifact removal, interpolation, epoch, baseline, save; "
+            "the resting-state pipeline is filter, ASR, re-reference, ICA, ICLabel, artifact removal, spectral analysis, save.",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "pipeline_type": {
                         "type": "string",
                         "enum": ["erp", "resting", "timefreq"],
-                        "description": "流程类型: erp(ERP分析), resting(静息态), timefreq(时频分析)",
+                        "description": "Pipeline type: erp, resting or timefreq",
                     },
-                    "data_path": {"type": "string", "description": "输入数据文件路径"},
+                    "data_path": {"type": "string", "description": "Path of the input data file"},
                     "output_dir": {
                         "type": "string",
-                        "description": "输出目录路径。留空则使用工作目录",
+                        "description": "Output directory. Leave empty to use the working directory",
                     },
                     "highpass": {
                         "type": "number",
                         "default": 1.0,
-                        "description": "高通滤波截止频率(Hz)。默认: 1.0 (ICA 前推荐)",
+                        "description": "Highpass cutoff in Hz. Defaults to 1.0, which is recommended before ICA",
                     },
                     "lowpass": {
                         "type": "number",
                         "default": 40.0,
-                        "description": "低通滤波截止频率(Hz)。默认: 40.0",
+                        "description": "Lowpass cutoff in Hz. Defaults to 40.0",
                     },
                     "event_types": {
                         "type": "array",
                         "items": {"type": "string"},
-                        "description": "分段用的事件类型。pipeline_type 为 erp 或 timefreq 时使用",
+                        "description": "Event types used for epoching, when pipeline_type is erp or timefreq",
                     },
                     "epoch_window": {
                         "type": "array",
@@ -1084,7 +1020,7 @@ def build_tool_definitions() -> list[Tool]:
                         "minItems": 2,
                         "maxItems": 2,
                         "default": [-0.2, 0.8],
-                        "description": "分段时间窗[起始秒, 结束秒]。默认: [-0.2, 0.8]",
+                        "description": "Epoching window [start seconds, end seconds]. Defaults to [-0.2, 0.8]",
                     },
                     "baseline_window": {
                         "type": "array",
@@ -1092,107 +1028,21 @@ def build_tool_definitions() -> list[Tool]:
                         "minItems": 2,
                         "maxItems": 2,
                         "default": [-200, 0],
-                        "description": "基线校正窗口[起始ms, 结束ms]。默认: [-200, 0]",
+                        "description": "Baseline correction window [start ms, end ms]. Defaults to [-200, 0]",
                     },
                     "ica_algorithm": {
                         "type": "string",
                         "enum": ["runica", "picard"],
                         "default": "picard",
-                        "description": "ICA 算法。默认: picard",
+                        "description": "ICA algorithm. Defaults to picard",
                     },
                     "burst_criterion": {
                         "type": "number",
                         "default": 20,
-                        "description": "ASR 突发伪迹检测阈值。5=激进, 20=保守, 40=温和",
+                        "description": "ASR burst artifact detection threshold: 5 is aggressive, 20 conservative, 40 mild",
                     },
                 },
                 "required": ["pipeline_type", "data_path"],
-            },
-        ),
-        # ===== 第 8 类：报告生成 =====
-        Tool(
-            name="eeglab_generate_report",
-            description="生成标准 EEG 研究分析报告。根据分析结果（记录信息、预处理参数、分析参数、图片、结果等）自动生成 Markdown 或 HTML 格式的完整研究报告。遵循 official-report-field-matrix.md 字段要求。",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "output_path": {
-                        "type": "string",
-                        "description": "报告输出文件路径。例如: /path/to/report.md 或 /path/to/report.html",
-                    },
-                    "format": {
-                        "type": "string",
-                        "enum": ["markdown", "html"],
-                        "default": "markdown",
-                        "description": "报告格式。默认: markdown",
-                    },
-                    "title": {
-                        "type": "string",
-                        "description": "报告标题",
-                    },
-                    "author": {
-                        "type": "string",
-                        "description": "报告作者",
-                    },
-                    "abstract": {
-                        "type": "string",
-                        "description": "摘要",
-                    },
-                    "recording": {
-                        "type": "object",
-                        "description": "记录和采集信息（input_path, sampling_rate, channels, event_count 等）",
-                    },
-                    "preprocessing": {
-                        "type": "object",
-                        "description": "预处理参数（filter, line_noise, rereference, ica_algorithm 等）",
-                    },
-                    "analysis": {
-                        "type": "object",
-                        "description": "分析参数（erp, spectral, timefreq, connectivity, source）",
-                    },
-                    "figures": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "path": {"type": "string"},
-                                "caption": {"type": "string"},
-                                "description": {"type": "string"},
-                            },
-                        },
-                        "description": "生成的图片列表，每个包含 path, caption, description",
-                    },
-                    "results": {
-                        "type": "object",
-                        "description": "分析结果",
-                    },
-                    "discussion": {
-                        "type": "string",
-                        "description": "讨论",
-                    },
-                    "limitations": {
-                        "type": "array",
-                        "items": {"type": "string"},
-                        "description": "局限性列表",
-                    },
-                    "gate_results": {
-                        "type": "object",
-                        "description": "官方 gate 状态",
-                    },
-                    "override_used": {
-                        "type": "boolean",
-                        "description": "是否使用了 override",
-                    },
-                    "override_reason": {
-                        "type": "string",
-                        "description": "override 原因",
-                    },
-                    "appendix": {
-                        "type": "object",
-                        "description": "附录（software, plugins, generated_files）",
-                    },
-                },
-                "required": ["output_path"],
             },
         ),
     ]

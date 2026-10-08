@@ -1,0 +1,134 @@
+{
+  "tools": [
+    {
+      "name": "eeglab_init",
+      "title": "Initialize EEGLAB",
+      "description": "Start EEGLAB without its GUI. Call this before any other eeglab_* tool. Pass the EEGLAB installation folder, or an empty string to use the EEGLAB already on the MATLAB path or the EEGLAB_PATH environment variable.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "eeglab_path": {
+            "type": "string",
+            "description": "Absolute path of the EEGLAB installation folder, for example C:/eeglab2025.0. Use an empty string to use the MATLAB path or EEGLAB_PATH."
+          }
+        },
+        "required": [
+          "eeglab_path"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_load_data",
+      "title": "Load EEG data",
+      "description": "Load an EEG file (.set, .edf, .bdf, .vhdr or .cnt) as the current EEGLAB dataset. The file on disk is not modified. Returns channel count, sampling rate, duration, channel labels and event types. Start a new recording with eeglab_qc_report, eeglab_info and eeglab_get_events before any preprocessing.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "filepath": {
+            "type": "string",
+            "description": "Absolute path of the EEG file, for example C:/data/sub-01.set"
+          }
+        },
+        "required": [
+          "filepath"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_info",
+      "title": "Describe the current dataset",
+      "description": "Describe the current EEGLAB dataset: dimensions, sampling rate, reference, channel labels and channel-location coverage, events, ICA status and whether processing history exists. Read-only.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_get_events",
+      "title": "List events",
+      "description": "List the event types of the current EEGLAB dataset with their counts and latency range. Read-only. Use it to check which markers are real condition triggers before epoching; boundary, impedance and segment markers are not condition triggers.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_qc_report",
+      "title": "Quality-control report",
+      "description": "Summarize the current EEGLAB dataset for quality control: recording dimensions, events, channel locations, ICA and history, plus risk and provenance hints to resolve before preprocessing. Read-only; it does not change the data.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    }
+  ],
+  "signatures": {
+    "eeglab_init": {
+      "function": "eegmcp_init",
+      "input": {
+        "order": [
+          "eeglab_path"
+        ]
+      }
+    },
+    "eeglab_load_data": {
+      "function": "eegmcp_load_data",
+      "input": {
+        "order": [
+          "filepath"
+        ]
+      }
+    },
+    "eeglab_info": {
+      "function": "eegmcp_info",
+      "input": {
+        "order": []
+      }
+    },
+    "eeglab_get_events": {
+      "function": "eegmcp_get_events",
+      "input": {
+        "order": []
+      }
+    },
+    "eeglab_qc_report": {
+      "function": "eegmcp_qc_report",
+      "input": {
+        "order": []
+      }
+    }
+  }
+}
