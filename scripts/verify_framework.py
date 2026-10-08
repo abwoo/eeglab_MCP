@@ -2,34 +2,34 @@
 
 from __future__ import annotations
 
-import asyncio
 import ast
+import asyncio
 import json
 import shutil
 import sys
-import tomllib
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Any
 
+import tomllib
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from eeglab_mcp_server.handler_registry import TOOL_HANDLERS  # noqa: E402
-from eeglab_mcp_server.mcp_surfaces import RESOURCE_FILES  # noqa: E402
-from eeglab_mcp_server.official_alignment import (  # noqa: E402
+from eeglab_mcp_server.handler_registry import TOOL_HANDLERS
+from eeglab_mcp_server.mcp_surfaces import RESOURCE_FILES
+from eeglab_mcp_server.official_alignment import (
     METHOD_PROFILES,
     OFFICIAL_CLAIMS,
 )
-from eeglab_mcp_server.tool_registry import (  # noqa: E402
+from eeglab_mcp_server.tool_registry import (
     EXPOSED_TOOL_NAMES,
     LEGACY_LOW_LEVEL_TOOL_NAMES,
     RESEARCH_WORKFLOW_TOOL_NAMES,
-    TOTAL_EXPOSED_TOOL_COUNT,
     TOOL_REGISTRY,
+    TOTAL_EXPOSED_TOOL_COUNT,
     registry_summary,
     validate_handler_map,
     validate_registry,
@@ -230,11 +230,7 @@ def _check_configs_and_skill() -> None:
             f"<{tag}>" in skill_body and f"</{tag}>" in skill_body,
             f"SKILL.md missing XML tag: {tag}",
         )
-    heading_lines = [
-        index
-        for index, line in enumerate(skill_body.splitlines(), start=1)
-        if line.startswith("#")
-    ]
+    heading_lines = [index for index, line in enumerate(skill_body.splitlines(), start=1) if line.startswith("#")]
     _require(not heading_lines, f"SKILL.md body must use XML tags, found markdown headings at lines {heading_lines}")
 
     docs = ROOT / "docs"

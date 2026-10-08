@@ -10,7 +10,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from eeglab_mcp_server.official_alignment import (  # noqa: E402
+from eeglab_mcp_server.mcp_surfaces import RESOURCE_FILES
+from eeglab_mcp_server.official_alignment import (
     HIGH_RISK_TOOL_NAMES,
     METHOD_PROFILES,
     OFFICIAL_CLAIMS,
@@ -20,10 +21,9 @@ from eeglab_mcp_server.official_alignment import (  # noqa: E402
     REPORT_FIELD_MATRIX,
     evaluate_method_preflight,
 )
-from eeglab_mcp_server.mcp_surfaces import RESOURCE_FILES  # noqa: E402
-from eeglab_mcp_server.schemas import workflow_tools  # noqa: E402
-from eeglab_mcp_server.tool_definitions import build_tool_definitions  # noqa: E402
-from eeglab_mcp_server.tool_registry import (  # noqa: E402
+from eeglab_mcp_server.schemas import workflow_tools
+from eeglab_mcp_server.tool_definitions import build_tool_definitions
+from eeglab_mcp_server.tool_registry import (
     TOOL_REGISTRY,
     validate_registry,
 )
