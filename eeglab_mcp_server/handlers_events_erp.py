@@ -15,7 +15,7 @@ except ImportError:  # pragma: no cover - direct script execution support
 
 
 async def _eeglab_reject_epochs(args: dict) -> list[TextContent]:
-    """试次拒绝。"""
+    """Reject artifact-contaminated trials."""
     method = args.get("method", "threshold")
     threshold = args.get("threshold", [-100, 100])
     channels = args.get("channels", [])
@@ -62,12 +62,12 @@ result.remaining_trials = EEG.trials;
 
 
 async def _eeglab_get_events(args: dict) -> list[TextContent]:
-    """获取事件信息。"""
+    """Return event information."""
     code = f"""
 {_maybe_init()}
 if ~exist('EEG', 'var') || ~isstruct(EEG)
     result.status = 'error';
-    result.error = '当前没有加载 EEG 数据，请先调用 eeglab_load_data';
+    result.error = "no EEG data is loaded yet, call eeglab_load_data first";
 elseif ~isfield(EEG, 'event') || isempty(EEG.event)
     result.num_events = 0;
     result.event_types = {{}};
@@ -91,7 +91,7 @@ end
 
 
 async def _eeglab_epoch(args: dict) -> list[TextContent]:
-    """分段 + 基线校正。"""
+    """Epoch the data and apply baseline correction."""
     event_types = args.get("event_types", [])
     pre_stim = args.get("pre_stimulus", -0.2)
     post_stim = args.get("post_stimulus", 0.8)
@@ -104,8 +104,8 @@ async def _eeglab_epoch(args: dict) -> list[TextContent]:
     if window_errors:
         return _error_response(
             "invalid_analysis_window",
-            f"分段/基线窗口不合法: {'; '.join(window_errors)}",
-            next_step="确保 baseline_start/baseline_end 落在 pre_stimulus/post_stimulus 时间窗内。",
+            f"invalid epoch/baseline window: {'; '.join(window_errors)}",
+            next_step="make sure baseline_start and baseline_end fall inside the pre_stimulus and post_stimulus windows.",
             details={"errors": window_errors},
         )
 
@@ -140,7 +140,7 @@ result.event_types = {events_str};
 
 
 async def _eeglab_erp_analysis(args: dict) -> list[TextContent]:
-    """ERP 分析。"""
+    """Run ERP analysis."""
     channels = args.get("channels", [])
     time_window = args.get("time_window", [])
     peak_detection = args.get("peak_detection", True)
@@ -248,7 +248,7 @@ end
 
 
 async def _eeglab_sort_epochs(args: dict) -> list[TextContent]:
-    """按条件排序试次。"""
+    """Sort trials by condition."""
     sort_by = args["sort_by"]
     sort_by_lit = matlab_string(sort_by)
 
@@ -272,7 +272,7 @@ end
 
 
 async def _eeglab_average_erp(args: dict) -> list[TextContent]:
-    """ERP 平均。"""
+    """Average ERP waveforms by condition."""
     conditions = args.get("conditions", [])
     channels = args.get("channels", [])
 
