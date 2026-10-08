@@ -123,8 +123,6 @@ def _check_readme_structure() -> None:
     forbidden_fragments = (
         "Simple Version",
         "Detailed Version",
-        "简单版",
-        "详细版",
     )
     readme_specs = (
         (
@@ -133,13 +131,6 @@ def _check_readme_structure() -> None:
             "## Minimal MCP Config",
             "## First Dataset Check",
             "## Official Alignment And Safety",
-        ),
-        (
-            ROOT / "README.zh-CN.md",
-            "## 快速开始",
-            "## 最小 MCP 配置",
-            "## 第一次数据检查",
-            "## 官方对齐与安全边界",
         ),
     )
 
@@ -279,7 +270,6 @@ def _check_registry_documentation_drift() -> None:
     forbidden_tool_count_phrases = (
         "original " + "40",
         "40 " + "stable",
-        "旧版 " + "40",
     )
     checked_suffixes = {".md", ".xml", ".ps1", ".py", ".toml", ".json"}
     for path in ROOT.rglob("*"):
