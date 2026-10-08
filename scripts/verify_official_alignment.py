@@ -13,6 +13,7 @@ sys.path.insert(0, str(ROOT))
 
 from eeglab_mcp_server.mcp_surfaces import RESOURCE_FILES
 from eeglab_mcp_server.official_alignment import (
+    CLAIMS_DOCUMENT_VERSION,
     HIGH_RISK_TOOL_NAMES,
     METHOD_PROFILES,
     OFFICIAL_CLAIMS,
@@ -20,6 +21,7 @@ from eeglab_mcp_server.official_alignment import (
     OFFICIAL_SOURCE_SNAPSHOT,
     OFFICIAL_TOPIC_INDEX,
     REPORT_FIELD_MATRIX,
+    build_official_claims_document,
     evaluate_method_preflight,
 )
 from eeglab_mcp_server.schemas import workflow_tools

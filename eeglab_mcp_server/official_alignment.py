@@ -3233,7 +3233,7 @@ def build_official_claims_document() -> dict[str, Any]:
         "claim_count": len(claims),
         "method_profile_count": len(method_profiles),
         "support_level_values": list(OFFICIAL_SOURCE_SNAPSHOT["support_level_values"]),
-        "high_risk_tool_names": list(HIGH_RISK_TOOL_NAMES),
+        "high_risk_tool_names": sorted(HIGH_RISK_TOOL_NAMES),
         "claims": claims,
         "method_profiles": method_profiles,
         "tool_to_profile": dict(TOOL_TO_PROFILE),
