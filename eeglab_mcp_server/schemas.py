@@ -830,14 +830,14 @@ def _positive_number(arguments: dict[str, Any], field: str, errors: list[str]) -
     if field in arguments and arguments[field] is not None:
         value = arguments[field]
         if not _finite_number(value) or value <= 0:
-            errors.append(f"{field} 必须是大于 0 的有限数值")
+            errors.append(f"{field} must be a finite number greater than 0")
 
 
 def _probability(arguments: dict[str, Any], field: str, errors: list[str]) -> None:
     if field in arguments and arguments[field] is not None:
         value = arguments[field]
         if not _finite_number(value) or value < 0 or value > 1:
-            errors.append(f"{field} 必须在 0 到 1 之间")
+            errors.append(f"{field} must be between 0 and 1")
 
 
 def _ascending_pair(
@@ -854,12 +854,12 @@ def _ascending_pair(
         return
     first, second = value
     if not (_finite_number(first) and _finite_number(second)):
-        errors.append(f"{field} 必须只包含有限数值")
+        errors.append(f"{field} must contain only finite numbers")
     elif allow_equal:
         if first > second:
-            errors.append(f"{field} 起始值必须小于或等于结束值")
+            errors.append(f"{field} start must be less than or equal to end")
     elif first >= second:
-        errors.append(f"{field} 起始值必须小于结束值")
+        errors.append(f"{field} start must be less than end")
 
 
 def _probability_pair(arguments: dict[str, Any], field: str, errors: list[str]) -> None:
@@ -870,7 +870,7 @@ def _probability_pair(arguments: dict[str, Any], field: str, errors: list[str]) 
         return
     _ascending_pair(arguments, field, errors, allow_equal=True)
     if all(_finite_number(item) for item in value) and (value[0] < 0 or value[1] > 1):
-        errors.append(f"{field} 概率范围必须在 0 到 1 之间")
+        errors.append(f"{field} probability must be between 0 and 1")
 
 
 def _positive_integer_list(arguments: dict[str, Any], field: str, errors: list[str]) -> None:
@@ -881,14 +881,14 @@ def _positive_integer_list(arguments: dict[str, Any], field: str, errors: list[s
         return
     bad = [item for item in value if not isinstance(item, int) or isinstance(item, bool) or item < 1]
     if bad:
-        errors.append(f"{field} 的索引必须是从 1 开始的正整数")
+        errors.append(f"{field} indices must be positive integers starting at 1")
 
 
 def _positive_integer(arguments: dict[str, Any], field: str, errors: list[str]) -> None:
     if field in arguments and arguments[field] is not None:
         value = arguments[field]
         if not isinstance(value, int) or isinstance(value, bool) or value < 1:
-            errors.append(f"{field} 必须是大于 0 的整数")
+            errors.append(f"{field} must be an integer greater than 0")
 
 
 def _string_mapping(arguments: dict[str, Any], field: str, errors: list[str]) -> None:
@@ -899,7 +899,7 @@ def _string_mapping(arguments: dict[str, Any], field: str, errors: list[str]) ->
         return
     bad = [key for key, mapped in value.items() if _is_blank(key) or _is_blank(mapped)]
     if bad:
-        errors.append(f"{field} 必须是非空字符串到非空字符串的映射")
+        errors.append(f"{field} must be a mapping of non-empty strings to non-empty strings")
 
 
 def _safe_leaf_filename(arguments: dict[str, Any], field: str, errors: list[str]) -> None:
@@ -907,10 +907,10 @@ def _safe_leaf_filename(arguments: dict[str, Any], field: str, errors: list[str]
         return
     filename = str(arguments[field]).strip()
     if not filename:
-        errors.append(f"{field} 不能为空")
+        errors.append(f"{field} must not be empty")
         return
     if filename in {".", ".."} or any(separator in filename for separator in ("/", "\\")) or ":" in filename:
-        errors.append(f"{field} 只能是输出目录内的文件名，不能包含目录、驱动器或路径分隔符")
+        errors.append(f"{field} must be a bare filename inside the output directory, with no directory, drive or path separator")
 
 
 def validate_arguments(schema: dict[str, Any], arguments: dict[str, Any]) -> list[str]:
@@ -925,42 +925,42 @@ def validate_arguments(schema: dict[str, Any], arguments: dict[str, Any]) -> lis
         value = arguments[field]
         schema_type = field_schema.get("type")
         if schema_type and not json_type_matches(value, schema_type):
-            errors.append(f"{field} 必须是 {schema_type}")
+            errors.append(f"{field} must be {schema_type}")
             continue
         if schema_type in {"number", "integer"} and not _finite_number(value):
-            errors.append(f"{field} 必须是有限数值")
+            errors.append(f"{field} must be a finite number")
             continue
 
         enum_values = field_schema.get("enum")
         if enum_values and value not in enum_values:
-            errors.append(f"{field} 必须是以下值之一: {', '.join(map(str, enum_values))}")
+            errors.append(f"{field} must be one of: {', '.join(map(str, enum_values))}")
 
         minimum = field_schema.get("minimum")
         if minimum is not None and _finite_number(value) and value < minimum:
-            errors.append(f"{field} 必须大于或等于 {minimum}")
+            errors.append(f"{field} must be greater than or equal to {minimum}")
         maximum = field_schema.get("maximum")
         if maximum is not None and _finite_number(value) and value > maximum:
-            errors.append(f"{field} 必须小于或等于 {maximum}")
+            errors.append(f"{field} must be less than or equal to {maximum}")
         exclusive_minimum = field_schema.get("exclusiveMinimum")
         if exclusive_minimum is not None and _finite_number(value) and value <= exclusive_minimum:
-            errors.append(f"{field} 必须大于 {exclusive_minimum}")
+            errors.append(f"{field} must be greater than {exclusive_minimum}")
         exclusive_maximum = field_schema.get("exclusiveMaximum")
         if exclusive_maximum is not None and _finite_number(value) and value >= exclusive_maximum:
-            errors.append(f"{field} 必须小于 {exclusive_maximum}")
+            errors.append(f"{field} must be less than {exclusive_maximum}")
 
         if schema_type == "array" and isinstance(value, list):
             min_items = field_schema.get("minItems")
             max_items = field_schema.get("maxItems")
             if min_items is not None and len(value) < min_items:
-                errors.append(f"{field} 至少需要 {min_items} 个元素")
+                errors.append(f"{field} needs at least {min_items} items")
             if max_items is not None and len(value) > max_items:
-                errors.append(f"{field} 最多允许 {max_items} 个元素")
+                errors.append(f"{field} allows at most {max_items} items")
 
             item_type = field_schema.get("items", {}).get("type")
             if item_type:
                 bad_items = [item for item in value if not json_type_matches(item, item_type)]
                 if bad_items:
-                    errors.append(f"{field} 的所有元素必须是 {item_type}")
+                    errors.append(f"every item of {field} must be {item_type}")
 
     return errors
 
@@ -972,19 +972,19 @@ def validate_tool_contracts(name: str, arguments: dict[str, Any]) -> list[str]:
     if name == "eeglab_filter":
         filter_type = arguments.get("filter_type")
         if filter_type == "bandpass":
-            _require_present(arguments, "low_cutoff", "bandpass 需要 low_cutoff", errors)
-            _require_present(arguments, "high_cutoff", "bandpass 需要 high_cutoff", errors)
+            _require_present(arguments, "low_cutoff", "bandpass needs low_cutoff", errors)
+            _require_present(arguments, "high_cutoff", "bandpass needs high_cutoff", errors)
         elif filter_type == "highpass":
-            _require_present(arguments, "low_cutoff", "highpass 需要 low_cutoff", errors)
+            _require_present(arguments, "low_cutoff", "highpass needs low_cutoff", errors)
         elif filter_type == "lowpass":
-            _require_present(arguments, "high_cutoff", "lowpass 需要 high_cutoff", errors)
+            _require_present(arguments, "high_cutoff", "lowpass needs high_cutoff", errors)
         elif filter_type == "notch":
-            _require_present(arguments, "notch_freq", "notch 需要 notch_freq", errors)
+            _require_present(arguments, "notch_freq", "notch needs notch_freq", errors)
         for field in ("low_cutoff", "high_cutoff", "notch_freq"):
             _positive_number(arguments, field, errors)
         if _is_present(arguments, "low_cutoff") and _is_present(arguments, "high_cutoff"):
             if arguments["low_cutoff"] >= arguments["high_cutoff"]:
-                errors.append("low_cutoff 必须小于 high_cutoff")
+                errors.append("low_cutoff must be less than high_cutoff")
 
     elif name == "eeglab_resample":
         _positive_number(arguments, "new_srate", errors)
@@ -994,7 +994,7 @@ def validate_tool_contracts(name: str, arguments: dict[str, Any]) -> list[str]:
             _require_present(
                 arguments,
                 "ref_channel",
-                "ref_type 为 channel 时需要 ref_channel",
+                "ref_channel is needed when ref_type is channel",
                 errors,
             )
 
@@ -1002,14 +1002,14 @@ def validate_tool_contracts(name: str, arguments: dict[str, Any]) -> list[str]:
         has_channels = _is_present(arguments, "channels")
         has_exclude = _is_present(arguments, "exclude_channels")
         if has_channels == has_exclude:
-            errors.append("channels 和 exclude_channels 必须且只能指定一个")
+            errors.append("channels and exclude_channels are mutually exclusive, specify exactly one")
 
     elif name == "eeglab_edit_channels":
         action = arguments.get("action")
         if action == "load_loc":
-            _require_present(arguments, "loc_file", "action 为 load_loc 时需要 loc_file", errors)
+            _require_present(arguments, "loc_file", "loc_file is needed when action is load_loc", errors)
         elif action == "rename":
-            _require_present(arguments, "rename_map", "action 为 rename 时需要 rename_map", errors)
+            _require_present(arguments, "rename_map", "rename_map is needed when action is rename", errors)
             _string_mapping(arguments, "rename_map", errors)
 
     elif name == "eeglab_run_ica":
@@ -1032,7 +1032,7 @@ def validate_tool_contracts(name: str, arguments: dict[str, Any]) -> list[str]:
         has_indices = _is_present(arguments, "component_indices")
         has_threshold = _is_present(arguments, "auto_remove_brain_threshold")
         if has_indices == has_threshold:
-            errors.append("component_indices 和 auto_remove_brain_threshold 必须且只能指定一个")
+            errors.append("component_indices and auto_remove_brain_threshold are mutually exclusive, specify exactly one")
         _positive_integer_list(arguments, "component_indices", errors)
         _probability(arguments, "auto_remove_brain_threshold", errors)
 
@@ -1055,14 +1055,14 @@ def validate_tool_contracts(name: str, arguments: dict[str, Any]) -> list[str]:
 
     elif name == "eeglab_topoplot":
         if _is_present(arguments, "time_point") and _is_present(arguments, "time_window"):
-            errors.append("time_point 和 time_window 只能指定一个")
+            errors.append("specify exactly one of time_point and time_window")
         _ascending_pair(arguments, "time_window", errors)
 
     elif name == "eeglab_study_create":
         has_bids = _is_present(arguments, "bids_path")
         has_datasets = _is_present(arguments, "dataset_paths")
         if has_bids == has_datasets:
-            errors.append("bids_path 和 dataset_paths 必须且只能指定一个")
+            errors.append("bids_path and dataset_paths are mutually exclusive, specify exactly one")
 
     elif name == "eeglab_study_statistics":
         _probability(arguments, "alpha", errors)
@@ -1077,9 +1077,9 @@ def validate_tool_contracts(name: str, arguments: dict[str, Any]) -> list[str]:
 
     elif name == "eeglab_protocol_export":
         if "qc_gates" in arguments and _is_present(arguments, "qc_gates") is False:
-            errors.append("eeglab_protocol_export 的 qc_gates 不能为空数组")
+            errors.append("qc_gates of eeglab_protocol_export must not be an empty array")
         if "steps" in arguments and _is_present(arguments, "steps") is False:
-            errors.append("eeglab_protocol_export 的 steps 不能为空数组")
+            errors.append("steps of eeglab_protocol_export must not be an empty array")
         for field in (
             "gate_results",
             "source_claim_ids",
@@ -1087,17 +1087,17 @@ def validate_tool_contracts(name: str, arguments: dict[str, Any]) -> list[str]:
             "missing_requirements",
         ):
             if field in arguments and _is_present(arguments, field) is False:
-                errors.append(f"eeglab_protocol_export 的 {field} 不能为空数组")
+                errors.append(f"{field} of eeglab_protocol_export must not be an empty array")
         if arguments.get("override_used") is True and not _is_present(arguments, "override_reason"):
-            errors.append("eeglab_protocol_export 使用 override 时必须提供 override_reason")
+            errors.append("eeglab_protocol_export needs an override_reason when an override is used")
 
     elif name == "eeglab_plugin_check":
         if "plugins" in arguments and _is_present(arguments, "plugins") is False:
-            errors.append("eeglab_plugin_check 的 plugins 不能为空数组")
+            errors.append("plugins of eeglab_plugin_check must not be an empty array")
 
     elif name == "eeglab_method_preflight":
         if not _is_present(arguments, "method") and not _is_present(arguments, "tool_name"):
-            errors.append("eeglab_method_preflight 需要 method 或 tool_name")
+            errors.append("eeglab_method_preflight needs method or tool_name")
 
     elif name in {"eeglab_pipeline", "eeglab_erp_light_workflow"}:
         highpass_field = "highpass" if name == "eeglab_pipeline" else "low_cutoff"
@@ -1106,14 +1106,14 @@ def validate_tool_contracts(name: str, arguments: dict[str, Any]) -> list[str]:
         _positive_number(arguments, lowpass_field, errors)
         if _is_present(arguments, highpass_field) and _is_present(arguments, lowpass_field):
             if arguments[highpass_field] >= arguments[lowpass_field]:
-                errors.append(f"{highpass_field} 必须小于 {lowpass_field}")
+                errors.append(f"{highpass_field} must be less than {lowpass_field}")
         _ascending_pair(arguments, "epoch_window", errors)
         _ascending_pair(arguments, "baseline_window", errors, allow_equal=True)
         if name == "eeglab_erp_light_workflow":
             if "event_types" in arguments and _is_present(arguments, "event_types") is False:
-                errors.append("eeglab_erp_light_workflow 需要至少一个 event_types 值")
+                errors.append("eeglab_erp_light_workflow needs at least one event_types value")
             if "channels" in arguments and _is_present(arguments, "channels") is False:
-                errors.append("eeglab_erp_light_workflow 需要至少一个 channels 值")
+                errors.append("eeglab_erp_light_workflow needs at least one channels value")
             _ascending_pair(arguments, "time_window", errors)
             _safe_leaf_filename(arguments, "output_filename", errors)
         else:
@@ -1121,7 +1121,7 @@ def validate_tool_contracts(name: str, arguments: dict[str, Any]) -> list[str]:
 
     if name in HIGH_RISK_TOOL_NAMES:
         if arguments.get("override_gate") is True and not _is_present(arguments, "override_reason"):
-            errors.append("override_gate 为 true 时必须提供 override_reason")
+            errors.append("override_reason is required when override_gate is true")
 
     return errors
 
@@ -1136,25 +1136,25 @@ def validate_analysis_windows(
     errors: list[str] = []
     if epoch_window is not None:
         if len(epoch_window) != 2:
-            errors.append("epoch_window 必须包含 2 个元素")
+            errors.append("epoch_window must have exactly 2 items")
         elif epoch_window[0] >= epoch_window[1]:
-            errors.append("epoch_window 起始值必须小于结束值")
+            errors.append("epoch_window start must be less than its end")
 
     if baseline_window_ms is not None:
         if len(baseline_window_ms) != 2:
-            errors.append("baseline_window 必须包含 2 个元素")
+            errors.append("baseline_window must have exactly 2 items")
         elif baseline_window_ms[0] > baseline_window_ms[1]:
-            errors.append("baseline_window 起始值必须小于或等于结束值")
+            errors.append("baseline_window start must be less than or equal to its end")
         elif epoch_window is not None and len(epoch_window) == 2:
             epoch_ms = [epoch_window[0] * 1000, epoch_window[1] * 1000]
             if baseline_window_ms[0] < epoch_ms[0] or baseline_window_ms[1] > epoch_ms[1]:
-                errors.append("baseline_window 必须落在 epoch_window 范围内")
+                errors.append("baseline_window must fall inside epoch_window")
 
     if time_window_ms is not None:
         if len(time_window_ms) != 2:
-            errors.append("time_window 必须包含 2 个元素")
+            errors.append("time_window must have exactly 2 items")
         elif time_window_ms[0] >= time_window_ms[1]:
-            errors.append("time_window 起始值必须小于结束值")
+            errors.append("time_window start must be less than its end")
 
     return errors
 
