@@ -23,7 +23,7 @@ async def _eeglab_source_localization(args: dict) -> list[TextContent]:
     else:
         comp_str = "1:size(EEG.icaweights,1)"
 
-    # Bug fix: pop_dipfit_settings 需要完整参数
+    # Bug fix: pop_dipfit_settings needs the full argument set
     if head_model == "bem":
         hdmfile = "standard_bem.mat"
     else:
