@@ -58,7 +58,7 @@ r = call('eegmcp_filter', 'filter_type', 'highpass', 'low_cutoff', 0.5, 'method_
 eegmcp_check(strcmp(r.status, 'success') && ~strcmp(r.official_gate.gate_status, 'blocked'), ...
     'eeglab_filter highpass passes the gate with method_context', r);
 r = eegmcp_call_tool('eegmcp_history()');
-eegmcp_check(r.num_entries >= 2 && contains(r.history, 'pop_eegfiltnew'), 'eeglab_history lists the filters', r);
+eegmcp_check(r.num_entries >= 2 && contains(r.history_text, 'pop_eegfiltnew'), 'eeglab_history lists the filters', r);
 
 % ---- resample --------------------------------------------------------------
 load_sample(sample);
