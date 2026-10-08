@@ -1,5 +1,6 @@
 param(
     [switch]$DryRun,
+    [switch]$InstallSkill,
     [string]$CodexHome = "$env:USERPROFILE\.codex",
     [string]$EeglabPath = "D:\MATLAB_Tools\eeglab",
     [string]$MatlabRoot = "D:\MATLAB",
@@ -56,7 +57,7 @@ function Remove-EeglabConfigBlock {
 if (-not (Test-Path -LiteralPath $ServerPath)) {
     throw "Missing server: $ServerPath"
 }
-if (-not (Test-Path -LiteralPath $SkillSource)) {
+if ($InstallSkill -and -not (Test-Path -LiteralPath $SkillSource)) {
     throw "Missing skill: $SkillSource"
 }
 
@@ -74,7 +75,7 @@ $newText += (New-EeglabConfigBlock) + "`r`n"
 Write-Host "EEGLAB agent setup"
 Write-Host "repo_root=$RepoRoot"
 Write-Host "codex_config=$ConfigPath"
-Write-Host "skill_target=$SkillTarget"
+Write-Host "install_skill=$InstallSkill"
 Write-Host "matlab_mcp_present=$hasMatlabMcp"
 Write-Host "dry_run=$DryRun"
 
@@ -83,7 +84,9 @@ if ($DryRun) {
     Write-Host "Would write MCP block:"
     Write-Host (New-EeglabConfigBlock)
     Write-Host ""
-    Write-Host "Would sync skill from $SkillSource to $SkillTarget"
+    if ($InstallSkill) {
+        Write-Host "Would sync skill from $SkillSource to $SkillTarget"
+    }
     exit 0
 }
 
@@ -93,12 +96,14 @@ if (Test-Path -LiteralPath $ConfigPath) {
 }
 Set-Content -LiteralPath $ConfigPath -Value $newText -Encoding UTF8
 
-New-Item -ItemType Directory -Force -Path (Split-Path -Parent $SkillTarget) | Out-Null
-if (Test-Path -LiteralPath $SkillTarget) {
-    Copy-Item -LiteralPath $SkillTarget -Destination "$SkillTarget.bak-$Timestamp" -Recurse -Force
-    Remove-Item -LiteralPath $SkillTarget -Recurse -Force
+if ($InstallSkill) {
+    New-Item -ItemType Directory -Force -Path (Split-Path -Parent $SkillTarget) | Out-Null
+    if (Test-Path -LiteralPath $SkillTarget) {
+        Copy-Item -LiteralPath $SkillTarget -Destination "$SkillTarget.bak-$Timestamp" -Recurse -Force
+        Remove-Item -LiteralPath $SkillTarget -Recurse -Force
+    }
+    Copy-Item -LiteralPath $SkillSource -Destination $SkillTarget -Recurse -Force
 }
-Copy-Item -LiteralPath $SkillSource -Destination $SkillTarget -Recurse -Force
 
 Write-Host "setup_status=success"
 Write-Host "next_step=Run scripts\eeglab_agent.ps1 verify, run scripts\eeglab_agent.ps1 doctor, then restart Codex."

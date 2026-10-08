@@ -5,6 +5,7 @@ param(
     [switch]$Online,
     [switch]$SkipCompile,
     [switch]$RemoveSkill,
+    [switch]$InstallSkill,
     [string]$CodexHome = "$env:USERPROFILE\.codex",
     [string]$EeglabPath = "D:\MATLAB_Tools\eeglab",
     [string]$MatlabRoot = "D:\MATLAB",
@@ -26,6 +27,7 @@ function Show-EeglabAgentHelp {
     Write-Host "Common commands:"
     Write-Host "  powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 setup -DryRun"
     Write-Host "  powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 setup"
+    Write-Host "  powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 setup -InstallSkill   (optional Codex Skill)"
     Write-Host "  powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 verify"
     Write-Host "  powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 verify-online"
     Write-Host "  powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 doctor"
@@ -49,6 +51,9 @@ switch ($Action) {
         )
         if ($DryRun) {
             $setupArgs += "-DryRun"
+        }
+        if ($InstallSkill) {
+            $setupArgs += "-InstallSkill"
         }
         & $SetupScript @setupArgs
     }
