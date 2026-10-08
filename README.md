@@ -1,7 +1,5 @@
 # EEGLAB MCP Agent
 
-[中文](README.zh-CN.md)
-
 EEGLAB MCP Agent is a local-first MCP server and research workflow Skill for MATLAB EEGLAB. It lets MCP-capable assistants use structured `eeglab_*` tools while preserving EEG research safeguards: provenance, event semantics, method preflight, official EEGLAB/SCCN alignment, and reproducible reporting.
 
 This project is for EEG signal-processing research workflows. It is not a clinical diagnosis system and must not be used for clinical claims.
