@@ -910,7 +910,9 @@ def _safe_leaf_filename(arguments: dict[str, Any], field: str, errors: list[str]
         errors.append(f"{field} must not be empty")
         return
     if filename in {".", ".."} or any(separator in filename for separator in ("/", "\\")) or ":" in filename:
-        errors.append(f"{field} must be a bare filename inside the output directory, with no directory, drive or path separator")
+        errors.append(
+            f"{field} must be a bare filename inside the output directory, with no directory, drive or path separator"
+        )
 
 
 def validate_arguments(schema: dict[str, Any], arguments: dict[str, Any]) -> list[str]:
@@ -1032,7 +1034,9 @@ def validate_tool_contracts(name: str, arguments: dict[str, Any]) -> list[str]:
         has_indices = _is_present(arguments, "component_indices")
         has_threshold = _is_present(arguments, "auto_remove_brain_threshold")
         if has_indices == has_threshold:
-            errors.append("component_indices and auto_remove_brain_threshold are mutually exclusive, specify exactly one")
+            errors.append(
+                "component_indices and auto_remove_brain_threshold are mutually exclusive, specify exactly one"
+            )
         _positive_integer_list(arguments, "component_indices", errors)
         _probability(arguments, "auto_remove_brain_threshold", errors)
 
