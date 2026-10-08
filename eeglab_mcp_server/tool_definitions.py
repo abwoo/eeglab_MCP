@@ -21,7 +21,7 @@ def build_tool_definitions() -> list[Tool]:
             description="Initialize the EEGLAB environment. Must be called before any other EEGLAB operation."
             "Starts MATLAB and loads EEGLAB without the GUI."
             "Optionally pass the EEGLAB installation path; otherwise the EEGLAB_PATH environment variable is used.",
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "eeglab_path": {
@@ -37,7 +37,7 @@ def build_tool_definitions() -> list[Tool]:
             description="Load an EEG data file. Supports the native EEGLAB formats (.set/.fdt), BrainVision (.vhdr),"
             "EDF/EDF+ (.edf), BioSemi (.bdf), Neuroscan (.cnt) and similar formats."
             "After loading, the data is stored in the EEG variable of the MATLAB workspace and is available to later analysis tools.",
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "filepath": {
@@ -56,7 +56,7 @@ def build_tool_definitions() -> list[Tool]:
             name="eeglab_save_data",
             description="Save the current EEG data to a .set file."
             "Saving after a destructive operation such as filtering or ICA artifact removal is recommended.",
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "filepath": {
@@ -75,7 +75,7 @@ def build_tool_definitions() -> list[Tool]:
             name="eeglab_import_bids",
             description="Import a BIDS dataset. BIDS (Brain Imaging Data Structure) is the standard for organizing neuroscience data."
             "A STUDY and ALLEEG are created on import so that group-level analysis is possible.",
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "bids_path": {
@@ -95,7 +95,7 @@ def build_tool_definitions() -> list[Tool]:
             name="eeglab_info",
             description="Return details of the current EEG dataset, including channel count, sampling rate, data points, trial count,"
             "time window, channel labels, event types and ICA status. Use it to survey the data and to verify processing results.",
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "include_channels": {
@@ -121,7 +121,7 @@ def build_tool_definitions() -> list[Tool]:
             name="eeglab_history",
             description="Return the operation history of the current EEG dataset, recording every EEGLAB operation since the data was loaded."
             "Use it to trace the analysis flow, to verify processing steps and to reproduce an analysis.",
-            inputSchema={"type": "object", "properties": {}, "required": []},
+            input_schema={"type": "object", "properties": {}, "required": []},
         ),
         # ===== Category 2: preprocessing =====
         Tool(
@@ -130,7 +130,7 @@ def build_tool_definitions() -> list[Tool]:
             "It uses the EEGLAB-recommended pop_eegfiltnew (FIR, Hamming window) and pop_cleanline (notch)."
             "Guidance: use a 0.1-40 Hz bandpass for ERP work and a 0.5-80 Hz bandpass for time-frequency work; "
             "notch out line noise at 50 Hz (China/Europe) or 60 Hz (US); a 1 Hz highpass before ICA is recommended.",
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "filter_type": {
@@ -163,7 +163,7 @@ def build_tool_definitions() -> list[Tool]:
             name="eeglab_resample",
             description="Resample the EEG data. Lowering the sampling rate reduces both the data size and the computation time."
             "Guidance: apply a lowpass anti-aliasing filter before downsampling; common target rates are 250 Hz for ERP and 500 Hz for time-frequency work.",
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "new_srate": {
@@ -180,7 +180,7 @@ def build_tool_definitions() -> list[Tool]:
             "Guidance: average reference is the most common choice and suits most research settings; "
             "average reference reduces the data rank by 1, so set pca=nchan-1 for ICA; "
             "ICA is usually run before re-referencing, or with average reference.",
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "ref_type": {
@@ -201,7 +201,7 @@ def build_tool_definitions() -> list[Tool]:
             description="Select or exclude specific channels, either to drop bad channels or to keep only a region of interest."
             "Guidance: drop clearly bad channels before ICA while keeping enough channels; "
             "removing channels before ICA lowers the number of components.",
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "channels": {
@@ -223,7 +223,7 @@ def build_tool_definitions() -> list[Tool]:
             description="Interpolate channels, estimating the signal of a bad channel from its neighbours with spherical splines."
             "Guidance: run this after ICA artifact removal rather than before; "
             "urchanlocs can restore channels that were removed earlier.",
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "ref_chanlocs": {
@@ -244,7 +244,7 @@ def build_tool_definitions() -> list[Tool]:
             name="eeglab_edit_channels",
             description="Edit channel information, for example loading a .loc location file or renaming channels."
             "Guidance: check the channel locations after loading, otherwise topomaps and source results will be wrong.",
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "action": {
@@ -269,7 +269,7 @@ def build_tool_definitions() -> list[Tool]:
             description="Dedicated line-noise removal, using pop_cleanline from the clean_rawdata plugin."
             "It is more accurate than plain notch filtering because it estimates the line noise and its harmonics adaptively."
             "It needs the clean_rawdata plugin. Guidance: prefer this tool when the data has clear 50/60 Hz line noise.",
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "line_freq": {
@@ -302,7 +302,7 @@ def build_tool_definitions() -> list[Tool]:
             "It detects and repairs bad channels and removes high-amplitude artifacts automatically."
             "Guidance: run it on continuous data before epoching; using it before ICA improves ICA quality; "
             "burst_criterion: 5 is aggressive, 20 conservative, 40 mild. It needs the clean_rawdata plugin.",
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "flatline_criterion": {
@@ -341,7 +341,7 @@ def build_tool_definitions() -> list[Tool]:
             "Guidance: a 1 Hz highpass before ICA is recommended; do not baseline-correct before ICA; "
             "average reference reduces the rank by 1, so set pca=nchan-1; "
             "runica and picard ship with EEGLAB, while fastica needs a separate plugin.",
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "algorithm": {
@@ -374,13 +374,13 @@ def build_tool_definitions() -> list[Tool]:
             "assigns each component to one of seven classes: Brain, Muscle, Eye, Heart, "
             "Line_Noise, Channel_Noise and Other."
             "The result carries the probability of each class for every component. Run the ICA decomposition first. It needs the ICLabel plugin.",
-            inputSchema={"type": "object", "properties": {}, "required": []},
+            input_schema={"type": "object", "properties": {}, "required": []},
         ),
         Tool(
             name="eeglab_flag_components",
             description="Mark ICA components from the ICLabel probabilities. Set a probability threshold per class to decide which components count as artifacts."
             "Guidance: a common strategy marks components whose Brain probability is below 0.2, or whose Muscle or Eye probability is above 0.8.",
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "brain_range": {
@@ -441,7 +441,7 @@ def build_tool_definitions() -> list[Tool]:
             description="Remove selected ICA artifact components and rebuild the EEG data, either from the ICLabel classification or from a manual selection, dropping "
             "non-brain components such as ocular, muscle, cardiac and line noise."
             "This is the core step of ICA artifact removal. Run eeglab_classify_ica first to see the classification before deciding what to remove.",
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "component_indices": {
@@ -462,7 +462,7 @@ def build_tool_definitions() -> list[Tool]:
             description="Reject trials. Reject artifact-contaminated trials by threshold or by joint probability."
             "Guidance: use it after epoching; set the threshold from the data amplitude, usually plus or minus 100 microvolts; "
             "the joint probability method detects abnormalities that are only visible across channels.",
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "method": {
@@ -497,7 +497,7 @@ def build_tool_definitions() -> list[Tool]:
             name="eeglab_get_events",
             description="Return event information for the current EEG dataset, listing the available event types and their counts."
             "Use it to find out which markers the data contains before epoching and analysis.",
-            inputSchema={"type": "object", "properties": {}, "required": []},
+            input_schema={"type": "object", "properties": {}, "required": []},
         ),
         # ===== Category 4: epoching and ERP =====
         Tool(
@@ -506,7 +506,7 @@ def build_tool_definitions() -> list[Tool]:
             "Epoching is required for ERP analysis. Guidance: common windows are [-200, 800] ms for P300 and "
             "[-200, 500] ms for N170; baseline correction removes the DC offset over the pre-stimulus period; "
             "the baseline window is usually the same as the pre-stimulus window.",
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "event_types": {
@@ -544,7 +544,7 @@ def build_tool_definitions() -> list[Tool]:
             "channel selection and a configurable time window. It reports the mean, the peak and the latency for each condition and channel."
             "Guidance: common ERP components are N1 at 80-150 ms, P2 at 150-280 ms, "
             "N170 at 140-200 ms over temporo-occipital sites, P300 at 250-500 ms over centro-parietal sites and N400 at 300-500 ms over central sites.",
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "channels": {
@@ -577,7 +577,7 @@ def build_tool_definitions() -> list[Tool]:
             name="eeglab_sort_epochs",
             description="Sort trials by condition, grouping and ordering the trials by event type so that the grouped analysis can follow."
             "Guidance: use it after epoching; once the trials are sorted, eeglab_erp_analysis can analyse them by condition.",
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "sort_by": {
@@ -593,7 +593,7 @@ def build_tool_definitions() -> list[Tool]:
             description="Average the ERP, computing the average ERP waveform per condition."
             "Guidance: usually run after epoching and baseline correction; "
             "it can group by event type to average the ERP per condition.",
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "conditions": {
@@ -617,7 +617,7 @@ def build_tool_definitions() -> list[Tool]:
             "It reports the absolute and the relative power of the Delta, Theta, Alpha, Beta and Gamma bands."
             "Guidance: the bands are Delta 0.5-4 Hz, Theta 4-8 Hz, Alpha 8-13 Hz, "
             "Beta 13-30 Hz and Gamma 30-80 Hz; this tool is the usual choice for resting-state analysis.",
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "channels": {
@@ -649,7 +649,7 @@ def build_tool_definitions() -> list[Tool]:
             "ERSP reflects how the energy of each band varies over time, while ITC reflects how strongly the phase is locked in each band."
             "Guidance: a frequency range of 3-80 Hz with 3-10 cycles growing linearly from low to high frequency; "
             "it needs epoched data.",
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "channels": {
@@ -696,7 +696,7 @@ def build_tool_definitions() -> list[Tool]:
             description="Functional connectivity analysis, computing the coherence and the phase locking value (PLV) between channels."
             "Guidance: coherence reflects the linear relationship between two signals at a given frequency; "
             "PLV reflects phase synchronisation; both are common in resting-state brain network analysis.",
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "channels": {
@@ -727,7 +727,7 @@ def build_tool_definitions() -> list[Tool]:
             name="eeglab_topoplot",
             description="Plot a scalp topomap, showing the distribution of the EEG signal over the scalp as contour lines."
             "It can plot the average potential at a given time point or across a time window. The figure is saved as a PNG file.",
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "time_point": {
@@ -759,7 +759,7 @@ def build_tool_definitions() -> list[Tool]:
             name="eeglab_plot_erp",
             description="Plot ERP waveforms, showing the average ERP waveform of the given channels."
             "It can plot per condition and can add confidence intervals. The figure is saved as a PNG file.",
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "channels": {
@@ -785,7 +785,7 @@ def build_tool_definitions() -> list[Tool]:
             name="eeglab_plot_timefreq",
             description="Plot time-frequency figures, showing the ERSP and/or ITC of the given channel."
             "Run eeglab_timefreq first to obtain the time-frequency data. The figure is saved as a PNG file.",
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "channel": {
@@ -816,7 +816,7 @@ def build_tool_definitions() -> list[Tool]:
             description="Plot ICA component figures, showing the scalp topomap and the power spectrum of each component."
             "Use them to inspect the components and to judge their nature by hand. The figures are saved as PNG files."
             "Guidance: run the ICA decomposition first, and combine the figures with the ICLabel classification to judge the components.",
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "component_indices": {
@@ -840,7 +840,7 @@ def build_tool_definitions() -> list[Tool]:
             "and estimate where the intracranial sources sit. Run the ICA decomposition first."
             "It reports the MNI coordinates of the dipoles, the residual variance and more. Guidance: the channel locations must be correct before fitting; "
             "a residual variance below 15 percent means a good fit. It needs the Dipfit plugin, which ships with EEGLAB.",
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "component_indices": {
@@ -869,7 +869,7 @@ def build_tool_definitions() -> list[Tool]:
             description="Dipfit model settings, configuring the head model, the template brain and the channel location file."
             "Guidance: set the correct parameters before running source localization; "
             "the BEM model is more accurate but slower, while the spherical model is fast but less accurate.",
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "head_model": {
@@ -902,7 +902,7 @@ def build_tool_definitions() -> list[Tool]:
             description="Create an EEGLAB STUDY for group-level analysis, either from a BIDS directory or from several .set files."
             "Guidance: the STUDY is the basis for group-level analysis in EEGLAB; "
             "the experimental design must be defined before any statistical test.",
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "bids_path": {
@@ -928,7 +928,7 @@ def build_tool_definitions() -> list[Tool]:
             description="Define the STUDY experimental design, setting the independent variables and their levels for the later statistical test."
             "Guidance: the design must be defined before the statistical test; "
             "several independent variables can be defined, for example group by condition.",
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "design_name": {
@@ -956,7 +956,7 @@ def build_tool_definitions() -> list[Tool]:
             description="STUDY statistical test, using a cluster permutation test for group-level statistical inference."
             "Guidance: a cluster permutation test controls multiple comparisons effectively; "
             "the usual thresholds are p below 0.05 with FDR or FWE correction at the cluster level.",
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "measure": {
@@ -986,7 +986,7 @@ def build_tool_definitions() -> list[Tool]:
             "It supports the ERP, resting-state and time-frequency pipelines."
             "Guidance: the ERP pipeline is filter, ASR, re-reference, ICA, ICLabel, artifact removal, interpolation, epoch, baseline, save; "
             "the resting-state pipeline is filter, ASR, re-reference, ICA, ICLabel, artifact removal, spectral analysis, save.",
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "pipeline_type": {

@@ -68,18 +68,18 @@ def workflow_tools() -> list[Tool]:
                 "coverage, ICA status, processing history, and basic risks before choosing preprocessing steps. "
                 "This tool does not transform data."
             ),
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {},
                 "required": [],
             },
-            outputSchema=WORKFLOW_OUTPUT_SCHEMA,
+            output_schema=WORKFLOW_OUTPUT_SCHEMA,
             annotations=ToolAnnotations(
                 title="QC report",
-                readOnlyHint=True,
-                destructiveHint=False,
-                idempotentHint=True,
-                openWorldHint=False,
+                read_only_hint=True,
+                destructive_hint=False,
+                idempotent_hint=True,
+                open_world_hint=False,
             ),
         ),
         Tool(
@@ -91,7 +91,7 @@ def workflow_tools() -> list[Tool]:
                 "when you need explicit parameters and temp/output files. It modifies only the in-memory EEG "
                 "state and writes to the requested output directory."
             ),
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "data_path": {
@@ -156,13 +156,13 @@ def workflow_tools() -> list[Tool]:
                 },
                 "required": ["data_path", "output_dir"],
             },
-            outputSchema=WORKFLOW_OUTPUT_SCHEMA,
+            output_schema=WORKFLOW_OUTPUT_SCHEMA,
             annotations=ToolAnnotations(
                 title="Light ERP workflow",
-                readOnlyHint=False,
-                destructiveHint=False,
-                idempotentHint=False,
-                openWorldHint=False,
+                read_only_hint=False,
+                destructive_hint=False,
+                idempotent_hint=False,
+                open_world_hint=False,
             ),
         ),
         Tool(
@@ -174,7 +174,7 @@ def workflow_tools() -> list[Tool]:
                 "when the user wants a reproducible research plan that records acquisition/provenance, "
                 "processing choices, and analysis outputs. This tool does not run MATLAB or change data."
             ),
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "analysis_type": {
@@ -242,13 +242,13 @@ def workflow_tools() -> list[Tool]:
                 },
                 "required": [],
             },
-            outputSchema=WORKFLOW_OUTPUT_SCHEMA,
+            output_schema=WORKFLOW_OUTPUT_SCHEMA,
             annotations=ToolAnnotations(
                 title="Workflow recommendation",
-                readOnlyHint=True,
-                destructiveHint=False,
-                idempotentHint=True,
-                openWorldHint=False,
+                read_only_hint=True,
+                destructive_hint=False,
+                idempotent_hint=True,
+                open_world_hint=False,
             ),
         ),
         Tool(
@@ -260,7 +260,7 @@ def workflow_tools() -> list[Tool]:
                 "group/STUDY work when the project needs a reproducible protocol rather than a single tool call. "
                 "This tool does not run MATLAB or change data."
             ),
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "research_goal": {
@@ -345,13 +345,13 @@ def workflow_tools() -> list[Tool]:
                 },
                 "required": [],
             },
-            outputSchema=WORKFLOW_OUTPUT_SCHEMA,
+            output_schema=WORKFLOW_OUTPUT_SCHEMA,
             annotations=ToolAnnotations(
                 title="Research project plan",
-                readOnlyHint=True,
-                destructiveHint=False,
-                idempotentHint=True,
-                openWorldHint=False,
+                read_only_hint=True,
+                destructive_hint=False,
+                idempotent_hint=True,
+                open_world_hint=False,
             ),
         ),
         Tool(
@@ -362,7 +362,7 @@ def workflow_tools() -> list[Tool]:
                 "and official EEGLAB reference anchors. Use when a plan needs a Markdown or JSON protocol for a lab notebook, "
                 "methods section draft, or reproducibility handoff. It writes a file only when output_path is supplied."
             ),
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "format": {
@@ -441,13 +441,13 @@ def workflow_tools() -> list[Tool]:
                 },
                 "required": [],
             },
-            outputSchema=WORKFLOW_OUTPUT_SCHEMA,
+            output_schema=WORKFLOW_OUTPUT_SCHEMA,
             annotations=ToolAnnotations(
                 title="Protocol export",
-                readOnlyHint=False,
-                destructiveHint=False,
-                idempotentHint=False,
-                openWorldHint=False,
+                read_only_hint=False,
+                destructive_hint=False,
+                idempotent_hint=False,
+                open_world_hint=False,
             ),
         ),
         Tool(
@@ -458,7 +458,7 @@ def workflow_tools() -> list[Tool]:
                 "clean_rawdata, ICLabel, DIPFIT, EEG-BIDS, BIOSIG, File-IO, MFF, NWB, BVA, HEDTools, LIMO, SIFT, and NSG-related functions. Use before plugin-dependent "
                 "ICA cleanup, ASR, source, BIDS/STUDY, import/export, event annotation, or connectivity workflows."
             ),
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "plugins": {
@@ -469,13 +469,13 @@ def workflow_tools() -> list[Tool]:
                 },
                 "required": [],
             },
-            outputSchema=WORKFLOW_OUTPUT_SCHEMA,
+            output_schema=WORKFLOW_OUTPUT_SCHEMA,
             annotations=ToolAnnotations(
                 title="Plugin check",
-                readOnlyHint=True,
-                destructiveHint=False,
-                idempotentHint=True,
-                openWorldHint=False,
+                read_only_hint=True,
+                destructive_hint=False,
+                idempotent_hint=True,
+                open_world_hint=False,
             ),
         ),
         Tool(
@@ -486,7 +486,7 @@ def workflow_tools() -> list[Tool]:
                 "segment markers before epoching. Use this when marker meanings are ambiguous, when BrainVision/EDF events "
                 "mix task and metadata markers, or when only start/end segment markers are available. This tool does not edit events."
             ),
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "event_types": {
@@ -525,13 +525,13 @@ def workflow_tools() -> list[Tool]:
                 },
                 "required": [],
             },
-            outputSchema=WORKFLOW_OUTPUT_SCHEMA,
+            output_schema=WORKFLOW_OUTPUT_SCHEMA,
             annotations=ToolAnnotations(
                 title="Event semantics audit",
-                readOnlyHint=True,
-                destructiveHint=False,
-                idempotentHint=True,
-                openWorldHint=False,
+                read_only_hint=True,
+                destructive_hint=False,
+                idempotent_hint=True,
+                open_world_hint=False,
             ),
         ),
         Tool(
@@ -543,7 +543,7 @@ def workflow_tools() -> list[Tool]:
                 "BIDS/acquisition provenance checks, or one-click pipelines. "
                 "It does not run MATLAB; it returns gate_status, missing requirements, source claim IDs, and safe next steps."
             ),
-            inputSchema={
+            input_schema={
                 "type": "object",
                 "properties": {
                     "method": {
@@ -571,13 +571,13 @@ def workflow_tools() -> list[Tool]:
                 },
                 "required": [],
             },
-            outputSchema=WORKFLOW_OUTPUT_SCHEMA,
+            output_schema=WORKFLOW_OUTPUT_SCHEMA,
             annotations=ToolAnnotations(
                 title="Official method preflight",
-                readOnlyHint=True,
-                destructiveHint=False,
-                idempotentHint=True,
-                openWorldHint=False,
+                read_only_hint=True,
+                destructive_hint=False,
+                idempotent_hint=True,
+                open_world_hint=False,
             ),
         ),
     ]
@@ -732,7 +732,7 @@ def annotate_tools(tools: list[Tool]) -> list[Tool]:
     for tool in tools:
         tool.title = tool.title or TOOL_TITLES.get(tool.name, tool.name.replace("_", " ").title())
         if tool.name in HIGH_RISK_TOOL_NAMES:
-            properties = dict(tool.inputSchema.get("properties", {}))
+            properties = dict(tool.input_schema.get("properties", {}))
             properties.setdefault(
                 "override_gate",
                 {
@@ -752,7 +752,7 @@ def annotate_tools(tools: list[Tool]) -> list[Tool]:
                     "description": "Known facts for official preflight, such as data_shape, event_roles, plugins_available, source/export format, event/channel mapping, HED schema, event modification rules, urevent status, has_ica, has_channel_locations, output_dir, rank_reference_reviewed, and design variables.",
                 },
             )
-            tool.inputSchema = {**tool.inputSchema, "properties": properties}
+            tool.input_schema = {**tool.input_schema, "properties": properties}
         appendix = TOOL_DESCRIPTION_APPENDIX.get(tool.name)
         if appendix:
             description = tool.description or ""
@@ -767,10 +767,10 @@ def annotate_tools(tools: list[Tool]) -> list[Tool]:
             read_only = tool.name in READ_ONLY_TOOLS
             tool.annotations = ToolAnnotations(
                 title=tool.title,
-                readOnlyHint=read_only,
-                destructiveHint=tool.name in DESTRUCTIVE_TOOLS,
-                idempotentHint=read_only,
-                openWorldHint=False,
+                read_only_hint=read_only,
+                destructive_hint=tool.name in DESTRUCTIVE_TOOLS,
+                idempotent_hint=read_only,
+                open_world_hint=False,
             )
     return tools
 

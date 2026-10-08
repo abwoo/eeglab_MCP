@@ -13,9 +13,10 @@ import json
 import traceback
 from typing import Any
 
-from mcp.server.models import InitializationOptions
 from mcp.server import Server
-from mcp.server.lowlevel.server import NotificationOptions, ReadResourceContents
+from mcp.server.context import ServerRequestContext
+from mcp.server.lowlevel.helper_types import ReadResourceContents
+from mcp import types
 from mcp.server.stdio import stdio_server
 from mcp.types import (
     GetPromptResult,
@@ -331,7 +332,6 @@ def _with_official_gate_metadata(result: Any, gate_result: dict[str, Any]) -> An
 # MCP Server
 # ---------------------------------------------------------------------------
 
-server = Server("eeglab-mcp-server")
 try:
     from .tool_registry import RESEARCH_WORKFLOW_TOOL_NAMES as WORKFLOW_TOOL_NAMES
 except ImportError:  # pragma: no cover - direct script execution support
@@ -343,16 +343,14 @@ except ImportError:  # pragma: no cover - direct script execution support
 # ---------------------------------------------------------------------------
 
 
-@server.list_tools()
 async def list_tools() -> list[Tool]:
     """List every available EEGLAB MCP tool."""
     tools = build_tool_definitions()
     for tool in tools:
-        tool.inputSchema = _client_schema(tool.inputSchema)
+        tool.input_schema = _client_schema(tool.input_schema)
     return tools
 
 
-@server.list_prompts()
 async def list_prompts() -> list[Prompt]:
     """List built-in research workflow prompts for clients that support MCP prompts."""
     return [
@@ -366,7 +364,6 @@ async def list_prompts() -> list[Prompt]:
     ]
 
 
-@server.get_prompt()
 async def get_prompt(name: str, arguments: dict[str, str] | None = None) -> GetPromptResult:
     """Return a built-in prompt without touching EEG data or MATLAB state."""
     if name not in PROMPT_DEFINITIONS:
@@ -383,7 +380,6 @@ async def get_prompt(name: str, arguments: dict[str, str] | None = None) -> GetP
     )
 
 
-@server.list_resources()
 async def list_resources() -> list[Resource]:
     """Expose skill/reference files as read-only MCP resources."""
     resources: list[Resource] = []
@@ -395,14 +391,13 @@ async def list_resources() -> list[Resource]:
                 name=name,
                 title=name,
                 description=description,
-                mimeType="text/markdown",
+                mime_type="application/json" if path.suffix == ".json" else "text/markdown",
                 size=size,
             )
         )
     return resources
 
 
-@server.read_resource()
 async def read_resource(uri: Any) -> list[ReadResourceContents]:
     """Read a bundled skill/reference resource without modifying local state."""
     uri_text = str(uri)
@@ -411,7 +406,12 @@ async def read_resource(uri: Any) -> list[ReadResourceContents]:
     _, path, _ = RESOURCE_FILES[uri_text]
     if not path.exists():
         raise FileNotFoundError(f"Resource file is missing: {path}")
-    return [ReadResourceContents(content=path.read_text(encoding="utf-8"), mime_type="text/markdown")]
+    return [
+        ReadResourceContents(
+            content=path.read_text(encoding="utf-8"),
+            mime_type="application/json" if path.suffix == ".json" else "text/markdown",
+        )
+    ]
 
 
 # ---------------------------------------------------------------------------
@@ -459,7 +459,6 @@ def _analysis_window_errors(name: str, arguments: dict[str, Any]) -> list[str]:
     return []
 
 
-@server.call_tool(validate_input=False)
 async def call_tool(name: str, arguments: dict[str, Any]) -> Any:
     """Handle a tool call."""
     handlers = TOOL_HANDLERS
@@ -494,7 +493,7 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> Any:
         return _json_response(payload)
 
     tools = build_tool_definitions()
-    schema_by_name = {tool.name: tool.inputSchema for tool in tools}
+    schema_by_name = {tool.name: tool.input_schema for tool in tools}
     schema = schema_by_name.get(name, {})
     missing = _missing_required(name, arguments)
     if missing:
@@ -605,8 +604,62 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> Any:
 
 
 # ---------------------------------------------------------------------------
-# Main
+# SDK 2 request adapters
 # ---------------------------------------------------------------------------
+
+
+async def _on_list_tools(
+    ctx: ServerRequestContext[Any], params: types.PaginatedRequestParams | None
+) -> types.ListToolsResult:
+    return types.ListToolsResult(tools=await list_tools())
+
+
+async def _on_list_prompts(
+    ctx: ServerRequestContext[Any], params: types.PaginatedRequestParams | None
+) -> types.ListPromptsResult:
+    return types.ListPromptsResult(prompts=await list_prompts())
+
+
+async def _on_get_prompt(ctx: ServerRequestContext[Any], params: types.GetPromptRequestParams) -> types.GetPromptResult:
+    return await get_prompt(params.name, params.arguments)
+
+
+async def _on_list_resources(
+    ctx: ServerRequestContext[Any], params: types.PaginatedRequestParams | None
+) -> types.ListResourcesResult:
+    return types.ListResourcesResult(resources=await list_resources())
+
+
+async def _on_read_resource(
+    ctx: ServerRequestContext[Any], params: types.ReadResourceRequestParams
+) -> types.ReadResourceResult:
+    entries = await read_resource(params.uri)
+    return types.ReadResourceResult(
+        contents=[
+            types.TextResourceContents(uri=params.uri, text=str(entry.content), mime_type=entry.mime_type)
+            for entry in entries
+        ]
+    )
+
+
+async def _on_call_tool(ctx: ServerRequestContext[Any], params: types.CallToolRequestParams) -> types.CallToolResult:
+    result = await call_tool(params.name, params.arguments or {})
+    if isinstance(result, tuple):
+        content, structured = result
+        return types.CallToolResult(content=content, structured_content=structured)
+    return types.CallToolResult(content=result)
+
+
+server = Server(
+    "eeglab-mcp-server",
+    version="1.0",
+    on_list_tools=_on_list_tools,
+    on_call_tool=_on_call_tool,
+    on_list_prompts=_on_list_prompts,
+    on_get_prompt=_on_get_prompt,
+    on_list_resources=_on_list_resources,
+    on_read_resource=_on_read_resource,
+)
 
 
 async def main():
@@ -614,14 +667,7 @@ async def main():
         await server.run(
             read_stream,
             write_stream,
-            InitializationOptions(
-                server_name="eeglab-mcp-server",
-                server_version="1.0",
-                capabilities=server.get_capabilities(
-                    notification_options=NotificationOptions(),
-                    experimental_capabilities={},
-                ),
-            ),
+            server.create_initialization_options(),
         )
 
 

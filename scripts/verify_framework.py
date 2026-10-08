@@ -28,6 +28,7 @@ from eeglab_mcp_server.mcp_surfaces import RESOURCE_FILES
 from eeglab_mcp_server.official_alignment import (
     METHOD_PROFILES,
     OFFICIAL_CLAIMS,
+    build_official_claims_document,
 )
 from eeglab_mcp_server.tool_registry import (
     EXPOSED_TOOL_NAMES,
@@ -69,6 +70,7 @@ REQUIRED_RESOURCES = {
     "eeglab://references/source-policy.md",
     "eeglab://references/report-protocol-templates.md",
     "eeglab://references/statistics-reporting.md",
+    "eeglab://official/claims.json",
     "eeglab://official/references.md",
     "eeglab://official/topic-index.md",
     "eeglab://official/support-matrix.md",
@@ -597,7 +599,7 @@ def _first_text(result: Any) -> dict[str, Any]:
 def _structured(result: Any, tool_name: str) -> dict[str, Any]:
     """Assert workflow tools return both JSON text and structuredContent."""
     text_payload = _first_text(result)
-    structured = getattr(result, "structuredContent", None)
+    structured = getattr(result, "structured_content", None)
     _require(isinstance(structured, dict), f"{tool_name} missing structuredContent")
     _require(
         structured == text_payload,
@@ -639,7 +641,7 @@ def _assert_preflight_summary(payload: dict[str, Any], tool_name: str) -> None:
 
 
 async def _check_mcp() -> None:
-    params = StdioServerParameters(command="python", args=["-B", "eeglab_mcp_server/server.py"])
+    params = StdioServerParameters(command=sys.executable, args=["-B", "eeglab_mcp_server/server.py"])
     async with stdio_client(params) as (read, write), ClientSession(read, write) as session:
         await session.initialize()
 
@@ -709,6 +711,18 @@ async def _check_mcp() -> None:
             _require(uri in resource_uris, f"missing resource: {uri}")
             resource = await session.read_resource(uri)
             _require(bool(resource.contents), f"resource returned no contents: {uri}")
+
+        claims_uri = "eeglab://official/claims.json"
+        claims_metadata = next(resource for resource in resources.resources if str(resource.uri) == claims_uri)
+        claims_result = await session.read_resource(claims_uri)
+        _require(claims_metadata.mime_type == "application/json", "claims resource metadata must identify JSON")
+        _require(
+            claims_result.contents[0].mime_type == "application/json", "claims resource content must identify JSON"
+        )
+        _require(
+            json.loads(claims_result.contents[0].text) == build_official_claims_document(),
+            "published MCP claims resource differs from the versioned source document",
+        )
 
         unknown = _first_text(await session.call_tool("eeglab_unknown", {}))
         _require(
@@ -1001,6 +1015,75 @@ async def _check_mcp() -> None:
         )
 
 
+async def _check_legacy_protocol(version: str) -> None:
+    """Exercise SDK 2's legacy wire adapter without depending on its client models."""
+    process = await asyncio.create_subprocess_exec(
+        sys.executable,
+        "-B",
+        str(ROOT / "eeglab_mcp_server" / "server.py"),
+        stdin=asyncio.subprocess.PIPE,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.DEVNULL,
+        limit=8 * 1024 * 1024,
+    )
+    request_id = 0
+
+    async def request(method: str, params: dict[str, Any]) -> dict[str, Any]:
+        nonlocal request_id
+        request_id += 1
+        message = {"jsonrpc": "2.0", "id": request_id, "method": method, "params": params}
+        process.stdin.write((json.dumps(message) + "\n").encode())
+        await process.stdin.drain()
+        while True:
+            line = await asyncio.wait_for(process.stdout.readline(), timeout=30)
+            _require(bool(line), f"legacy {version} server exited during {method}")
+            response = json.loads(line)
+            if response.get("id") == request_id:
+                _require("error" not in response, f"legacy {version} {method}: {response}")
+                return response["result"]
+
+    try:
+        initialized = await request(
+            "initialize",
+            {
+                "protocolVersion": version,
+                "capabilities": {},
+                "clientInfo": {"name": "legacy-verifier", "version": "1"},
+            },
+        )
+        _require(initialized["protocolVersion"] == version, f"server did not negotiate legacy {version}")
+        process.stdin.write(b'{"jsonrpc":"2.0","method":"notifications/initialized"}\n')
+        await process.stdin.drain()
+        tools = (await request("tools/list", {}))["tools"]
+        _require({tool["name"] for tool in tools} == EXPOSED_TOOL_NAMES, "legacy tool list differs from registry")
+        _require(all("inputSchema" in tool for tool in tools), "legacy tool schemas must use wire aliases")
+        prompts = (await request("prompts/list", {}))["prompts"]
+        _require({prompt["name"] for prompt in prompts} == REQUIRED_PROMPTS, "legacy prompt list differs")
+        claims = await request("resources/read", {"uri": "eeglab://official/claims.json"})
+        _require(claims["contents"][0]["mimeType"] == "application/json", "legacy claims MIME type differs")
+        _require(
+            json.loads(claims["contents"][0]["text"]) == build_official_claims_document(),
+            "legacy claims document differs",
+        )
+        result = await request("tools/call", {"name": "eeglab_method_preflight", "arguments": {"method": "epoch"}})
+        payload = json.loads(result["content"][0]["text"])
+        _require(payload["summary"]["gate_status"] == "blocked", "legacy preflight lost its gate")
+        if version == "2025-06-18":
+            _require(result.get("structuredContent") == payload, "legacy structuredContent differs from text")
+        invalid = await request("tools/call", {"name": "eeglab_load_data", "arguments": {}})
+        _require(
+            json.loads(invalid["content"][0]["text"])["code"] == "missing_required_arguments",
+            "legacy invalid arguments lost the JSON error contract",
+        )
+    finally:
+        process.stdin.close()
+        try:
+            await asyncio.wait_for(process.wait(), timeout=5)
+        except asyncio.TimeoutError:
+            process.terminate()
+            await process.wait()
+
+
 def _check_cleanliness() -> None:
     for cache_dir in ROOT.rglob("__pycache__"):
         if cache_dir.is_dir():
@@ -1029,6 +1112,8 @@ def main() -> None:
     _check_tool_support_matrix()
     if not args.skip_mcp:
         asyncio.run(_check_mcp())
+        for version in ("2024-11-05", "2025-06-18"):
+            asyncio.run(_check_legacy_protocol(version))
     _check_cleanliness()
     print("framework_ok=True")
     print("eval_contract_ok=True")

@@ -340,7 +340,7 @@ def check_tool_contract_text() -> None:
     for tool_name in HIGH_RISK_TOOL_NAMES:
         tool = tools.get(tool_name)
         _require(tool is not None, f"high-risk tool not exposed: {tool_name}")
-        properties = tool.inputSchema.get("properties", {})
+        properties = tool.input_schema.get("properties", {})
         for field in ("override_gate", "override_reason", "method_context"):
             _require(field in properties, f"{tool_name} missing high-risk field {field}")
         description = (tool.description or "").lower()

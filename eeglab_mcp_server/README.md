@@ -160,3 +160,7 @@ matlab = generic MATLAB scripts and custom calculations
 ```
 
 Treat the two servers as isolated MATLAB sessions. Share data through explicit files such as `.set/.fdt`, `.mat`, `.csv`, `.png`, Markdown, or JSON reports.
+
+## MCP SDK Compatibility
+
+The server uses MCP Python SDK 2.3 or later in the 2.x series and its typed request callbacks. Python 3.10 remains supported. Python model fields use snake_case; MCP wire schemas retain `inputSchema`, `outputSchema`, `mimeType` and `structuredContent`. The framework verifier exercises the current SDK client plus raw stdio clients negotiating protocols `2024-11-05` and `2025-06-18`, including workflow output and JSON error contracts.
