@@ -349,8 +349,8 @@ async def _eeglab_erp_light_workflow(args: dict) -> Any:
         payload = {
             "status": "error",
             "code": "dataset_not_found",
-            "error": f"数据文件不存在: {data_path}",
-            "next_step": "传入存在的本地 EEG 数据文件绝对路径。",
+            "error": f"data file not found: {data_path}",
+            "next_step": "pass the absolute path of an existing local EEG data file.",
         }
         return structured_payload(
             workflow_error(
@@ -365,8 +365,8 @@ async def _eeglab_erp_light_workflow(args: dict) -> Any:
         payload = {
             "status": "error",
             "code": "refuse_overwrite_input",
-            "error": "轻量 ERP workflow 不允许覆盖原始输入数据。",
-            "next_step": "把 output_dir 或 output_filename 指向新的临时/结果路径。",
+            "error": "the lightweight ERP workflow refuses to overwrite the original input data.",
+            "next_step": "point output_dir or output_filename at a new temporary or results path.",
         }
         return structured_payload(
             workflow_error(
