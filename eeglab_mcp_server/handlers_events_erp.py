@@ -28,7 +28,7 @@ async def _eeglab_reject_epochs(args: dict) -> list[TextContent]:
         else:
             chan_code = "chan_idx = 1:EEG.nbchan;"
 
-        # Bug fix: pop_eegthresh 中 Python None -> MATLAB []
+        # Bug fix: Python None must become MATLAB [] in pop_eegthresh
         reject_code = f"""
 {chan_code}
 EEG = pop_eegthresh(EEG, [], EEG, 1, chan_idx, {threshold[0]}, {threshold[1]}, 0, 0);
@@ -114,8 +114,8 @@ async def _eeglab_epoch(args: dict) -> list[TextContent]:
     else:
         events_str = "{'all'}"
 
-    # Bug fix: pop_epoch epochinfo 参数值应该是 'on' 而非 'yes'
-    # Bug fix: 基线参数使用用户指定的 bl_start*1000 而非 EEG.xmin*1000
+    # Bug fix: the pop_epoch epochinfo value must be 'on', not 'yes'
+    # Bug fix: the baseline argument must use the user-supplied bl_start*1000, not EEG.xmin*1000
     code = f"""
 {_maybe_init()}
 EEG = pop_epoch(EEG, {events_str}, [{pre_stim}, {post_stim}], 'epochinfo', 'on');
@@ -166,7 +166,7 @@ end
         tw_code = "time_mask = true(size(EEG.times));"
         tw_vals = "[EEG.xmin*1000, EEG.xmax*1000]"
 
-    # 按条件分组
+    # group by condition
     if conditions:
         cond_str = _cell(conditions)
         cond_code = f"""
