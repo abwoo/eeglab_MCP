@@ -308,7 +308,8 @@ end
 value = default;
 for k = 1:numel(names)
     [present, candidate] = get(ctx, names{k});
-    if present && value_truthy(candidate)
+    % Plain Python truthiness here: `"  " or x` keeps "  ", unlike _ctx_truthy.
+    if present && (value_truthy(candidate) || ((ischar(candidate) || isstring(candidate)) && strlength(candidate) > 0))
         value = candidate;
         return
     end
