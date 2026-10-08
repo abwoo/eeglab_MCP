@@ -35,7 +35,7 @@ if (Test-Path -LiteralPath $ConfigPath) {
 Add-Check "codex_config_exists" (Test-Path -LiteralPath $ConfigPath) "Run scripts\eeglab_agent.ps1 setup."
 Add-Check "eeglab_mcp_registered" ($configText -match '(?m)^\[mcp_servers\.eeglab\]$') "Run scripts\eeglab_agent.ps1 setup."
 Add-Check "matlab_mcp_registered" ($configText -match '(?m)^\[mcp_servers\.matlab\]$') "Optional: register a general matlab MCP if you need custom MATLAB scripts."
-Add-Check "skill_installed" (Test-Path -LiteralPath $SkillTarget) "Run scripts\eeglab_agent.ps1 setup to sync the skill."
+Add-Check "skill_installed" (Test-Path -LiteralPath $SkillTarget) "Optional: run scripts\eeglab_agent.ps1 setup -InstallSkill if you want the Codex Skill."
 
 try {
     $mcpCheck = @'

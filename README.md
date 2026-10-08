@@ -1,6 +1,6 @@
 # EEGLAB MCP Agent
 
-EEGLAB MCP Agent is a local-first MCP server and research workflow Skill for MATLAB EEGLAB. It lets MCP-capable assistants use structured `eeglab_*` tools while preserving EEG research safeguards: provenance, event semantics, method preflight, official EEGLAB/SCCN alignment, and reproducible reporting.
+EEGLAB MCP Agent is a local-first MCP server for MATLAB EEGLAB. It lets any MCP-capable assistant use structured `eeglab_*` tools while preserving EEG research safeguards: provenance, event semantics, method preflight, official EEGLAB/SCCN alignment, and reproducible reporting.
 
 This project is for EEG signal-processing research workflows. It is not a clinical diagnosis system and must not be used for clinical claims.
 
@@ -17,6 +17,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 doctor
 
 Restart your MCP client, then ask for an EEG or EEGLAB task.
 
+`setup` registers the MCP server only. Add `-InstallSkill` if you also want the optional Codex Skill (see [Optional Skill](#optional-skill)).
+
 Prerequisites:
 
 - Python 3.10+
@@ -26,7 +28,7 @@ Prerequisites:
 
 ## Minimal MCP Config
 
-Register the server as `eeglab`. The Skill, prompts, resources, and workflow docs assume that name.
+Register the server as `eeglab`. The prompts, resources, and workflow docs assume that name.
 
 ```json
 {
@@ -79,17 +81,15 @@ The dispatcher forwards to dedicated setup, verify, doctor, and uninstall script
 - 56 machine-checkable workflow evals covering gates, reports, plugin gaps, and failure recovery.
 - A local-first runtime: EEG data stays on the user's machine.
 
-## Client And Skill Usage
+## Client Usage
 
-Any stdio MCP client can use the server. Codex, Claude Desktop, VS Code MCP integrations, Cursor, and other MCP-capable IDEs can all register it as `eeglab`.
+Any stdio MCP client can use the server. Codex, Claude Desktop, VS Code MCP integrations, Cursor, and other MCP-capable IDEs can all register it as `eeglab`. No Skill is required: the server carries its own guidance as MCP prompts and resources, for example:
 
-Skill-aware clients should install the `eeglab-analysis` Skill. MCP-only clients can read the same policy through MCP resources:
-
-- `eeglab://skill/SKILL.md`
 - `eeglab://references/workflows.md`
 - `eeglab://references/tools.md`
 - `eeglab://references/method-gates.md`
 - `eeglab://official/gate-policy.md`
+- `eeglab://skill/SKILL.md`
 
 For agent hubs and other external consumers, `eeglab://official/claims.json` is the machine-readable entry point. It carries the 47 alignment claims, the 39 method profiles with their requirements, and the tool-to-profile routing, with a `document_version` field. It is generated from the same constants `eeglab_method_preflight` enforces, so a cited claim id always matches the gate. It is research alignment metadata, not a clinical instrument, and confers no clinical use.
 
@@ -150,7 +150,7 @@ The protocol exporter must not overwrite EEG data files such as `.set`, `.fdt`, 
 | Path | Purpose |
 | --- | --- |
 | `eeglab_mcp_server/` | Executable MCP server, tool schemas, handlers, registry, and official alignment map. |
-| `skills/eeglab-analysis/` | Research workflow Skill and agent references. |
+| `skills/eeglab-analysis/` | Optional Codex Skill; its references are also served as MCP resources. |
 | `docs/` | Official coverage, support, risk, workflow, and report matrices. |
 | `configs/` | MCP client templates. |
 | `scripts/` | User dispatcher plus setup, doctor, uninstall, and verification helpers. |
@@ -178,6 +178,14 @@ python -m mypy --config-file eeglab_mcp_server\pyproject.toml eeglab_mcp_server
 ```
 
 The verifier checks tool counts, prompts/resources, handler registry, eval contracts, Skill references, official claim/profile/tool/resource synchronization, method gate behavior, support/plugin/report matrices, and optional live official EEGLAB/SCCN/BIDS URLs.
+
+## Optional Skill
+
+`skills/eeglab-analysis/` is an optional Skill for Codex and other Skill-aware clients. It restates the policy the server already exposes through MCP prompts and resources, so the server works the same without it. Install it with:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 setup -InstallSkill
+```
 
 ## Uninstall
 
