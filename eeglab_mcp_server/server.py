@@ -565,7 +565,9 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> Any:
                     "status": "error",
                     "code": "official_gate_blocked",
                     "error": f"{name} is blocked by an official precondition gate.",
-                    "next_step": official_gate.get("safe_next_step", "satisfy the preconditions or supply an explicit override_reason."),
+                    "next_step": official_gate.get(
+                        "safe_next_step", "satisfy the preconditions or supply an explicit override_reason."
+                    ),
                     "details": official_gate,
                 }
                 if name in WORKFLOW_TOOL_NAMES:
