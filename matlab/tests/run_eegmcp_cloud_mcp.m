@@ -38,6 +38,10 @@ result = jsondecode(fileread(output));
 if process.exitValue() ~= 0 || ~strcmp(result.status, 'success')
     error('eegmcp:test', 'Official MCP harness failed: %s', jsonencode(result));
 end
+if nargin > 4
+    assert(strcmp(result.response.status, 'success'), 'Cloud request fixture did not complete the ERP workflow.');
+    assert(isfile(result.response.outputs.output_path), 'Cloud request did not create its derivative artifact.');
+end
 fprintf('ok: official MathWorks MCP transport, mode=%s, tools=%d\n', mode, result.custom_tool_count);
 clear cleanup
 end

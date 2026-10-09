@@ -34,7 +34,7 @@ reader.on('line', line => {
       else item.resolve(message.result);
     }
   } catch (error) {
-    for (const item of pending.values()) item.reject(error);
+    for (const item of pending.values()) { clearTimeout(item.timer); item.reject(error); }
     pending.clear();
   }
 });

@@ -46,6 +46,9 @@ for (const name of claims.high_risk_tool_names) {
   assert(source.includes('eegmcp_gate(') || source.includes('eegmcp_pipeline_run('), `Missing gate route: ${name}`);
 }
 for (const path of ['eeglab_mcp_server', 'configs', 'pyproject.toml']) assert(!existsSync(join(root, path)), `Obsolete path: ${path}`);
+for (const entry of readdirSync(root)) {
+  assert(!entry.endsWith('.egg-info') && !['.venv', 'venv', '.mypy_cache', '.ruff_cache', '__pycache__'].includes(entry), `Obsolete environment: ${entry}`);
+}
 function scan(folder) {
   for (const entry of readdirSync(folder, {withFileTypes: true})) {
     if (entry.name.startsWith('.git') || entry.name === '.venv') continue;
