@@ -1,6 +1,6 @@
 # Official Method Map
 
-Use this reference to route an EEG request to an official-gated MCP method profile. The canonical executable map is in `eeglab_mcp_server/official_alignment.py`; MCP clients can also read `eeglab://official/method-map.md`, `eeglab://official/topic-index.md`, and `eeglab://official/support-matrix.md`.
+Use this reference to route an EEG request to an official-gated MCP method profile. The canonical executable map is in `eeglab_mcp_server/official_alignment.py`; MCP clients can also read `docs/official-method-map.md`, `docs/official-topic-index.md`, and `docs/official-support-matrix.md`.
 
 | Profile | Tools | Required preflight focus |
 | --- | --- | --- |

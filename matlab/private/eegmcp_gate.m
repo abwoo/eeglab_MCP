@@ -2,7 +2,7 @@ function [gate, blocked] = eegmcp_gate(tool_name, opts, derived)
 %EEGMCP_GATE Run the method gate for a high-risk tool before it executes.
 %   CONTEXT is options.method_context, plus the DERIVED facts the tool reads
 %   from its own arguments (each kept only when method_context does not set
-%   it), as the Python server's _preflight_context_from_arguments does. When
+%   Uses the versioned MATLAB method-gate definitions and regression expectations.
 %   the gate blocks, this prints the official_gate_blocked error and BLOCKED
 %   is true, so the caller just returns.
 

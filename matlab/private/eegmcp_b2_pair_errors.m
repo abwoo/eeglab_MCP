@@ -1,6 +1,6 @@
 function errors = eegmcp_b2_pair_errors(opts, name, errors, allow_equal)
 %EEGMCP_B2_PAIR_ERRORS Check an optional [start, end] option of two finite numbers.
-%   As the minItems/maxItems schema check plus _ascending_pair in schemas.py.
+%   Validate option types before scientific operations.
 
 if nargin < 4
     allow_equal = false;

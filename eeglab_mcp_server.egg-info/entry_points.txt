@@ -1,0 +1,2 @@
+[console_scripts]
+eeglab-mcp-server = eeglab_mcp_server.server:run_main

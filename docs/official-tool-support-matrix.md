@@ -5,7 +5,7 @@ This matrix answers whether a specific MCP tool is officially aligned, whether i
 ## Support Labels
 
 - `read_only`: inspects state, plans, audits, or renders reports without changing EEG data.
-- `executable`: can run locally through EEGLAB/MATLAB after schema validation and any required method gates.
+- `executable`: can run in the cloud MATLAB session after schema validation and any required method gates.
 - `gated_executable`: executable only when the mapped official method profile passes.
 - `guidance_only`: indexed, planned, or checked, but no dedicated execution workflow is promised.
 
@@ -14,9 +14,9 @@ This matrix answers whether a specific MCP tool is officially aligned, whether i
 | Tool | Support | Official alignment | Read/write effect | Required report fields |
 | --- | --- | --- | --- | --- |
 | `eeglab_qc_report` | `read_only` | EEGLAB data structures and provenance | reads current EEG metadata/events/history | recording facts, channel-location coverage, event counts, history, risks |
-| `eeglab_workflow_recommend` | `read_only` | project planning and official gates | no MATLAB execution | assumptions, clarifying questions, branch choice, blocked actions |
-| `eeglab_project_plan` | `read_only` | topic/support/risk matrices | no MATLAB execution | project phases, gates, missing metadata, support levels |
-| `eeglab_method_preflight` | `read_only` | official claim map | no MATLAB execution | method profile, gate status, missing requirements, source claim IDs |
+| `eeglab_workflow_recommend` | `read_only` | project planning and official gates | no EEG mutation | assumptions, clarifying questions, branch choice, blocked actions |
+| `eeglab_project_plan` | `read_only` | topic/support/risk matrices | no EEG mutation | project phases, gates, missing metadata, support levels |
+| `eeglab_method_preflight` | `read_only` | official claim map | no EEG mutation | method profile, gate status, missing requirements, source claim IDs |
 | `eeglab_plugin_check` | `read_only` | official plugin matrix | probes MATLAB path only | plugin availability, support_level, functions checked, next steps |
 | `eeglab_event_semantics_audit` | `read_only` | event/urevent and BIDS events policy | no data mutation | event roles, excluded markers, confirmed triggers, limitations |
 | `eeglab_protocol_export` | `read_only` or file write | report field matrix | may write a protocol artifact | all report-field matrix groups, outputs, limitations |

@@ -1,5 +1,5 @@
 function errors = eegmcp_window_errors(epoch_window, baseline_window_ms, time_window_ms)
-%EEGMCP_WINDOW_ERRORS Check analysis windows like validate_analysis_windows in schemas.py.
+%   Validate option types before scientific operations.
 %   Pass [] for a window that is not set. EPOCH_WINDOW is in seconds, the
 %   other two in milliseconds. Returns a cell array of error messages.
 

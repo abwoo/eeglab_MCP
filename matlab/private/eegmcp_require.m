@@ -1,5 +1,5 @@
 function missing = eegmcp_require(opts, names)
-%EEGMCP_REQUIRE Report required options that are absent, as the Python server does.
+%   Uses the versioned MATLAB method-gate definitions and regression expectations.
 %   NAMES is a cell array of option names. When any is missing this prints
 %   the missing_required_argument error and returns true, so the caller
 %   just returns.

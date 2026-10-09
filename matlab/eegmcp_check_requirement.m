@@ -1,8 +1,8 @@
 function ok = eegmcp_check_requirement(check, ctx)
 %EEGMCP_CHECK_REQUIREMENT Evaluate one method-gate requirement against a context.
-%   A port of _check_requirement in eeglab_mcp_server/official_alignment.py.
+%   The versioned official claims document defines the policy.
 %   CTX is a struct decoded from JSON. matlab/tests checks this function
-%   against the Python version on generated contexts, so keep the two in step.
+%   Uses the versioned MATLAB method-gate definitions and regression expectations.
 
 switch check
     case 'confirmed_condition_events'
@@ -52,6 +52,8 @@ switch check
     case 'has_channel_locations_or_repair_plan'
         ok = eegmcp_check_requirement('has_channel_locations', ctx) || ...
             truthy(ctx, 'channel_location_repair_planned', 'loc_file', 'ref_chanlocs', 'rename_map');
+    case 'channel_location_repair_planned'
+        ok = truthy(ctx, 'channel_location_repair_planned', 'loc_file', 'ref_chanlocs', 'rename_map');
     case 'head_model_defined'
         ok = truthy(ctx, 'head_model', 'template', 'head_model_defined');
     case 'multi_subject_or_bids'
@@ -243,7 +245,7 @@ end
 end
 
 % ---------------------------------------------------------------------------
-% Helpers mirroring the Python ones. Context keys go through makeValidName
+%   Uses the versioned MATLAB method-gate definitions and regression expectations.
 % because jsondecode renames keys that are not valid MATLAB field names.
 
 function [present, value] = get(ctx, name)
@@ -257,7 +259,7 @@ end
 end
 
 function ok = value_truthy(value)
-% Python truthiness for a decoded JSON value (null decodes to []).
+%   Uses the versioned MATLAB method-gate definitions and regression expectations.
 if ischar(value) || isstring(value)
     ok = ~isempty(strtrim(char(value)));
 elseif iscell(value)
@@ -301,14 +303,14 @@ end
 end
 
 function value = first_truthy_value(ctx, names, default)
-% Python's `context.get(a) or context.get(b) or ... or default`.
+%   Uses the versioned MATLAB method-gate definitions and regression expectations.
 if nargin < 3
     default = {};
 end
 value = default;
 for k = 1:numel(names)
     [present, candidate] = get(ctx, names{k});
-    % Plain Python truthiness here: `"  " or x` keeps "  ", unlike _ctx_truthy.
+    %   Uses the versioned MATLAB method-gate definitions and regression expectations.
     if present && (value_truthy(candidate) || ((ischar(candidate) || isstring(candidate)) && strlength(candidate) > 0))
         value = candidate;
         return

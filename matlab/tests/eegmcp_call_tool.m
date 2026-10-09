@@ -1,7 +1,7 @@
 function result = eegmcp_call_tool(template, varargin)
 %EEGMCP_CALL_TOOL Run a tool call, capture its command window output and decode the JSON.
 %   Each extra argument is a char vector, quoted as a MATLAB string literal
-%   into TEMPLATE the way the MATLAB MCP Core Server passes arguments.
+%   into TEMPLATE the way the MATLAB MCP Server passes arguments.
 args = cellfun(@(a) ['"' strrep(a, '"', '""') '"'], varargin, 'UniformOutput', false);
 command = sprintf(template, args{:});
 output = evalc(command);

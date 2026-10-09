@@ -1,0 +1,2634 @@
+{
+  "document": "matlab-official-gate-regressions",
+  "document_version": "1.0.0",
+  "checks": [
+    {
+      "check": "confirmed_condition_events",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "no_only_nonanalysis_events",
+      "context": {},
+      "expected": true
+    },
+    {
+      "check": "epoch_windows_recorded",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "baseline_recorded",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "frequency_settings_recorded",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "continuous_data",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "plugin_clean_rawdata_available",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "plugin_iclabel_available",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "plugin_dipfit_available",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "plugin_eegbids_available",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "thresholds_recorded",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "derivative_output_planned",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "rank_reference_reviewed",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "bad_channel_policy_defined",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "has_ica",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "component_reviewed",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "has_channel_locations",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "has_channel_locations_or_repair_plan",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "channel_location_repair_planned",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "head_model_defined",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "multi_subject_or_bids",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "single_subject_protocol_locked",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "design_variables_defined",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "study_measure_recorded",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "raw_input_preserved",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "parameters_recorded",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "pipeline_defaults_accepted",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "reference_or_montage_recorded",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "power_line_frequency_recorded",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "acquisition_filters_recorded",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "task_or_acquisition_system_recorded",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "impedance_or_quality_recorded",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "bids_or_sidecars_available",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "bids_eeg_sidecar_complete",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "bids_events_have_onset_duration",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "event_metadata_described",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "bids_event_columns_described",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "source_format_recorded",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "plugin_import_available",
+      "context": {},
+      "expected": true
+    },
+    {
+      "check": "import_event_channel_mapping_recorded",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "export_format_supported",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "export_metadata_complete",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "hed_schema_recorded",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "event_code_map_validated",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "processing_history_recorded",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "script_from_history_reviewed",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "event_modification_rule_recorded",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "event_latency_units_recorded",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "urevent_preserved_or_relinked",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "line_noise_parameters_recorded",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "artifact_policy_recorded",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "channels_recorded",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "connectivity_limits_recorded",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "plugin_limo_available",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "plugin_sift_available",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "plugin_amica_available",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "plugin_nsg_available",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "plugin_relica_available",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "plugin_viewprops_available",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "plugin_get_chanlocs_available",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "plugin_roiconnect_available",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "plugin_eegstats_available",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "statistical_design_defined",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "correction_policy_recorded",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "model_validation_recorded",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "bootstrap_settings_recorded",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "plugin_goal_defined",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "eeglab_function_family_recorded",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "validation_plan_recorded",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "head_image_or_digitization_source_recorded",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "fiducials_recorded",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "source_model_available",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "roi_atlas_recorded",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "connectivity_metric_recorded",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "software_versions_recorded",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "clustering_policy_recorded",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "compute_strategy_recorded",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "remote_compute_approved",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "job_provenance_recorded",
+      "context": {},
+      "expected": false
+    },
+    {
+      "check": "confirmed_condition_events",
+      "context": {
+        "condition_markers": [
+          "square"
+        ]
+      },
+      "expected": true
+    },
+    {
+      "check": "no_only_nonanalysis_events",
+      "context": {
+        "event_roles": [
+          "condition",
+          "boundary"
+        ]
+      },
+      "expected": true
+    },
+    {
+      "check": "no_only_nonanalysis_events",
+      "context": {
+        "event_roles": [
+          "boundary",
+          "impedance"
+        ]
+      },
+      "expected": false
+    },
+    {
+      "check": "raw_input_preserved",
+      "context": {
+        "raw_input_preserved": true
+      },
+      "expected": true
+    },
+    {
+      "check": "raw_input_preserved",
+      "context": {
+        "raw_input_preserved": 1
+      },
+      "expected": false
+    },
+    {
+      "check": "raw_input_preserved",
+      "context": {
+        "raw_input_preserved": "true"
+      },
+      "expected": false
+    },
+    {
+      "check": "derivative_output_planned",
+      "context": {
+        "output_dir": "/cloud/artifacts"
+      },
+      "expected": true
+    },
+    {
+      "check": "continuous_data",
+      "context": {
+        "data_shape": "continuous"
+      },
+      "expected": true
+    },
+    {
+      "check": "continuous_data",
+      "context": {
+        "data_shape": "epoched"
+      },
+      "expected": false
+    },
+    {
+      "check": "has_channel_locations",
+      "context": {
+        "channel_location_coverage": 1
+      },
+      "expected": true
+    },
+    {
+      "check": "has_channel_locations",
+      "context": {
+        "channel_location_coverage": 0.5
+      },
+      "expected": false
+    },
+    {
+      "check": "channel_location_repair_planned",
+      "context": {
+        "loc_file": "/cloud/channels.locs"
+      },
+      "expected": true
+    },
+    {
+      "check": "plugin_iclabel_available",
+      "context": {
+        "plugins_available": [
+          "ICLabel"
+        ]
+      },
+      "expected": true
+    },
+    {
+      "check": "plugin_clean_rawdata_available",
+      "context": {
+        "plugins_available": [
+          "clean_rawdata"
+        ]
+      },
+      "expected": true
+    },
+    {
+      "check": "plugin_dipfit_available",
+      "context": {
+        "plugins_available": [
+          "DIPFIT"
+        ]
+      },
+      "expected": true
+    },
+    {
+      "check": "plugin_eegbids_available",
+      "context": {
+        "plugins_available": [
+          "EEG-BIDS"
+        ]
+      },
+      "expected": true
+    },
+    {
+      "check": "plugin_import_available",
+      "context": {
+        "source_format": "edf",
+        "plugins_available": [
+          "BIOSIG"
+        ]
+      },
+      "expected": true
+    },
+    {
+      "check": "plugin_import_available",
+      "context": {
+        "source_format": "edf"
+      },
+      "expected": false
+    },
+    {
+      "check": "export_format_supported",
+      "context": {
+        "export_format": "set"
+      },
+      "expected": true
+    },
+    {
+      "check": "export_format_supported",
+      "context": {
+        "export_format": "nwb"
+      },
+      "expected": false
+    },
+    {
+      "check": "bids_events_have_onset_duration",
+      "context": {
+        "events_tsv_columns": [
+          "onset",
+          "duration"
+        ]
+      },
+      "expected": true
+    },
+    {
+      "check": "bids_events_have_onset_duration",
+      "context": {
+        "events_tsv_columns": [
+          "onset"
+        ]
+      },
+      "expected": false
+    },
+    {
+      "check": "reference_or_montage_recorded",
+      "context": {
+        "documented_missing_fields": [
+          "reference"
+        ]
+      },
+      "expected": true
+    },
+    {
+      "check": "parameters_recorded",
+      "context": {
+        "parameters_recorded": true
+      },
+      "expected": true
+    },
+    {
+      "check": "pipeline_defaults_accepted",
+      "context": {
+        "pipeline_defaults_accepted": true
+      },
+      "expected": true
+    },
+    {
+      "check": "pipeline_defaults_accepted",
+      "context": {
+        "pipeline_defaults_accepted": 1
+      },
+      "expected": false
+    },
+    {
+      "check": "single_subject_protocol_locked",
+      "context": {
+        "single_subject_protocol_locked": true
+      },
+      "expected": true
+    },
+    {
+      "check": "study_measure_recorded",
+      "context": {
+        "measure": "erp"
+      },
+      "expected": true
+    },
+    {
+      "check": "design_variables_defined",
+      "context": {
+        "variable_name": "condition",
+        "variable_values": [
+          "A",
+          "B"
+        ]
+      },
+      "expected": true
+    },
+    {
+      "check": "multi_subject_or_bids",
+      "context": {
+        "project_scale": "multi_subject"
+      },
+      "expected": true
+    },
+    {
+      "check": "thresholds_recorded",
+      "context": {
+        "burst_criterion": 20
+      },
+      "expected": true
+    },
+    {
+      "check": "component_reviewed",
+      "context": {
+        "component_reviewed": true
+      },
+      "expected": true
+    },
+    {
+      "check": "head_model_defined",
+      "context": {
+        "head_model": "spherical"
+      },
+      "expected": true
+    },
+    {
+      "check": "event_code_map_validated",
+      "context": {
+        "event_code_map_validated": true
+      },
+      "expected": true
+    },
+    {
+      "check": "not_a_check",
+      "context": {},
+      "expected": false
+    }
+  ],
+  "preflight": [
+    {
+      "method": "epoch",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "epoch",
+      "missing_ids": [
+        "confirmed_condition_events",
+        "epoch_windows_recorded"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "epoch",
+      "tool_name": "",
+      "context": {},
+      "strictness": "advisory",
+      "override_reason": "",
+      "method_profile_id": "epoch",
+      "missing_ids": [
+        "confirmed_condition_events",
+        "epoch_windows_recorded"
+      ],
+      "gate_status": "advisory"
+    },
+    {
+      "method": "epoch",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "explicit regression-test acceptance",
+      "method_profile_id": "epoch",
+      "missing_ids": [
+        "confirmed_condition_events",
+        "epoch_windows_recorded"
+      ],
+      "gate_status": "override_accepted"
+    },
+    {
+      "method": "",
+      "tool_name": "eeglab_epoch",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "epoch",
+      "missing_ids": [
+        "confirmed_condition_events",
+        "epoch_windows_recorded"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "timefreq",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "timefreq",
+      "missing_ids": [
+        "confirmed_condition_events",
+        "baseline_recorded",
+        "frequency_settings_recorded"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "timefreq",
+      "tool_name": "",
+      "context": {},
+      "strictness": "advisory",
+      "override_reason": "",
+      "method_profile_id": "timefreq",
+      "missing_ids": [
+        "confirmed_condition_events",
+        "baseline_recorded",
+        "frequency_settings_recorded"
+      ],
+      "gate_status": "advisory"
+    },
+    {
+      "method": "timefreq",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "explicit regression-test acceptance",
+      "method_profile_id": "timefreq",
+      "missing_ids": [
+        "confirmed_condition_events",
+        "baseline_recorded",
+        "frequency_settings_recorded"
+      ],
+      "gate_status": "override_accepted"
+    },
+    {
+      "method": "",
+      "tool_name": "eeglab_timefreq",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "timefreq",
+      "missing_ids": [
+        "confirmed_condition_events",
+        "baseline_recorded",
+        "frequency_settings_recorded"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "clean_rawdata",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "clean_rawdata",
+      "missing_ids": [
+        "continuous_data",
+        "plugin_clean_rawdata_available",
+        "thresholds_recorded",
+        "derivative_output_planned"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "clean_rawdata",
+      "tool_name": "",
+      "context": {},
+      "strictness": "advisory",
+      "override_reason": "",
+      "method_profile_id": "clean_rawdata",
+      "missing_ids": [
+        "continuous_data",
+        "plugin_clean_rawdata_available",
+        "thresholds_recorded",
+        "derivative_output_planned"
+      ],
+      "gate_status": "advisory"
+    },
+    {
+      "method": "clean_rawdata",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "explicit regression-test acceptance",
+      "method_profile_id": "clean_rawdata",
+      "missing_ids": [
+        "continuous_data",
+        "plugin_clean_rawdata_available",
+        "thresholds_recorded",
+        "derivative_output_planned"
+      ],
+      "gate_status": "override_accepted"
+    },
+    {
+      "method": "",
+      "tool_name": "eeglab_clean_rawdata",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "clean_rawdata",
+      "missing_ids": [
+        "continuous_data",
+        "plugin_clean_rawdata_available",
+        "thresholds_recorded",
+        "derivative_output_planned"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "run_ica",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "run_ica",
+      "missing_ids": [
+        "continuous_data",
+        "rank_reference_reviewed",
+        "bad_channel_policy_defined"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "run_ica",
+      "tool_name": "",
+      "context": {},
+      "strictness": "advisory",
+      "override_reason": "",
+      "method_profile_id": "run_ica",
+      "missing_ids": [
+        "continuous_data",
+        "rank_reference_reviewed",
+        "bad_channel_policy_defined"
+      ],
+      "gate_status": "advisory"
+    },
+    {
+      "method": "run_ica",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "explicit regression-test acceptance",
+      "method_profile_id": "run_ica",
+      "missing_ids": [
+        "continuous_data",
+        "rank_reference_reviewed",
+        "bad_channel_policy_defined"
+      ],
+      "gate_status": "override_accepted"
+    },
+    {
+      "method": "",
+      "tool_name": "eeglab_run_ica",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "run_ica",
+      "missing_ids": [
+        "continuous_data",
+        "rank_reference_reviewed",
+        "bad_channel_policy_defined"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "iclabel",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "iclabel",
+      "missing_ids": [
+        "has_ica",
+        "plugin_iclabel_available"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "iclabel",
+      "tool_name": "",
+      "context": {},
+      "strictness": "advisory",
+      "override_reason": "",
+      "method_profile_id": "iclabel",
+      "missing_ids": [
+        "has_ica",
+        "plugin_iclabel_available"
+      ],
+      "gate_status": "advisory"
+    },
+    {
+      "method": "iclabel",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "explicit regression-test acceptance",
+      "method_profile_id": "iclabel",
+      "missing_ids": [
+        "has_ica",
+        "plugin_iclabel_available"
+      ],
+      "gate_status": "override_accepted"
+    },
+    {
+      "method": "",
+      "tool_name": "eeglab_classify_ica",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "iclabel",
+      "missing_ids": [
+        "has_ica",
+        "plugin_iclabel_available"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "remove_components",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "remove_components",
+      "missing_ids": [
+        "has_ica",
+        "component_reviewed",
+        "derivative_output_planned"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "remove_components",
+      "tool_name": "",
+      "context": {},
+      "strictness": "advisory",
+      "override_reason": "",
+      "method_profile_id": "remove_components",
+      "missing_ids": [
+        "has_ica",
+        "component_reviewed",
+        "derivative_output_planned"
+      ],
+      "gate_status": "advisory"
+    },
+    {
+      "method": "remove_components",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "explicit regression-test acceptance",
+      "method_profile_id": "remove_components",
+      "missing_ids": [
+        "has_ica",
+        "component_reviewed",
+        "derivative_output_planned"
+      ],
+      "gate_status": "override_accepted"
+    },
+    {
+      "method": "",
+      "tool_name": "eeglab_remove_components",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "remove_components",
+      "missing_ids": [
+        "has_ica",
+        "component_reviewed",
+        "derivative_output_planned"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "source",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "source",
+      "missing_ids": [
+        "has_ica",
+        "has_channel_locations",
+        "plugin_dipfit_available",
+        "head_model_defined"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "source",
+      "tool_name": "",
+      "context": {},
+      "strictness": "advisory",
+      "override_reason": "",
+      "method_profile_id": "source",
+      "missing_ids": [
+        "has_ica",
+        "has_channel_locations",
+        "plugin_dipfit_available",
+        "head_model_defined"
+      ],
+      "gate_status": "advisory"
+    },
+    {
+      "method": "source",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "explicit regression-test acceptance",
+      "method_profile_id": "source",
+      "missing_ids": [
+        "has_ica",
+        "has_channel_locations",
+        "plugin_dipfit_available",
+        "head_model_defined"
+      ],
+      "gate_status": "override_accepted"
+    },
+    {
+      "method": "",
+      "tool_name": "eeglab_source_localization",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "source",
+      "missing_ids": [
+        "has_ica",
+        "has_channel_locations",
+        "plugin_dipfit_available",
+        "head_model_defined"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "bids_import",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "bids_import",
+      "missing_ids": [
+        "bids_or_sidecars_available",
+        "plugin_eegbids_available",
+        "bids_events_have_onset_duration"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "bids_import",
+      "tool_name": "",
+      "context": {},
+      "strictness": "advisory",
+      "override_reason": "",
+      "method_profile_id": "bids_import",
+      "missing_ids": [
+        "bids_or_sidecars_available",
+        "plugin_eegbids_available",
+        "bids_events_have_onset_duration"
+      ],
+      "gate_status": "advisory"
+    },
+    {
+      "method": "bids_import",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "explicit regression-test acceptance",
+      "method_profile_id": "bids_import",
+      "missing_ids": [
+        "bids_or_sidecars_available",
+        "plugin_eegbids_available",
+        "bids_events_have_onset_duration"
+      ],
+      "gate_status": "override_accepted"
+    },
+    {
+      "method": "",
+      "tool_name": "eeglab_import_bids",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "bids_import",
+      "missing_ids": [
+        "bids_or_sidecars_available",
+        "plugin_eegbids_available",
+        "bids_events_have_onset_duration"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "study_create",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "study_create",
+      "missing_ids": [
+        "multi_subject_or_bids",
+        "single_subject_protocol_locked"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "study_create",
+      "tool_name": "",
+      "context": {},
+      "strictness": "advisory",
+      "override_reason": "",
+      "method_profile_id": "study_create",
+      "missing_ids": [
+        "multi_subject_or_bids",
+        "single_subject_protocol_locked"
+      ],
+      "gate_status": "advisory"
+    },
+    {
+      "method": "study_create",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "explicit regression-test acceptance",
+      "method_profile_id": "study_create",
+      "missing_ids": [
+        "multi_subject_or_bids",
+        "single_subject_protocol_locked"
+      ],
+      "gate_status": "override_accepted"
+    },
+    {
+      "method": "",
+      "tool_name": "eeglab_study_create",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "study_create",
+      "missing_ids": [
+        "multi_subject_or_bids",
+        "single_subject_protocol_locked"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "study_design",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "study_design",
+      "missing_ids": [
+        "multi_subject_or_bids",
+        "design_variables_defined",
+        "single_subject_protocol_locked"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "study_design",
+      "tool_name": "",
+      "context": {},
+      "strictness": "advisory",
+      "override_reason": "",
+      "method_profile_id": "study_design",
+      "missing_ids": [
+        "multi_subject_or_bids",
+        "design_variables_defined",
+        "single_subject_protocol_locked"
+      ],
+      "gate_status": "advisory"
+    },
+    {
+      "method": "study_design",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "explicit regression-test acceptance",
+      "method_profile_id": "study_design",
+      "missing_ids": [
+        "multi_subject_or_bids",
+        "design_variables_defined",
+        "single_subject_protocol_locked"
+      ],
+      "gate_status": "override_accepted"
+    },
+    {
+      "method": "",
+      "tool_name": "eeglab_study_design",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "study_design",
+      "missing_ids": [
+        "multi_subject_or_bids",
+        "design_variables_defined",
+        "single_subject_protocol_locked"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "study_statistics",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "study_statistics",
+      "missing_ids": [
+        "multi_subject_or_bids",
+        "single_subject_protocol_locked",
+        "design_variables_defined",
+        "study_measure_recorded",
+        "correction_policy_recorded"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "study_statistics",
+      "tool_name": "",
+      "context": {},
+      "strictness": "advisory",
+      "override_reason": "",
+      "method_profile_id": "study_statistics",
+      "missing_ids": [
+        "multi_subject_or_bids",
+        "single_subject_protocol_locked",
+        "design_variables_defined",
+        "study_measure_recorded",
+        "correction_policy_recorded"
+      ],
+      "gate_status": "advisory"
+    },
+    {
+      "method": "study_statistics",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "explicit regression-test acceptance",
+      "method_profile_id": "study_statistics",
+      "missing_ids": [
+        "multi_subject_or_bids",
+        "single_subject_protocol_locked",
+        "design_variables_defined",
+        "study_measure_recorded",
+        "correction_policy_recorded"
+      ],
+      "gate_status": "override_accepted"
+    },
+    {
+      "method": "",
+      "tool_name": "eeglab_study_statistics",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "study_statistics",
+      "missing_ids": [
+        "multi_subject_or_bids",
+        "single_subject_protocol_locked",
+        "design_variables_defined",
+        "study_measure_recorded",
+        "correction_policy_recorded"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "study_precompute",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "study_precompute",
+      "missing_ids": [
+        "multi_subject_or_bids",
+        "design_variables_defined",
+        "single_subject_protocol_locked",
+        "study_measure_recorded",
+        "derivative_output_planned"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "study_precompute",
+      "tool_name": "",
+      "context": {},
+      "strictness": "advisory",
+      "override_reason": "",
+      "method_profile_id": "study_precompute",
+      "missing_ids": [
+        "multi_subject_or_bids",
+        "design_variables_defined",
+        "single_subject_protocol_locked",
+        "study_measure_recorded",
+        "derivative_output_planned"
+      ],
+      "gate_status": "advisory"
+    },
+    {
+      "method": "study_precompute",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "explicit regression-test acceptance",
+      "method_profile_id": "study_precompute",
+      "missing_ids": [
+        "multi_subject_or_bids",
+        "design_variables_defined",
+        "single_subject_protocol_locked",
+        "study_measure_recorded",
+        "derivative_output_planned"
+      ],
+      "gate_status": "override_accepted"
+    },
+    {
+      "method": "ica_clustering",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "ica_clustering",
+      "missing_ids": [
+        "multi_subject_or_bids",
+        "has_ica",
+        "study_measure_recorded",
+        "clustering_policy_recorded",
+        "component_reviewed"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "ica_clustering",
+      "tool_name": "",
+      "context": {},
+      "strictness": "advisory",
+      "override_reason": "",
+      "method_profile_id": "ica_clustering",
+      "missing_ids": [
+        "multi_subject_or_bids",
+        "has_ica",
+        "study_measure_recorded",
+        "clustering_policy_recorded",
+        "component_reviewed"
+      ],
+      "gate_status": "advisory"
+    },
+    {
+      "method": "ica_clustering",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "explicit regression-test acceptance",
+      "method_profile_id": "ica_clustering",
+      "missing_ids": [
+        "multi_subject_or_bids",
+        "has_ica",
+        "study_measure_recorded",
+        "clustering_policy_recorded",
+        "component_reviewed"
+      ],
+      "gate_status": "override_accepted"
+    },
+    {
+      "method": "study",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "study",
+      "missing_ids": [
+        "multi_subject_or_bids",
+        "single_subject_protocol_locked",
+        "design_variables_defined"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "study",
+      "tool_name": "",
+      "context": {},
+      "strictness": "advisory",
+      "override_reason": "",
+      "method_profile_id": "study",
+      "missing_ids": [
+        "multi_subject_or_bids",
+        "single_subject_protocol_locked",
+        "design_variables_defined"
+      ],
+      "gate_status": "advisory"
+    },
+    {
+      "method": "study",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "explicit regression-test acceptance",
+      "method_profile_id": "study",
+      "missing_ids": [
+        "multi_subject_or_bids",
+        "single_subject_protocol_locked",
+        "design_variables_defined"
+      ],
+      "gate_status": "override_accepted"
+    },
+    {
+      "method": "derivative_processing",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "derivative_processing",
+      "missing_ids": [
+        "raw_input_preserved",
+        "derivative_output_planned",
+        "parameters_recorded"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "derivative_processing",
+      "tool_name": "",
+      "context": {},
+      "strictness": "advisory",
+      "override_reason": "",
+      "method_profile_id": "derivative_processing",
+      "missing_ids": [
+        "raw_input_preserved",
+        "derivative_output_planned",
+        "parameters_recorded"
+      ],
+      "gate_status": "advisory"
+    },
+    {
+      "method": "derivative_processing",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "explicit regression-test acceptance",
+      "method_profile_id": "derivative_processing",
+      "missing_ids": [
+        "raw_input_preserved",
+        "derivative_output_planned",
+        "parameters_recorded"
+      ],
+      "gate_status": "override_accepted"
+    },
+    {
+      "method": "",
+      "tool_name": "eeglab_filter",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "derivative_processing",
+      "missing_ids": [
+        "raw_input_preserved",
+        "derivative_output_planned",
+        "parameters_recorded"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "acquisition_provenance",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "acquisition_provenance",
+      "missing_ids": [
+        "raw_input_preserved",
+        "derivative_output_planned",
+        "reference_or_montage_recorded",
+        "power_line_frequency_recorded",
+        "acquisition_filters_recorded",
+        "task_or_acquisition_system_recorded",
+        "impedance_or_quality_recorded"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "acquisition_provenance",
+      "tool_name": "",
+      "context": {},
+      "strictness": "advisory",
+      "override_reason": "",
+      "method_profile_id": "acquisition_provenance",
+      "missing_ids": [
+        "raw_input_preserved",
+        "derivative_output_planned",
+        "reference_or_montage_recorded",
+        "power_line_frequency_recorded",
+        "acquisition_filters_recorded",
+        "task_or_acquisition_system_recorded",
+        "impedance_or_quality_recorded"
+      ],
+      "gate_status": "advisory"
+    },
+    {
+      "method": "acquisition_provenance",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "explicit regression-test acceptance",
+      "method_profile_id": "acquisition_provenance",
+      "missing_ids": [
+        "raw_input_preserved",
+        "derivative_output_planned",
+        "reference_or_montage_recorded",
+        "power_line_frequency_recorded",
+        "acquisition_filters_recorded",
+        "task_or_acquisition_system_recorded",
+        "impedance_or_quality_recorded"
+      ],
+      "gate_status": "override_accepted"
+    },
+    {
+      "method": "bids_metadata",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "bids_metadata",
+      "missing_ids": [
+        "bids_or_sidecars_available",
+        "bids_eeg_sidecar_complete",
+        "bids_events_have_onset_duration",
+        "event_metadata_described",
+        "bids_event_columns_described"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "bids_metadata",
+      "tool_name": "",
+      "context": {},
+      "strictness": "advisory",
+      "override_reason": "",
+      "method_profile_id": "bids_metadata",
+      "missing_ids": [
+        "bids_or_sidecars_available",
+        "bids_eeg_sidecar_complete",
+        "bids_events_have_onset_duration",
+        "event_metadata_described",
+        "bids_event_columns_described"
+      ],
+      "gate_status": "advisory"
+    },
+    {
+      "method": "bids_metadata",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "explicit regression-test acceptance",
+      "method_profile_id": "bids_metadata",
+      "missing_ids": [
+        "bids_or_sidecars_available",
+        "bids_eeg_sidecar_complete",
+        "bids_events_have_onset_duration",
+        "event_metadata_described",
+        "bids_event_columns_described"
+      ],
+      "gate_status": "override_accepted"
+    },
+    {
+      "method": "bids_export",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "bids_export",
+      "missing_ids": [
+        "plugin_eegbids_available",
+        "bids_eeg_sidecar_complete",
+        "bids_events_have_onset_duration",
+        "event_metadata_described",
+        "derivative_output_planned",
+        "software_versions_recorded"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "bids_export",
+      "tool_name": "",
+      "context": {},
+      "strictness": "advisory",
+      "override_reason": "",
+      "method_profile_id": "bids_export",
+      "missing_ids": [
+        "plugin_eegbids_available",
+        "bids_eeg_sidecar_complete",
+        "bids_events_have_onset_duration",
+        "event_metadata_described",
+        "derivative_output_planned",
+        "software_versions_recorded"
+      ],
+      "gate_status": "advisory"
+    },
+    {
+      "method": "bids_export",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "explicit regression-test acceptance",
+      "method_profile_id": "bids_export",
+      "missing_ids": [
+        "plugin_eegbids_available",
+        "bids_eeg_sidecar_complete",
+        "bids_events_have_onset_duration",
+        "event_metadata_described",
+        "derivative_output_planned",
+        "software_versions_recorded"
+      ],
+      "gate_status": "override_accepted"
+    },
+    {
+      "method": "import_plugins",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "import_plugins",
+      "missing_ids": [
+        "source_format_recorded",
+        "import_event_channel_mapping_recorded",
+        "raw_input_preserved"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "import_plugins",
+      "tool_name": "",
+      "context": {},
+      "strictness": "advisory",
+      "override_reason": "",
+      "method_profile_id": "import_plugins",
+      "missing_ids": [
+        "source_format_recorded",
+        "import_event_channel_mapping_recorded",
+        "raw_input_preserved"
+      ],
+      "gate_status": "advisory"
+    },
+    {
+      "method": "import_plugins",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "explicit regression-test acceptance",
+      "method_profile_id": "import_plugins",
+      "missing_ids": [
+        "source_format_recorded",
+        "import_event_channel_mapping_recorded",
+        "raw_input_preserved"
+      ],
+      "gate_status": "override_accepted"
+    },
+    {
+      "method": "data_export",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "data_export",
+      "missing_ids": [
+        "export_format_supported",
+        "derivative_output_planned",
+        "export_metadata_complete",
+        "software_versions_recorded"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "data_export",
+      "tool_name": "",
+      "context": {},
+      "strictness": "advisory",
+      "override_reason": "",
+      "method_profile_id": "data_export",
+      "missing_ids": [
+        "export_format_supported",
+        "derivative_output_planned",
+        "export_metadata_complete",
+        "software_versions_recorded"
+      ],
+      "gate_status": "advisory"
+    },
+    {
+      "method": "data_export",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "explicit regression-test acceptance",
+      "method_profile_id": "data_export",
+      "missing_ids": [
+        "export_format_supported",
+        "derivative_output_planned",
+        "export_metadata_complete",
+        "software_versions_recorded"
+      ],
+      "gate_status": "override_accepted"
+    },
+    {
+      "method": "hed_event_annotation",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "hed_event_annotation",
+      "missing_ids": [
+        "event_metadata_described",
+        "hed_schema_recorded",
+        "event_code_map_validated"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "hed_event_annotation",
+      "tool_name": "",
+      "context": {},
+      "strictness": "advisory",
+      "override_reason": "",
+      "method_profile_id": "hed_event_annotation",
+      "missing_ids": [
+        "event_metadata_described",
+        "hed_schema_recorded",
+        "event_code_map_validated"
+      ],
+      "gate_status": "advisory"
+    },
+    {
+      "method": "hed_event_annotation",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "explicit regression-test acceptance",
+      "method_profile_id": "hed_event_annotation",
+      "missing_ids": [
+        "event_metadata_described",
+        "hed_schema_recorded",
+        "event_code_map_validated"
+      ],
+      "gate_status": "override_accepted"
+    },
+    {
+      "method": "history_scripting",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "history_scripting",
+      "missing_ids": [
+        "processing_history_recorded",
+        "script_from_history_reviewed",
+        "parameters_recorded",
+        "derivative_output_planned"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "history_scripting",
+      "tool_name": "",
+      "context": {},
+      "strictness": "advisory",
+      "override_reason": "",
+      "method_profile_id": "history_scripting",
+      "missing_ids": [
+        "processing_history_recorded",
+        "script_from_history_reviewed",
+        "parameters_recorded",
+        "derivative_output_planned"
+      ],
+      "gate_status": "advisory"
+    },
+    {
+      "method": "history_scripting",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "explicit regression-test acceptance",
+      "method_profile_id": "history_scripting",
+      "missing_ids": [
+        "processing_history_recorded",
+        "script_from_history_reviewed",
+        "parameters_recorded",
+        "derivative_output_planned"
+      ],
+      "gate_status": "override_accepted"
+    },
+    {
+      "method": "event_script_modification",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "event_script_modification",
+      "missing_ids": [
+        "event_modification_rule_recorded",
+        "event_latency_units_recorded",
+        "urevent_preserved_or_relinked",
+        "event_metadata_described"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "event_script_modification",
+      "tool_name": "",
+      "context": {},
+      "strictness": "advisory",
+      "override_reason": "",
+      "method_profile_id": "event_script_modification",
+      "missing_ids": [
+        "event_modification_rule_recorded",
+        "event_latency_units_recorded",
+        "urevent_preserved_or_relinked",
+        "event_metadata_described"
+      ],
+      "gate_status": "advisory"
+    },
+    {
+      "method": "event_script_modification",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "explicit regression-test acceptance",
+      "method_profile_id": "event_script_modification",
+      "missing_ids": [
+        "event_modification_rule_recorded",
+        "event_latency_units_recorded",
+        "urevent_preserved_or_relinked",
+        "event_metadata_described"
+      ],
+      "gate_status": "override_accepted"
+    },
+    {
+      "method": "channel_locations",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "channel_locations",
+      "missing_ids": [
+        "has_channel_locations_or_repair_plan",
+        "parameters_recorded"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "channel_locations",
+      "tool_name": "",
+      "context": {},
+      "strictness": "advisory",
+      "override_reason": "",
+      "method_profile_id": "channel_locations",
+      "missing_ids": [
+        "has_channel_locations_or_repair_plan",
+        "parameters_recorded"
+      ],
+      "gate_status": "advisory"
+    },
+    {
+      "method": "channel_locations",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "explicit regression-test acceptance",
+      "method_profile_id": "channel_locations",
+      "missing_ids": [
+        "has_channel_locations_or_repair_plan",
+        "parameters_recorded"
+      ],
+      "gate_status": "override_accepted"
+    },
+    {
+      "method": "",
+      "tool_name": "eeglab_interpolate_channels",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "channel_locations",
+      "missing_ids": [
+        "has_channel_locations_or_repair_plan",
+        "parameters_recorded"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "line_noise",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "line_noise",
+      "missing_ids": [
+        "line_noise_parameters_recorded",
+        "derivative_output_planned"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "line_noise",
+      "tool_name": "",
+      "context": {},
+      "strictness": "advisory",
+      "override_reason": "",
+      "method_profile_id": "line_noise",
+      "missing_ids": [
+        "line_noise_parameters_recorded",
+        "derivative_output_planned"
+      ],
+      "gate_status": "advisory"
+    },
+    {
+      "method": "line_noise",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "explicit regression-test acceptance",
+      "method_profile_id": "line_noise",
+      "missing_ids": [
+        "line_noise_parameters_recorded",
+        "derivative_output_planned"
+      ],
+      "gate_status": "override_accepted"
+    },
+    {
+      "method": "",
+      "tool_name": "eeglab_clean_line_noise",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "line_noise",
+      "missing_ids": [
+        "line_noise_parameters_recorded",
+        "derivative_output_planned"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "spectral",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "spectral",
+      "missing_ids": [
+        "frequency_settings_recorded",
+        "artifact_policy_recorded",
+        "channels_recorded"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "spectral",
+      "tool_name": "",
+      "context": {},
+      "strictness": "advisory",
+      "override_reason": "",
+      "method_profile_id": "spectral",
+      "missing_ids": [
+        "frequency_settings_recorded",
+        "artifact_policy_recorded",
+        "channels_recorded"
+      ],
+      "gate_status": "advisory"
+    },
+    {
+      "method": "spectral",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "explicit regression-test acceptance",
+      "method_profile_id": "spectral",
+      "missing_ids": [
+        "frequency_settings_recorded",
+        "artifact_policy_recorded",
+        "channels_recorded"
+      ],
+      "gate_status": "override_accepted"
+    },
+    {
+      "method": "",
+      "tool_name": "eeglab_spectral",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "spectral",
+      "missing_ids": [
+        "frequency_settings_recorded",
+        "artifact_policy_recorded",
+        "channels_recorded"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "connectivity",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "connectivity",
+      "missing_ids": [
+        "frequency_settings_recorded",
+        "artifact_policy_recorded",
+        "connectivity_limits_recorded"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "connectivity",
+      "tool_name": "",
+      "context": {},
+      "strictness": "advisory",
+      "override_reason": "",
+      "method_profile_id": "connectivity",
+      "missing_ids": [
+        "frequency_settings_recorded",
+        "artifact_policy_recorded",
+        "connectivity_limits_recorded"
+      ],
+      "gate_status": "advisory"
+    },
+    {
+      "method": "connectivity",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "explicit regression-test acceptance",
+      "method_profile_id": "connectivity",
+      "missing_ids": [
+        "frequency_settings_recorded",
+        "artifact_policy_recorded",
+        "connectivity_limits_recorded"
+      ],
+      "gate_status": "override_accepted"
+    },
+    {
+      "method": "",
+      "tool_name": "eeglab_connectivity",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "connectivity",
+      "missing_ids": [
+        "frequency_settings_recorded",
+        "artifact_policy_recorded",
+        "connectivity_limits_recorded"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "topography",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "topography",
+      "missing_ids": [
+        "has_channel_locations",
+        "parameters_recorded"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "topography",
+      "tool_name": "",
+      "context": {},
+      "strictness": "advisory",
+      "override_reason": "",
+      "method_profile_id": "topography",
+      "missing_ids": [
+        "has_channel_locations",
+        "parameters_recorded"
+      ],
+      "gate_status": "advisory"
+    },
+    {
+      "method": "topography",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "explicit regression-test acceptance",
+      "method_profile_id": "topography",
+      "missing_ids": [
+        "has_channel_locations",
+        "parameters_recorded"
+      ],
+      "gate_status": "override_accepted"
+    },
+    {
+      "method": "",
+      "tool_name": "eeglab_topoplot",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "topography",
+      "missing_ids": [
+        "has_channel_locations",
+        "parameters_recorded"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "limo_statistics",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "limo_statistics",
+      "missing_ids": [
+        "plugin_limo_available",
+        "statistical_design_defined",
+        "correction_policy_recorded"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "limo_statistics",
+      "tool_name": "",
+      "context": {},
+      "strictness": "advisory",
+      "override_reason": "",
+      "method_profile_id": "limo_statistics",
+      "missing_ids": [
+        "plugin_limo_available",
+        "statistical_design_defined",
+        "correction_policy_recorded"
+      ],
+      "gate_status": "advisory"
+    },
+    {
+      "method": "limo_statistics",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "explicit regression-test acceptance",
+      "method_profile_id": "limo_statistics",
+      "missing_ids": [
+        "plugin_limo_available",
+        "statistical_design_defined",
+        "correction_policy_recorded"
+      ],
+      "gate_status": "override_accepted"
+    },
+    {
+      "method": "amica_ica",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "amica_ica",
+      "missing_ids": [
+        "plugin_amica_available",
+        "continuous_data",
+        "rank_reference_reviewed",
+        "compute_strategy_recorded",
+        "derivative_output_planned"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "amica_ica",
+      "tool_name": "",
+      "context": {},
+      "strictness": "advisory",
+      "override_reason": "",
+      "method_profile_id": "amica_ica",
+      "missing_ids": [
+        "plugin_amica_available",
+        "continuous_data",
+        "rank_reference_reviewed",
+        "compute_strategy_recorded",
+        "derivative_output_planned"
+      ],
+      "gate_status": "advisory"
+    },
+    {
+      "method": "amica_ica",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "explicit regression-test acceptance",
+      "method_profile_id": "amica_ica",
+      "missing_ids": [
+        "plugin_amica_available",
+        "continuous_data",
+        "rank_reference_reviewed",
+        "compute_strategy_recorded",
+        "derivative_output_planned"
+      ],
+      "gate_status": "override_accepted"
+    },
+    {
+      "method": "sift_connectivity",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "sift_connectivity",
+      "missing_ids": [
+        "plugin_sift_available",
+        "model_validation_recorded",
+        "correction_policy_recorded"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "sift_connectivity",
+      "tool_name": "",
+      "context": {},
+      "strictness": "advisory",
+      "override_reason": "",
+      "method_profile_id": "sift_connectivity",
+      "missing_ids": [
+        "plugin_sift_available",
+        "model_validation_recorded",
+        "correction_policy_recorded"
+      ],
+      "gate_status": "advisory"
+    },
+    {
+      "method": "sift_connectivity",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "explicit regression-test acceptance",
+      "method_profile_id": "sift_connectivity",
+      "missing_ids": [
+        "plugin_sift_available",
+        "model_validation_recorded",
+        "correction_policy_recorded"
+      ],
+      "gate_status": "override_accepted"
+    },
+    {
+      "method": "nsg_remote",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "nsg_remote",
+      "missing_ids": [
+        "plugin_nsg_available",
+        "remote_compute_approved",
+        "job_provenance_recorded"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "nsg_remote",
+      "tool_name": "",
+      "context": {},
+      "strictness": "advisory",
+      "override_reason": "",
+      "method_profile_id": "nsg_remote",
+      "missing_ids": [
+        "plugin_nsg_available",
+        "remote_compute_approved",
+        "job_provenance_recorded"
+      ],
+      "gate_status": "advisory"
+    },
+    {
+      "method": "nsg_remote",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "explicit regression-test acceptance",
+      "method_profile_id": "nsg_remote",
+      "missing_ids": [
+        "plugin_nsg_available",
+        "remote_compute_approved",
+        "job_provenance_recorded"
+      ],
+      "gate_status": "override_accepted"
+    },
+    {
+      "method": "plugin_development",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "plugin_development",
+      "missing_ids": [
+        "plugin_goal_defined",
+        "eeglab_function_family_recorded",
+        "validation_plan_recorded"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "plugin_development",
+      "tool_name": "",
+      "context": {},
+      "strictness": "advisory",
+      "override_reason": "",
+      "method_profile_id": "plugin_development",
+      "missing_ids": [
+        "plugin_goal_defined",
+        "eeglab_function_family_recorded",
+        "validation_plan_recorded"
+      ],
+      "gate_status": "advisory"
+    },
+    {
+      "method": "plugin_development",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "explicit regression-test acceptance",
+      "method_profile_id": "plugin_development",
+      "missing_ids": [
+        "plugin_goal_defined",
+        "eeglab_function_family_recorded",
+        "validation_plan_recorded"
+      ],
+      "gate_status": "override_accepted"
+    },
+    {
+      "method": "relica_reliability",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "relica_reliability",
+      "missing_ids": [
+        "plugin_relica_available",
+        "has_ica",
+        "bootstrap_settings_recorded",
+        "component_reviewed"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "relica_reliability",
+      "tool_name": "",
+      "context": {},
+      "strictness": "advisory",
+      "override_reason": "",
+      "method_profile_id": "relica_reliability",
+      "missing_ids": [
+        "plugin_relica_available",
+        "has_ica",
+        "bootstrap_settings_recorded",
+        "component_reviewed"
+      ],
+      "gate_status": "advisory"
+    },
+    {
+      "method": "relica_reliability",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "explicit regression-test acceptance",
+      "method_profile_id": "relica_reliability",
+      "missing_ids": [
+        "plugin_relica_available",
+        "has_ica",
+        "bootstrap_settings_recorded",
+        "component_reviewed"
+      ],
+      "gate_status": "override_accepted"
+    },
+    {
+      "method": "viewprops_review",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "viewprops_review",
+      "missing_ids": [
+        "plugin_viewprops_available",
+        "has_ica",
+        "component_reviewed"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "viewprops_review",
+      "tool_name": "",
+      "context": {},
+      "strictness": "advisory",
+      "override_reason": "",
+      "method_profile_id": "viewprops_review",
+      "missing_ids": [
+        "plugin_viewprops_available",
+        "has_ica",
+        "component_reviewed"
+      ],
+      "gate_status": "advisory"
+    },
+    {
+      "method": "viewprops_review",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "explicit regression-test acceptance",
+      "method_profile_id": "viewprops_review",
+      "missing_ids": [
+        "plugin_viewprops_available",
+        "has_ica",
+        "component_reviewed"
+      ],
+      "gate_status": "override_accepted"
+    },
+    {
+      "method": "get_chanlocs_digitization",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "get_chanlocs_digitization",
+      "missing_ids": [
+        "plugin_get_chanlocs_available",
+        "head_image_or_digitization_source_recorded",
+        "fiducials_recorded",
+        "channel_location_repair_planned"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "get_chanlocs_digitization",
+      "tool_name": "",
+      "context": {},
+      "strictness": "advisory",
+      "override_reason": "",
+      "method_profile_id": "get_chanlocs_digitization",
+      "missing_ids": [
+        "plugin_get_chanlocs_available",
+        "head_image_or_digitization_source_recorded",
+        "fiducials_recorded",
+        "channel_location_repair_planned"
+      ],
+      "gate_status": "advisory"
+    },
+    {
+      "method": "get_chanlocs_digitization",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "explicit regression-test acceptance",
+      "method_profile_id": "get_chanlocs_digitization",
+      "missing_ids": [
+        "plugin_get_chanlocs_available",
+        "head_image_or_digitization_source_recorded",
+        "fiducials_recorded",
+        "channel_location_repair_planned"
+      ],
+      "gate_status": "override_accepted"
+    },
+    {
+      "method": "roiconnect_source_connectivity",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "roiconnect_source_connectivity",
+      "missing_ids": [
+        "plugin_roiconnect_available",
+        "source_model_available",
+        "roi_atlas_recorded",
+        "connectivity_metric_recorded"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "roiconnect_source_connectivity",
+      "tool_name": "",
+      "context": {},
+      "strictness": "advisory",
+      "override_reason": "",
+      "method_profile_id": "roiconnect_source_connectivity",
+      "missing_ids": [
+        "plugin_roiconnect_available",
+        "source_model_available",
+        "roi_atlas_recorded",
+        "connectivity_metric_recorded"
+      ],
+      "gate_status": "advisory"
+    },
+    {
+      "method": "roiconnect_source_connectivity",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "explicit regression-test acceptance",
+      "method_profile_id": "roiconnect_source_connectivity",
+      "missing_ids": [
+        "plugin_roiconnect_available",
+        "source_model_available",
+        "roi_atlas_recorded",
+        "connectivity_metric_recorded"
+      ],
+      "gate_status": "override_accepted"
+    },
+    {
+      "method": "eegstats_metrics",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "eegstats_metrics",
+      "missing_ids": [
+        "plugin_eegstats_available",
+        "frequency_settings_recorded",
+        "channels_recorded",
+        "artifact_policy_recorded"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "eegstats_metrics",
+      "tool_name": "",
+      "context": {},
+      "strictness": "advisory",
+      "override_reason": "",
+      "method_profile_id": "eegstats_metrics",
+      "missing_ids": [
+        "plugin_eegstats_available",
+        "frequency_settings_recorded",
+        "channels_recorded",
+        "artifact_policy_recorded"
+      ],
+      "gate_status": "advisory"
+    },
+    {
+      "method": "eegstats_metrics",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "explicit regression-test acceptance",
+      "method_profile_id": "eegstats_metrics",
+      "missing_ids": [
+        "plugin_eegstats_available",
+        "frequency_settings_recorded",
+        "channels_recorded",
+        "artifact_policy_recorded"
+      ],
+      "gate_status": "override_accepted"
+    },
+    {
+      "method": "pipeline",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "pipeline",
+      "missing_ids": [
+        "raw_input_preserved",
+        "derivative_output_planned",
+        "pipeline_defaults_accepted"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "pipeline",
+      "tool_name": "",
+      "context": {},
+      "strictness": "advisory",
+      "override_reason": "",
+      "method_profile_id": "pipeline",
+      "missing_ids": [
+        "raw_input_preserved",
+        "derivative_output_planned",
+        "pipeline_defaults_accepted"
+      ],
+      "gate_status": "advisory"
+    },
+    {
+      "method": "pipeline",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "explicit regression-test acceptance",
+      "method_profile_id": "pipeline",
+      "missing_ids": [
+        "raw_input_preserved",
+        "derivative_output_planned",
+        "pipeline_defaults_accepted"
+      ],
+      "gate_status": "override_accepted"
+    },
+    {
+      "method": "",
+      "tool_name": "eeglab_pipeline",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "pipeline",
+      "missing_ids": [
+        "raw_input_preserved",
+        "derivative_output_planned",
+        "pipeline_defaults_accepted"
+      ],
+      "gate_status": "blocked"
+    },
+    {
+      "method": "not_a_method",
+      "tool_name": "",
+      "context": {},
+      "strictness": "hard",
+      "override_reason": "",
+      "method_profile_id": "",
+      "missing_ids": [],
+      "gate_status": "unknown_method"
+    }
+  ]
+}

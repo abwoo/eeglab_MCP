@@ -1,5 +1,5 @@
 function errors = eegmcp_b1_check(opts, spec)
-%EEGMCP_B1_CHECK Check option types and enums like validate_arguments in schemas.py.
+%   Validate option types before scientific operations.
 %   SPEC is an N-by-2 or N-by-3 cell array of {name, type, allowed}. TYPE is
 %   'number', 'positive' (a finite number greater than 0), 'string',
 %   'boolean', 'strings' (a list of names or a comma-separated string) or

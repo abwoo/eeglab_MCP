@@ -63,7 +63,7 @@ Support levels:
 - `Picard`: `gated_guidance`; probes `picard`, `runica_nsg`; fallback must record the actual ICA algorithm used.
 - `RELICA`: `indexed_only`; probes `pop_relica`, `relica`, `eegplugin_relica`; profile `relica_reliability`; requires existing ICA, RELICA availability, bootstrap settings, and component review.
 - `Viewprops`: `indexed_only`; probes `pop_viewprops`, `pop_prop_extended`, `viewprops`; profile `viewprops_review`; supports component/channel review after ICA/ICLabel but is not a removal rule by itself.
-- `NSGportal`: `indexed_only`; probes `pop_nsg`, `nsgportal`; profile `nsg_remote`; remote NSG execution is outside the local-first MCP surface unless a dedicated secure integration is added.
+- `NSGportal`: `indexed_only`; probes `pop_nsg`, `nsgportal`; profile `nsg_remote`; remote NSG execution is outside the cloud MATLAB MCP surface unless a dedicated secure integration is added.
 
 ## LIMO / SIFT / NFT / ROI / Spectral Stats
 

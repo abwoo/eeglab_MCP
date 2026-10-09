@@ -104,7 +104,7 @@ if ~isempty(epoch_window) || ~isempty(baseline_window)
     derived.baseline_window = baseline_window;
 end
 if isfield(opts, 'pre_stimulus') || isfield(opts, 'post_stimulus')
-    % Absent values are null in Python; NaN keeps the two-item shape here.
+    %   Uses the versioned MATLAB method-gate definitions and regression expectations.
     if ~isfield(derived, 'epoch_window')
         derived.epoch_window = [raw(opts, 'pre_stimulus'), raw(opts, 'post_stimulus')];
     end

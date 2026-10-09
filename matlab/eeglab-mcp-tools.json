@@ -753,6 +753,275 @@
         "idempotentHint": false,
         "openWorldHint": false
       }
+    },
+    {
+      "name": "eeglab_study_create",
+      "title": "Study Create",
+      "description": "Create an EEGLAB STUDY from dataset_paths with explicit subjects/conditions, or bids_path. Existing datasets are not resaved. Official STUDY creation and BIDS gates apply.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "string",
+            "description": "JSON object containing tool options. Use \"{}\" for defaults. Lists and nested context are encoded inside this string."
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_study_design",
+      "title": "Study Design",
+      "description": "Define a categorical STUDY design using variable_name, variable_values, design_name and paired. Requires an active STUDY and the official study_design gate.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "string",
+            "description": "JSON object containing tool options. Use \"{}\" for defaults. Lists and nested context are encoded inside this string."
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_study_statistics",
+      "title": "Study Statistics",
+      "description": "Run statcond on precomputed STUDY channel ERP, spectrum or ERSP measures. Requires explicit channels, protocol/design facts and alpha/correction policy. Supports fdr, bonferroni or none across all returned contrasts; cluster inference requires a separate validated model.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "string",
+            "description": "JSON object containing tool options. Use \"{}\" for defaults. Lists and nested context are encoded inside this string."
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_pipeline",
+      "title": "Pipeline",
+      "description": "Compose gated ERP, resting or timefreq tools using data_path, output_dir, optional output_filename, explicit event_types and method_context. Defaults filter and average-reference; ASR and ICA require clean_artifacts/run_ica opt-in. Never removes components automatically. Every child gate applies and execution stops at the first error.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "string",
+            "description": "JSON object containing tool options. Use \"{}\" for defaults. Lists and nested context are encoded inside this string."
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_erp_light_workflow",
+      "title": "Erp Light Workflow",
+      "description": "Filter, epoch, summarize and save a derivative ERP with data_path, output_dir, event_types, channels, epoch_window in seconds and baseline_window in milliseconds. Confirm condition triggers in method_context and preserve raw input. Every child gate applies; never guesses missing channels.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "string",
+            "description": "JSON object containing tool options. Use \"{}\" for defaults. Lists and nested context are encoded inside this string."
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_method_preflight",
+      "title": "Method Preflight",
+      "description": "Evaluate versioned official requirements with method or tool_name, context, strictness (hard/advisory), and optional override_reason. Returns gate status, missing requirements and source claim IDs without modifying EEG.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "string",
+            "description": "JSON object containing tool options. Use \"{}\" for defaults. Lists and nested context are encoded inside this string."
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_workflow_recommend",
+      "title": "Workflow Recommend",
+      "description": "Recommend a conservative analysis branch from research_goal, analysis_type, event_types, event_semantics, data_shape and method_context. Unknown markers remain unconfirmed. Does not change EEG.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "string",
+            "description": "JSON object containing tool options. Use \"{}\" for defaults. Lists and nested context are encoded inside this string."
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_project_plan",
+      "title": "Project Plan",
+      "description": "Build staged intake, QC, preflight, preprocessing, analysis and reporting phases with official method gates. Accepts research_goal, analysis_type, project_scale, recording facts and method_context. Does not change EEG.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "string",
+            "description": "JSON object containing tool options. Use \"{}\" for defaults. Lists and nested context are encoded inside this string."
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_event_semantics_audit",
+      "title": "Event Semantics Audit",
+      "description": "Classify event_types using explicit condition_markers, exclude_markers, boundary_markers, segment_markers and event_descriptions. Exclusions and QC markers take precedence; candidates never become confirmed triggers automatically.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "string",
+            "description": "JSON object containing tool options. Use \"{}\" for defaults. Lists and nested context are encoded inside this string."
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_plugin_check",
+      "title": "Plugin Check",
+      "description": "Probe official EEGLAB plugin entry points using optional plugins. Returns availability, support levels, claim IDs and missing prerequisites; installed indexed plugins remain guidance-only.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "string",
+            "description": "JSON object containing tool options. Use \"{}\" for defaults. Lists and nested context are encoded inside this string."
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_protocol_export",
+      "title": "Protocol Export",
+      "description": "Render a reproducible JSON or Markdown protocol from research_goal, analysis_type, steps, parameters, outputs and gate_results. Optional output_path writes a cloud artifact; report override reasons and missing requirements.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "options": {
+            "type": "string",
+            "description": "JSON object containing tool options. Use \"{}\" for defaults. Lists and nested context are encoded inside this string."
+          }
+        },
+        "required": [
+          "options"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "eeglab_official_claims",
+      "title": "Versioned Official Claims",
+      "description": "Read the versioned 47 EEGLAB alignment claims and 39 method profiles used by the method gates. Returns document_version, source URLs, requirement provenance and tool-to-profile mappings.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
     }
   ],
   "signatures": {
@@ -1018,6 +1287,100 @@
         "order": [
           "options"
         ]
+      }
+    },
+    "eeglab_study_create": {
+      "function": "eegmcp_study_create",
+      "input": {
+        "order": [
+          "options"
+        ]
+      }
+    },
+    "eeglab_study_design": {
+      "function": "eegmcp_study_design",
+      "input": {
+        "order": [
+          "options"
+        ]
+      }
+    },
+    "eeglab_study_statistics": {
+      "function": "eegmcp_study_statistics",
+      "input": {
+        "order": [
+          "options"
+        ]
+      }
+    },
+    "eeglab_pipeline": {
+      "function": "eegmcp_pipeline",
+      "input": {
+        "order": [
+          "options"
+        ]
+      }
+    },
+    "eeglab_erp_light_workflow": {
+      "function": "eegmcp_erp_light_workflow",
+      "input": {
+        "order": [
+          "options"
+        ]
+      }
+    },
+    "eeglab_method_preflight": {
+      "function": "eegmcp_method_preflight",
+      "input": {
+        "order": [
+          "options"
+        ]
+      }
+    },
+    "eeglab_workflow_recommend": {
+      "function": "eegmcp_workflow_recommend",
+      "input": {
+        "order": [
+          "options"
+        ]
+      }
+    },
+    "eeglab_project_plan": {
+      "function": "eegmcp_project_plan",
+      "input": {
+        "order": [
+          "options"
+        ]
+      }
+    },
+    "eeglab_event_semantics_audit": {
+      "function": "eegmcp_event_semantics_audit",
+      "input": {
+        "order": [
+          "options"
+        ]
+      }
+    },
+    "eeglab_plugin_check": {
+      "function": "eegmcp_plugin_check",
+      "input": {
+        "order": [
+          "options"
+        ]
+      }
+    },
+    "eeglab_protocol_export": {
+      "function": "eegmcp_protocol_export",
+      "input": {
+        "order": [
+          "options"
+        ]
+      }
+    },
+    "eeglab_official_claims": {
+      "function": "eegmcp_official_claims",
+      "input": {
+        "order": []
       }
     }
   }

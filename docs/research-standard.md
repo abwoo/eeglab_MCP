@@ -70,7 +70,7 @@ Plugin-dependent workflows must check availability before claiming readiness:
 
 See `docs/official-method-map.md`, `docs/official-gate-policy.md`, and `docs/official-plugin-map.md` for the claim-map backed gate implementation.
 For complete coverage auditing, read the official topic index, support matrix, risk matrix, and report field matrix exposed as MCP resources:
-`eeglab://official/topic-index.md`, `eeglab://official/support-matrix.md`, `eeglab://official/tool-support-matrix.md`, `eeglab://official/risk-matrix.md`, and `eeglab://official/report-field-matrix.md`.
+`docs/official-topic-index.md`, `docs/official-support-matrix.md`, `docs/official-tool-support-matrix.md`, `docs/official-risk-matrix.md`, and `docs/official-report-field-matrix.md`.
 
 ## Analysis Branch Prerequisites
 

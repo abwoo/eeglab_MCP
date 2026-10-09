@@ -1,6 +1,6 @@
 function doc = eegmcp_claims()
 %EEGMCP_CLAIMS The official alignment document (claims and method profiles).
-%   Reads generated/eeglab-official-claims.json, the same file the Python
+%   Uses the versioned MATLAB method-gate definitions and regression expectations.
 %   server publishes as eeglab://official/claims.json, once per session.
 
 persistent cached

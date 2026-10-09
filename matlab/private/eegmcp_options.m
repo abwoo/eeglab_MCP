@@ -1,6 +1,6 @@
 function opts = eegmcp_options(text)
 %EEGMCP_OPTIONS Decode a tool's options argument (a JSON object as text).
-%   The MATLAB MCP Core Server only passes scalar arguments, so optional and
+%   The MATLAB MCP Server only passes scalar arguments, so optional and
 %   list-valued arguments travel in one JSON object. An empty string means
 %   "no options". Errors with identifier eegmcp:options on invalid input.
 

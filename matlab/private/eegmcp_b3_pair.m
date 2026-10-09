@@ -1,5 +1,5 @@
 function [value, message] = eegmcp_b3_pair(opts, name, default, allow_equal)
-%EEGMCP_B3_PAIR Read a [start, end] numeric option and check it like schemas.py.
+%   Validate option types before scientific operations.
 %   Returns DEFAULT when the option is absent. MESSAGE is '' when the value
 %   is valid, else the validation error (two finite numbers, ascending, or
 %   non-decreasing when ALLOW_EQUAL is true).

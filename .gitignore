@@ -1,14 +1,3 @@
-# Python caches and environments
-__pycache__/
-*.py[cod]
-.pytest_cache/
-.ruff_cache/
-.mypy_cache/
-.venv/
-venv/
-env/
-*.egg-info/
-
 # MATLAB/EEGLAB generated state and outputs
 eeglabmcp/
 reports/

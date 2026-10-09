@@ -1,0 +1,9 @@
+mcp<3,>=2.3.0
+
+[:python_version < "3.11"]
+tomli>=2.0
+
+[dev]
+black>=24.0
+mypy>=1.8
+ruff>=0.5
