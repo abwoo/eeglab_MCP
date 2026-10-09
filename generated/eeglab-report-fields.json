@@ -1,0 +1,69 @@
+{
+  "document": "eeglab-report-fields",
+  "document_version": "1.0.0",
+  "fields": {
+    "recording_and_acquisition": [
+      "input_path",
+      "source_format",
+      "setname_filename_filepath",
+      "sampling_rate_hz",
+      "duration_sec",
+      "data_shape",
+      "channel_count",
+      "reference_or_montage",
+      "hardware_or_acquisition_notes_if_available",
+      "power_line_frequency_if_available",
+      "impedance_or_quality_notes_if_available",
+      "importer_plugin_or_function_path",
+      "source_format_sidecars_and_header_notes"
+    ],
+    "events_and_design": [
+      "event_labels_counts_latencies",
+      "event_roles_and_semantics_source",
+      "urevent_link_status",
+      "condition_definitions",
+      "behavioral_log_or_events_json_source",
+      "hed_schema_version_or_event_codebook",
+      "event_modification_rules_and_latency_units",
+      "epoch_and_baseline_windows"
+    ],
+    "preprocessing_parameters": [
+      "filter_cutoffs_order_transition_if_known",
+      "resampling_target_rate",
+      "line_noise_method_and_frequency",
+      "bad_channel_policy",
+      "asr_thresholds",
+      "rereference_policy",
+      "ica_algorithm_rank_pca",
+      "iclabel_thresholds_and_review",
+      "epoch_rejection_thresholds",
+      "interpolation_policy"
+    ],
+    "analysis_parameters": [
+      "erp_channels_rois_time_windows",
+      "spectral_frequency_range_band_definitions",
+      "timefreq_cycles_baseline_output_measure",
+      "connectivity_method_model_validation",
+      "source_head_model_template_residual_variance",
+      "study_design_variables_levels_alpha_correction",
+      "external_export_format_and_metadata_mapping",
+      "limo_or_sift_model_if_used",
+      "relica_bootstrap_settings_and_ica_reliability",
+      "viewprops_component_set_and_classifier",
+      "get_chanlocs_scan_fiducials_and_head_image",
+      "roiconnect_roi_atlas_source_model_and_connectivity_metric",
+      "eegstats_band_power_alpha_peak_and_asymmetry_settings"
+    ],
+    "outputs_and_limits": [
+      "output_paths",
+      "derivative_output_policy",
+      "external_export_status_and_exporter_plugin",
+      "software_versions_and_plugins",
+      "official_gate_status",
+      "source_claim_ids",
+      "override_status_and_reason",
+      "failed_steps_and_recovery",
+      "limitations_no_clinical_or_anatomical_certainty_claims"
+    ]
+  }
+}

@@ -4,10 +4,10 @@ This matrix is the decision surface for MCP support. A topic is "covered" when i
 
 | Support level | Meaning | Allowed MCP behavior | Required report language |
 | --- | --- | --- | --- |
-| `executable` | A local MCP tool can run the EEGLAB-family operation. | Run only after schema validation, official preflight, and output-path policy. | Include tool name, function family, parameters, gate status, output paths, and limitations. |
+| `executable` | A cloud MATLAB tool can run the EEGLAB-family operation. | Run only after schema validation, official preflight, and output-path policy. | Include tool name, function family, parameters, gate status, output paths, and limitations. |
 | `gated_guidance` | The MCP can guide the method and may expose a partial tool, but interpretation depends on prerequisites. | Run only when method-specific critical gates pass, or return `official_gate_blocked`. | Include missing prerequisites, source claim IDs, and whether results are exploratory. |
 | `indexed_only` | The official topic/plugin is known but no dedicated execution workflow is promised. | Use `eeglab_project_plan`, `eeglab_plugin_check`, or `eeglab_method_preflight`; do not execute unsupported plugin logic. | Say guidance-only/indexed-only and list what must be installed or designed before support can be claimed. |
-| `out_of_scope` | Relevant to EEG research but outside local EEGLAB MCP execution. | Audit or ask for metadata; do not claim acquisition, clinical, or hardware-control capability. | Record missing acquisition/lab-notebook fields as limitations. |
+| `out_of_scope` | Relevant to EEG research but outside the GitHub EEGLAB MCP workflow. | Audit or ask for metadata; do not claim acquisition, clinical, or hardware-control capability. | Record missing acquisition/lab-notebook fields as limitations. |
 
 ## Executable Families
 

@@ -27,6 +27,13 @@ try
     % EEGLAB prints its startup log; keep it out of the tool result.
     evalc('eeglab(''nogui'');');
 
+    % CleanLine normally registers its helper paths in a GUI plugin hook.
+    % The nogui startup exposes pop_cleanline but skips that hook.
+    cleanline_path = which('pop_cleanline');
+    if ~isempty(cleanline_path)
+        addpath(genpath(fileparts(cleanline_path)));
+    end
+
     result.status = 'success';
     result.eeglab_version = eeg_getversion;
     result.eeglab_path = fileparts(which('eeglab'));

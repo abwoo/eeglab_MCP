@@ -1,14 +1,12 @@
 # EEGLAB MCP Tool Reference
 
-The server exposes registry-defined 37 legacy low-level `eeglab_*` tools plus 8 research workflow tools for QC, planning, official preflight, protocol, plugin, and event-semantics work. Low-level tools follow the official EEGLAB pattern: user-facing `pop_` operations for data transformations/plots and `eeg_`/structure checks for consistency and metadata inspection.
+The server exposes registry-defined 45 EEGLAB/research tools plus the versioned official-claims tool for QC, planning, official preflight, protocol, plugin, and event-semantics work. Low-level tools follow the official EEGLAB pattern: user-facing `pop_` operations for data transformations/plots and `eeg_`/structure checks for consistency and metadata inspection.
 
-## Dual MCP Routing
+## Cloud MATLAB Session
 
 - Use eeglab first for EEG/EEGLAB workflows: load data, QC/provenance, events, preprocessing, ICA, ERP, spectral/time-frequency/connectivity, visualization, source, STUDY, and pipelines.
-- Use matlab MCP for generic MATLAB scripts, custom `.m` functions, matrix/statistical code, or non-EEGLAB toolboxes.
-- Treat `eeglab` and matlab MCP as workspace-isolated sessions; do not assume `EEG` or `ALLEEG` variables are shared.
-- Use file handoff for cross-server work by saving explicit `.set/.fdt`, `.mat`, `.csv`, `.png`, or report paths.
-- Keep output paths disjoint so both MCP servers do not write the same file concurrently.
+- Reviewed `eeglab_*` tools share `EEG`, `ALLEEG` and `STUDY` in one cloud MATLAB session. Separate GitHub jobs start fresh sessions.
+- Save explicit derivative `.set/.fdt`, figure and protocol paths as GitHub artifacts before continuing in another job.
 
 ## Research Workflows
 
@@ -16,8 +14,8 @@ The server exposes registry-defined 37 legacy low-level `eeglab_*` tools plus 8 
 - `eeglab_erp_light_workflow`: load, inspect, bandpass filter, epoch, baseline, ERP summary, and save a processed copy.
 - `eeglab_workflow_recommend`: recommend reproducible project phases, clarifying questions, default assumptions, adaptive decision rules, QC gates, self-evolution hooks, and minimum report fields without changing data.
 - `eeglab_project_plan`: create a research-grade project plan from goal/design/data/event/montage/plugin facts; returns blocking conditions, not-recommended actions, QC gates, quick modes, and official reference anchors.
-- `eeglab_protocol_export`: render Markdown/JSON protocol text and optionally write it to a local file; pass upstream `gate_results`, `source_claim_ids`, `report_fields`, and override fields for lab notebooks, handoff, or methods-section drafts.
-- `eeglab_plugin_check`: probe local MATLAB/EEGLAB path for the official plugin matrix: clean_rawdata, ICLabel, DIPFIT, EEG-BIDS, BIOSIG, File-IO, MFF-matlab-io, NWB-io, BVA-io, HEDTools, firfilt, CleanLine, Zapline-Plus, AMICA, Picard, RELICA, Viewprops, get_chanlocs, ROIconnect, EEGstats, LIMO, SIFT, groupSIFT, NFT, and NSGportal. It returns availability, `support_level`, claim IDs, dependent profiles such as `import_plugins`, `data_export`, `hed_event_annotation`, `bids_export`, `study_precompute`, `ica_clustering`, `amica_ica`, `relica_reliability`, `viewprops_review`, `get_chanlocs_digitization`, `roiconnect_source_connectivity`, `eegstats_metrics`, and `nsg_remote`, checked functions, found functions, and next steps.
+- `eeglab_protocol_export`: render Markdown/JSON protocol text and optionally write it to a cloud artifact; pass upstream `gate_results`, `source_claim_ids`, `report_fields`, and override fields for lab notebooks, handoff, or methods-section drafts.
+- `eeglab_plugin_check`: probe the GitHub runner MATLAB/EEGLAB path for the official plugin matrix: clean_rawdata, ICLabel, DIPFIT, EEG-BIDS, BIOSIG, File-IO, MFF-matlab-io, NWB-io, BVA-io, HEDTools, firfilt, CleanLine, Zapline-Plus, AMICA, Picard, RELICA, Viewprops, get_chanlocs, ROIconnect, EEGstats, LIMO, SIFT, groupSIFT, NFT, and NSGportal. It returns availability, `support_level`, claim IDs, dependent profiles such as `import_plugins`, `data_export`, `hed_event_annotation`, `bids_export`, `study_precompute`, `ica_clustering`, `amica_ica`, `relica_reliability`, `viewprops_review`, `get_chanlocs_digitization`, `roiconnect_source_connectivity`, `eegstats_metrics`, and `nsg_remote`, checked functions, found functions, and next steps.
 - `eeglab_event_semantics_audit`: classify markers as condition triggers, boundaries, impedance/QC annotations, segment markers, excluded labels, or candidate triggers before epoching.
 - `eeglab_method_preflight`: evaluate official EEGLAB/SCCN method gates before high-risk processing; returns `gate_status`, missing requirements, `source_claim_ids`, and safe next step.
 

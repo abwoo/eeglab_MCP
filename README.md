@@ -1,212 +1,53 @@
-# EEGLAB MCP Agent
+# EEGLAB MCP for MATLAB
 
-EEGLAB MCP Agent is a local-first MCP server for MATLAB EEGLAB. It lets any MCP-capable assistant use structured `eeglab_*` tools while preserving EEG research safeguards: provenance, event semantics, method preflight, official EEGLAB/SCCN alignment, and reproducible reporting.
+EEGLAB research tools and an MCP Streamable HTTP server implemented in MATLAB. GitHub Actions runs the server inside its licensed MATLAB batch session. The tool manifest also uses MathWorks' documented [custom-tool format](https://github.com/matlab/matlab-mcp-server/blob/main/guides/custom-tools.md), with catalog compatibility checked against the [official MATLAB MCP Server](https://github.com/matlab/matlab-mcp-server).
 
-This project is for EEG signal-processing research workflows. It is not a clinical diagnosis system and must not be used for clinical claims.
+All execution and validation run on GitHub Actions. There is no desktop installer, interpreter environment, or client configuration to install on your computer.
 
-## Quick Start
+## Run In GitHub Cloud
 
-From the repository root, run the dispatcher:
+Open **Actions → MATLAB cloud request → Run workflow**. Choose a tool and provide its arguments as a JSON object. The workflow provisions MATLAB and EEGLAB on a GitHub runner, starts the MATLAB MCP server, initializes the sample recording, executes the requested tool over MCP, and uploads the response and derivative outputs as an artifact.
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 setup -DryRun
-powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 setup
-powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 verify
-powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 doctor
-```
+For example:
 
-Restart your MCP client, then ask for an EEG or EEGLAB task.
+- Tool: `eeglab_method_preflight`
+- Arguments: `{"method":"epoch","context":{}}`
 
-`setup` registers the MCP server only. Add `-InstallSkill` if you also want the optional Codex Skill (see [Optional Skill](#optional-skill)).
-
-Prerequisites:
-
-- Python 3.10+
-- MATLAB available as `matlab` or an absolute `matlab.exe` path
-- EEGLAB installed locally
-- Optional EEGLAB plugins for plugin-dependent workflows, such as clean_rawdata, ICLabel, DIPFIT, EEG-BIDS, BIOSIG, and import/export plugins
-
-## Minimal MCP Config
-
-Register the server as `eeglab`. The prompts, resources, and workflow docs assume that name.
+A blocked gate is a useful result: its response lists the missing requirements and source claims. For a sample ERP derivative, choose `eeglab_erp_light_workflow` with:
 
 ```json
-{
-  "command": "python",
-  "args": ["C:\\path\\to\\eeglab_MCP\\eeglab_mcp_server\\server.py"],
-  "env": {
-    "EEGLAB_PATH": "D:\\MATLAB_Tools\\eeglab",
-    "MATLAB_EXEC": "matlab",
-    "MATLAB_ROOT": "D:\\MATLAB",
-    "EEGLAB_WORK_DIR": "D:\\eeglab_mcp_work"
-  }
-}
+{"data_path":"@sample","output_dir":"@artifacts","event_types":["square"],"channels":["Cz"],"method_context":{"confirmed_condition_events":true,"raw_input_preserved":true,"derivative_output_planned":true}}
 ```
 
-Ready-to-edit templates are in `configs/` for Codex, Claude Desktop, Cursor, VS Code, and generic MCP clients.
+`@sample` resolves to the EEGLAB sample dataset on the runner; `@artifacts` resolves to the job's output folder. Other data paths must already exist in the cloud session. No participant EEG files are committed to this repository. The server and MATLAB session stop when the job finishes; GitHub Actions does not provide a persistent MCP endpoint.
 
-## First Dataset Check
+## Tools And Method Gates
 
-For a new recording, start read-only:
+The extension exposes **46 custom tools**: the original 45 EEGLAB and research workflow tools, plus `eeglab_official_claims`. The first-contact sequence is `eeglab_init`, `eeglab_load_data`, `eeglab_qc_report`, `eeglab_info`, `eeglab_get_events`, and `eeglab_history`.
 
-1. `eeglab_init`
-2. `eeglab_load_data`
-3. `eeglab_qc_report`
-4. `eeglab_info`
-5. `eeglab_get_events`
-6. `eeglab_history`
+Planning, event audit, plugin checks, method preflight, protocol export, light ERP, STUDY design/statistics, preprocessing, ICA, spectral/time-frequency analysis, connectivity, figures and source tools all execute as MATLAB functions in the same session. High-risk tools enforce official prerequisites and record explicit overrides. Bundled pipelines stop at the first failed child gate and write derivatives; ASR and ICA are opt-in and components are never removed automatically.
 
-Do not start with ICA, source localization, one-click pipelines, or destructive preprocessing. Run planning and method preflight first.
+MathWorks custom tools accept scalar argument types. Tools with lists or nested options use one required string argument named `options`, containing a JSON object. The cloud workflow converts its arguments object into that string. Direct tools retain their documented scalar arguments. See [the MATLAB interface](matlab/README.md) and [the complete tool catalog](docs/tools.md).
 
-## Common Commands
+The versioned source document retains **47 official claims and 39 method profiles**. Read it through `eeglab_official_claims`, or inspect [the claims document](generated/eeglab-official-claims.json). The official extension does not add custom prompt/resource URI handlers; research guidance is provided through the tools and repository documents.
 
-| Task | Command |
-| --- | --- |
-| Show help | `powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 help` |
-| Preview setup | `powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 setup -DryRun` |
-| Install/register | `powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 setup` |
-| Verify local framework and official alignment | `powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 verify` |
-| Verify live official links too | `powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 verify-online` |
-| Check local client/MATLAB environment | `powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 doctor` |
-| Preview uninstall | `powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 uninstall -DryRun -RemoveSkill` |
+## Cloud Validation
 
-The dispatcher forwards to dedicated setup, verify, doctor, and uninstall scripts. Automation may call those lower-level scripts directly, but new users should start with `eeglab_agent.ps1`.
-
-## What You Get
-
-- 45 exposed MCP tools: 37 low-level EEGLAB tool wrappers plus 8 research workflow tools.
-- 10 MCP prompts and 26 read-only MCP resources for clients that support guidance surfaces.
-- 1 versioned machine-readable alignment document at `eeglab://official/claims.json`, generated from the constants the gate enforces, so an external hub can cite claim ids without scraping the Skill markdown.
-- 47 official alignment claims and 39 method profiles mapped to EEGLAB/SCCN and related standards.
-- 56 machine-checkable workflow evals covering gates, reports, plugin gaps, and failure recovery.
-- A local-first runtime: EEG data stays on the user's machine.
-
-## Client Usage
-
-Any stdio MCP client can use the server. Codex, Claude Desktop, VS Code MCP integrations, Cursor, and other MCP-capable IDEs can all register it as `eeglab`. No Skill is required: the server carries its own guidance as MCP prompts and resources, for example:
-
-- `eeglab://references/workflows.md`
-- `eeglab://references/tools.md`
-- `eeglab://references/method-gates.md`
-- `eeglab://official/gate-policy.md`
-- `eeglab://skill/SKILL.md`
-
-For agent hubs and other external consumers, `eeglab://official/claims.json` is the machine-readable entry point. It carries the 47 alignment claims, the 39 method profiles with their requirements, and the tool-to-profile routing, with a `document_version` field. It is generated from the same constants `eeglab_method_preflight` enforces, so a cited claim id always matches the gate. It is research alignment metadata, not a clinical instrument, and confers no clinical use.
-
-If you also use a general MATLAB MCP, keep names separate:
-
-```text
-eeglab = EEG/EEGLAB workflows
-matlab = generic MATLAB scripts and custom calculations
-```
-
-Treat the two servers as isolated MATLAB sessions and pass data through explicit files such as `.set/.fdt`, `.mat`, `.csv`, `.png`, Markdown, or JSON reports.
-
-## Research Workflow
-
-Use the workflow tools before high-risk analysis:
-
-1. Plan with `eeglab_project_plan` or `eeglab_workflow_recommend`.
-2. Audit metadata, channel locations, events, history, and provenance.
-3. Preflight high-risk methods with `eeglab_method_preflight`.
-4. Execute low-level `eeglab_*` tools only after gates pass or after an explicit override reason is recorded.
-5. Export methods/protocol text with `eeglab_protocol_export`.
-
-Core workflow tools:
-
-- `eeglab_qc_report`: read-only recording, event, ICA, channel-location, and provenance summary.
-- `eeglab_workflow_recommend`: adaptive workflow recommendation from project facts.
-- `eeglab_project_plan`: research-grade plan with blockers, gates, quick modes, and official references.
-- `eeglab_method_preflight`: official method gate evaluation before high-risk processing.
-- `eeglab_event_semantics_audit`: marker classification before epoching or event-locked analysis.
-- `eeglab_plugin_check`: local plugin availability and support-level check.
-- `eeglab_protocol_export`: Markdown/JSON protocol reports with gates, claims, overrides, report fields, and limitations.
-- `eeglab_erp_light_workflow`: smoke-tested ERP chain into a derivative output path.
-
-## Official Alignment And Safety
-
-The default policy is conservative: audit first, gate high-risk methods, preserve raw data, write derivatives, and report limitations.
-
-High-risk processing includes filtering, resampling, rereferencing, line-noise cleanup, ASR/clean_rawdata, ICA, ICLabel, component removal, epoching, ERP, ERSP/ITC, spectral/connectivity claims, source localization, BIDS/STUDY, LIMO, SIFT, AMICA, RELICA, ROIconnect, EEGstats, NSG, and other plugin-dependent workflows.
-
-Event semantics are a hard gate. Boundary, impedance, segment start/end, and excluded markers must not be treated as condition triggers unless the user supplies a validated codebook or event sidecar.
-
-Unsupported official plugins or advanced methods are indexed and explained as `indexed_only` or guidance-only. They are not treated as executable support unless a dedicated MCP workflow, method gate, report template, and eval coverage exist.
-
-## Reporting And Reproducibility
-
-Final reports should include:
-
-- input and derivative output paths
-- sampling rate, duration, channel count, reference, montage, channel-location coverage, event labels/counts, and history availability
-- filter, line-noise, ASR, rereference, ICA, ICLabel, epoch, baseline, frequency, rejection, and output parameters
-- `gate_results`, `method_profile_id`, `gate_status`, missing requirements, and critical missing requirements
-- `source_claim_ids`, plugin status, override status, report-field coverage, and limitations
-
-The protocol exporter must not overwrite EEG data files such as `.set`, `.fdt`, `.eeg`, `.vhdr`, `.vmrk`, `.edf`, `.bdf`, or `.cnt`.
+The required `CI / validate` check validates the tool manifest, all method profiles, MATLAB option/error paths, every processing batch, research workflows, real STUDY ERP statistics, MCP protocol/error handling and real ERP artifacts through native MATLAB MCP HTTP calls. Linux, Windows and macOS jobs also verify catalog compatibility over the official MathWorks MCP transport. MATLAB R2024b, Signal Processing Toolbox and Statistics and Machine Learning Toolbox are provisioned on GitHub runners. MathWorks v0.14.0 downloads are pinned and checked against official SHA-256 digests.
 
 ## Repository Map
 
 | Path | Purpose |
 | --- | --- |
-| `eeglab_mcp_server/` | Executable MCP server, tool schemas, handlers, registry, and official alignment map. |
-| `matlab/` | Python-free prototype: five read-only tools as MATLAB functions for the MATLAB MCP Core Server. See `matlab/README.md`. |
-| `skills/eeglab-analysis/` | Optional Codex Skill; its references are also served as MCP resources. |
-| `docs/` | Official coverage, support, risk, workflow, and report matrices. |
-| `configs/` | MCP client templates. |
-| `scripts/` | User dispatcher plus setup, doctor, uninstall, and verification helpers. |
+| `matlab/` | MATLAB tools, method gates, official extension and tests. |
+| `generated/` | Versioned claims, plugin metadata and report-field definitions. |
+| `.github/workflows/` | Cloud validation and on-demand MCP requests. |
+| `scripts/` | Dependency-free JSON-RPC/cloud verification helpers; no analysis logic. |
+| `docs/` | Official method, plugin, risk and reporting guidance. |
+| `skills/eeglab-analysis/` | Optional research guidance; installation is not required. |
 
-## Development And Verification
+Scientific outputs depend on recording quality, validated event meanings, channel metadata and available EEGLAB plugins. Advanced plugins remain indexed guidance until an execution tool supports them. EEG signal processing is not a clinical diagnosis.
 
-Run the release-level verifier:
+## Repository Maintenance
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 verify
-```
-
-Run live official URL checks:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 verify-online
-```
-
-Optional style/type checks, when development dependencies are installed:
-
-```powershell
-python -m ruff check eeglab_mcp_server scripts
-python -m black --check eeglab_mcp_server scripts
-python -m mypy --config-file eeglab_mcp_server\pyproject.toml eeglab_mcp_server
-```
-
-The verifier checks tool counts, prompts/resources, handler registry, eval contracts, Skill references, official claim/profile/tool/resource synchronization, method gate behavior, support/plugin/report matrices, and optional live official EEGLAB/SCCN/BIDS URLs.
-
-## Optional Skill
-
-`skills/eeglab-analysis/` is an optional Skill for Codex and other Skill-aware clients. It restates the policy the server already exposes through MCP prompts and resources, so the server works the same without it. Install it with:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 setup -InstallSkill
-```
-
-## Uninstall
-
-Preview first:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 uninstall -DryRun -RemoveSkill
-```
-
-Then uninstall if the preview looks right:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\eeglab_agent.ps1 uninstall -RemoveSkill
-```
-
-The uninstall path backs up the Codex config and Skill directory before removing the `eeglab` registration or Skill.
-
-## Further Reading
-
-- GitHub README guidance: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-readmes
-- EEGLAB documentation: https://eeglab.org/
-- EEGLAB repository: https://github.com/sccn/eeglab
-- Official topic and support matrices: see `docs/` or the `eeglab://official/...` MCP resources.
+Licensed under [Apache-2.0](LICENSE). See [SECURITY.md](SECURITY.md) for vulnerability reporting. CODEOWNERS, weekly GitHub Actions dependency updates and a pinned Scorecard workflow are included.

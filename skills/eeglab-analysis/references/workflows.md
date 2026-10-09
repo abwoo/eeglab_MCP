@@ -350,7 +350,7 @@ Do not run or claim SIFT connectivity support through this MCP unless a dedicate
 
 ## NSGportal Guidance
 
-NSGportal is indexed and plugin-checkable, but remote/HPC execution is outside the local-first MCP surface by default.
+NSGportal is indexed and plugin-checkable, but remote/HPC execution is outside the cloud MATLAB MCP surface by default.
 
 1. Use `eeglab_plugin_check` for NSGportal.
 2. Use `eeglab_method_preflight` for `nsg_remote` with user approval, credential policy, data-upload policy, job parameters, upload manifest, and download/recovery plan.

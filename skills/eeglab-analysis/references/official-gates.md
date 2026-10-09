@@ -1,6 +1,6 @@
 # Official EEGLAB Gate Reference
 
-Use this reference whenever a workflow reaches high-risk processing. It mirrors MCP resources `eeglab://official/method-map.md`, `eeglab://official/gate-policy.md`, and `eeglab://official/plugin-map.md`.
+Use this reference whenever a workflow reaches high-risk processing. It mirrors the repository documents `docs/official-method-map.md`, `docs/official-gate-policy.md`, and `docs/official-plugin-map.md`.
 
 ## Required Tool Pattern
 

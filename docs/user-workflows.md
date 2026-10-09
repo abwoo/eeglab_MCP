@@ -2,6 +2,8 @@
 
 These workflows are designed for users who want fast progress without losing research rigor.
 
+Each tool path describes calls within one GitHub MATLAB session. Separate workflow runs start fresh sessions; use a bundled workflow for multi-step analysis, or save derivatives as cloud artifacts before continuing in another job.
+
 ## 1. quick_qc
 
 Goal: inspect a dataset without modifying it.
@@ -94,7 +96,7 @@ Tool path:
 
 ## 5. plugin_doctor
 
-Goal: check whether the local MATLAB/EEGLAB environment can support the requested workflow.
+Goal: check whether the GitHub MATLAB/EEGLAB runner can support the requested workflow.
 
 Use before:
 
@@ -123,8 +125,6 @@ Policy:
 - `indexed_only` plugins are planning/reporting support only unless a dedicated MCP workflow exists.
 - `bids_export`, `import_plugins`, `data_export`, `hed_event_annotation`, `history_scripting`, `event_script_modification`, `study_precompute`, `ica_clustering`, `amica_ica`, `relica_reliability`, `viewprops_review`, `get_chanlocs_digitization`, `roiconnect_source_connectivity`, `eegstats_metrics`, `sift_connectivity`, and `nsg_remote` are guidance/preflight profiles, not default execution support.
 
-## Choosing eeglab MCP vs matlab MCP
+## MATLAB MCP Session
 
-Use `eeglab` MCP for EEG/EEGLAB standard workflows. Use the general `matlab` MCP only for custom MATLAB scripts, external toolboxes, statistics/matrix code, or follow-up calculations outside the EEGLAB MCP surface.
-
-The two MCP servers do not share MATLAB workspace. Save `.set/.fdt`, `.mat`, `.csv`, `.png`, or protocol/report files from `eeglab`, then pass the explicit path to `matlab`.
+The reviewed `eeglab_*` tools use the same cloud MATLAB session. Save derivatives and reports as GitHub artifacts to continue processing in a later job. The cloud server exposes the reviewed catalog.

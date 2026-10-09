@@ -33,7 +33,7 @@ This matrix explains how method gates are applied. It is intentionally conservat
 | `limo_statistics` | Guidance-only | LIMO unavailable; statistical design/correction undefined | keep to planning until plugin, model, contrasts, and correction are documented |
 | `amica_ica` | Guidance-only | AMICA unavailable; rank/PCA/reference or compute strategy missing; derivative output absent | keep to planning or use supported runica/Picard path after ICA gates |
 | `sift_connectivity` | Guidance-only | SIFT unavailable; model validation/stationarity/correction missing | keep to planning until MVAR/source workflow and validation are documented |
-| `nsg_remote` | Out-of-local-scope/guidance-only | NSG unavailable; remote upload/credential approval or job provenance missing | keep local-first; add secure dedicated integration before remote execution |
+| `nsg_remote` | Out-of-local-scope/guidance-only | NSG unavailable; remote upload/credential approval or job provenance missing | keep processing in the GitHub MATLAB runner; add a dedicated integration before remote execution |
 | `pipeline` | High | raw not preserved; derivative output missing; user has not accepted bundled defaults | use explicit low-level tools or record accepted defaults and output policy |
 
 Hard-blocked gates return `official_gate_blocked`. Overrides require a user-approved `override_reason` and must record blocked requirements, source claim IDs, and scientific limitations.

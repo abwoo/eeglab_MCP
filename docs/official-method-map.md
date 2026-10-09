@@ -1,6 +1,6 @@
 # Official EEGLAB Method Map
 
-This map connects MCP methods to official EEGLAB/SCCN references. It is a local index for agent routing and `eeglab_method_preflight`. For the full official topic index and support_level taxonomy, read `eeglab://official/topic-index.md` and `eeglab://official/support-matrix.md`.
+This map connects MCP methods to official EEGLAB/SCCN references. It is a local index for agent routing and `eeglab_method_preflight`. For the full official topic index and support_level taxonomy, read `docs/official-topic-index.md` and `docs/official-support-matrix.md`.
 
 ## Function Model
 

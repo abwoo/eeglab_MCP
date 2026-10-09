@@ -1,0 +1,6 @@
+{
+  "inputs": {
+    "tool": "eeglab_erp_light_workflow",
+    "arguments": "{\"data_path\":\"@sample\",\"output_dir\":\"@artifacts\",\"event_types\":[\"square\"],\"channels\":[\"Cz\"],\"method_context\":{\"confirmed_condition_events\":true,\"raw_input_preserved\":true,\"derivative_output_planned\":true}}"
+  }
+}
