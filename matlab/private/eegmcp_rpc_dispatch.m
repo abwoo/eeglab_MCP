@@ -17,8 +17,14 @@ switch message.method
             error('eegmcp:rpc_params', 'Unknown reviewed tool.');
         end
         definition = tools{hit};
-        args = eegmcp_opt(params, 'arguments', ...
-            eegmcp_opt(params, matlab.lang.makeValidName('arguments'), struct()));
+        args = struct();
+        argument_field = 'arguments';
+        if ~isfield(params, argument_field)
+            argument_field = matlab.lang.makeValidName('arguments');
+        end
+        if isfield(params, argument_field)
+            args = params.(argument_field);
+        end
         if ~isstruct(args) || ~isscalar(args)
             error('eegmcp:rpc_params', 'Tool arguments must be a JSON object.');
         end

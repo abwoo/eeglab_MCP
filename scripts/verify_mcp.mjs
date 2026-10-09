@@ -102,6 +102,8 @@ try {
     await assert.rejects(() => request('tools/call', {name: 'eeglab_init', arguments: {}}), /-32602/);
     await assert.rejects(() => request('tools/call', {name: 'eeglab_init', arguments: {eeglab_path: 7}}), /-32602/);
     await assert.rejects(() => request('tools/call', {name: 'eeglab_official_claims', arguments: {unexpected: true}}), /-32602/);
+    await assert.rejects(() => request('tools/call', {name: 'eeglab_official_claims', arguments: []}), /-32602/);
+    await assert.rejects(() => request('tools/call', {name: 'eeglab_official_claims', arguments: null}), /-32602/);
     assert.equal((await fetch(endpoint)).status, 405);
     const badSession = await fetch(endpoint, {method: 'POST', headers: {
       'Content-Type': 'application/json', 'Mcp-Session-Id': 'unknown-session',
@@ -115,7 +117,7 @@ try {
     assert.equal((await fetch(endpoint, {method: 'POST', headers: {...headers, 'MCP-Protocol-Version': 'unknown'}, body: ping})).status, 400);
     const utf8 = await call('eeglab_method_preflight', {options: JSON.stringify({method: 'epoch', override_reason: 'UTF-8 caf\u00e9'})});
     assert.equal(utf8.summary.override_reason, 'UTF-8 caf\u00e9');
-    results.protocol_checks = 12;
+    results.protocol_checks = 14;
   }
   if (mode === 'live') {
     const claims = await call('eeglab_official_claims');
@@ -132,7 +134,7 @@ try {
     const info = await call('eeglab_info'); assert.equal(info.pnts, 30504);
     const filter = await call('eeglab_filter', {options: '{"filter_type":"highpass","low_cutoff":1}'});
     assert.equal(filter.code, 'official_gate_blocked');
-    results.live_tool_calls = 8;
+    results.live_tool_calls = native ? 9 : 8;
   } else if (mode === 'request') {
     const event = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH));
     const tool = event.inputs.tool;
