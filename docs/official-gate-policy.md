@@ -1,6 +1,6 @@
 # Official Gate Policy
 
-The EEGLAB MCP uses hard gates with explicit override for high-risk EEG processing. Gates are derived from official EEGLAB/SCCN documentation and plugin repositories, then encoded in `official_alignment.py`.
+The EEGLAB MCP uses hard gates with explicit override for high-risk EEG processing. Gates are derived from official EEGLAB/SCCN documentation and plugin repositories, recorded in `generated/eeglab-official-claims.json`, and evaluated in MATLAB.
 
 ## Gate Status
 

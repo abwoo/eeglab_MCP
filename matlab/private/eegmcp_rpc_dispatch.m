@@ -17,7 +17,7 @@ switch message.method
             error('eegmcp:rpc_params', 'Unknown reviewed tool.');
         end
         definition = tools{hit};
-        args = eegmcp_opt(params, 'arguments', struct());
+        args = eegmcp_opt(params, matlab.lang.makeValidName('arguments'), struct());
         if ~isstruct(args) || ~isscalar(args)
             error('eegmcp:rpc_params', 'Tool arguments must be a JSON object.');
         end
@@ -27,6 +27,7 @@ switch message.method
             error('eegmcp:rpc_params', 'Tool arguments do not match its reviewed schema.');
         end
         signature = catalog.signatures.(name);
+        function_name = signature.(matlab.lang.makeValidName('function'));
         order = eegmcp_cellstr(signature.input.order);
         values = cell(1, numel(order));
         for k = 1:numel(order)
@@ -45,7 +46,7 @@ switch message.method
             values{k} = value;
         end
         try
-            text = evalc('feval(signature.function, values{:});');
+            text = evalc('feval(function_name, values{:});');
             result = struct('content', {{struct('type', 'text', 'text', strtrim(text))}}, 'isError', false);
         catch err
             result = struct('content', {{struct('type', 'text', 'text', err.message)}}, 'isError', true);

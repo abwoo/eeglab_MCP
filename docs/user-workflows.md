@@ -125,6 +125,6 @@ Policy:
 - `indexed_only` plugins are planning/reporting support only unless a dedicated MCP workflow exists.
 - `bids_export`, `import_plugins`, `data_export`, `hed_event_annotation`, `history_scripting`, `event_script_modification`, `study_precompute`, `ica_clustering`, `amica_ica`, `relica_reliability`, `viewprops_review`, `get_chanlocs_digitization`, `roiconnect_source_connectivity`, `eegstats_metrics`, `sift_connectivity`, and `nsg_remote` are guidance/preflight profiles, not default execution support.
 
-## Official MATLAB MCP Session
+## MATLAB MCP Session
 
-The `eeglab_*` extension tools and MathWorks' general MATLAB tools use the same cloud MATLAB session. Prefer the reviewed EEGLAB tools for standard research workflows. Save derivatives and reports as GitHub artifacts to continue processing in a later job.
+The reviewed `eeglab_*` tools use the same cloud MATLAB session. Save derivatives and reports as GitHub artifacts to continue processing in a later job. The cloud server exposes the reviewed catalog.

@@ -1,9 +1,9 @@
 ---
 name: eeglab-analysis
-description: Research-grade EEG workflows using EEGLAB tools implemented in MATLAB and executed through the official MathWorks MCP server in GitHub cloud jobs.
+description: Research-grade EEG workflows using native MATLAB MCP tools in GitHub cloud jobs.
 ---
 
-Use the reviewed `eeglab_*` tools for EEG work. Generic MathWorks MATLAB tools share the same cloud session; use them for custom scripts or unsupported toolbox operations with explicit provenance.
+Use the reviewed `eeglab_*` tools for EEG work in the cloud MATLAB session.
 
 Start with read-only intake: initialize, load, QC, information, events and history. Use project planning and event semantics audit before high-risk processing. Unknown, boundary, impedance and segment-only markers are not confirmed condition triggers.
 

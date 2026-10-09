@@ -1,12 +1,12 @@
 # EEGLAB MCP for MATLAB
 
-EEGLAB research tools implemented in MATLAB and exposed through the [official MathWorks MATLAB MCP Server](https://github.com/matlab/matlab-mcp-server). The extension uses MathWorks' documented [custom-tool format](https://github.com/matlab/matlab-mcp-server/blob/main/guides/custom-tools.md).
+EEGLAB research tools and an MCP Streamable HTTP server implemented in MATLAB. GitHub Actions runs the server inside its licensed MATLAB batch session. The tool manifest also uses MathWorks' documented [custom-tool format](https://github.com/matlab/matlab-mcp-server/blob/main/guides/custom-tools.md), with catalog compatibility checked against the [official MATLAB MCP Server](https://github.com/matlab/matlab-mcp-server).
 
 All execution and validation run on GitHub Actions. There is no desktop installer, interpreter environment, or client configuration to install on your computer.
 
 ## Run In GitHub Cloud
 
-Open **Actions → MATLAB cloud request → Run workflow**. Choose a tool and provide its arguments as a JSON object. The workflow provisions MATLAB and EEGLAB on a GitHub runner. The official MCP server starts MATLAB, initializes EEGLAB with its sample recording, executes the requested tool over MCP, and uploads the response and derivative outputs as an artifact.
+Open **Actions → MATLAB cloud request → Run workflow**. Choose a tool and provide its arguments as a JSON object. The workflow provisions MATLAB and EEGLAB on a GitHub runner, starts the MATLAB MCP server, initializes the sample recording, executes the requested tool over MCP, and uploads the response and derivative outputs as an artifact.
 
 For example:
 
@@ -33,7 +33,7 @@ The versioned source document retains **47 official claims and 39 method profile
 
 ## Cloud Validation
 
-The required `CI / validate` check validates the official extension contract, all method profiles, MATLAB option/error paths, every processing batch, research workflows, real STUDY ERP statistics, and actual MCP calls through the official server. Separate Windows and macOS jobs verify the extension over the official MCP transport. MATLAB R2024b, Signal Processing Toolbox and Statistics and Machine Learning Toolbox are provisioned on GitHub runners. MathWorks v0.14.0 downloads are pinned and checked against official SHA-256 digests.
+The required `CI / validate` check validates the tool manifest, all method profiles, MATLAB option/error paths, every processing batch, research workflows, real STUDY ERP statistics, MCP protocol/error handling and real ERP artifacts through native MATLAB MCP HTTP calls. Linux, Windows and macOS jobs also verify catalog compatibility over the official MathWorks MCP transport. MATLAB R2024b, Signal Processing Toolbox and Statistics and Machine Learning Toolbox are provisioned on GitHub runners. MathWorks v0.14.0 downloads are pinned and checked against official SHA-256 digests.
 
 ## Repository Map
 

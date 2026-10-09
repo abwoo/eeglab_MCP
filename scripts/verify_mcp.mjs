@@ -106,7 +106,15 @@ try {
       'Content-Type': 'application/json', 'Mcp-Session-Id': 'unknown-session',
     }, body: JSON.stringify({jsonrpc: '2.0', id: 99, method: 'ping'})});
     assert.equal(badSession.status, 404);
-    results.protocol_checks = 7;
+    const headers = {'Content-Type': 'application/json', Accept: 'application/json, text/event-stream', 'Mcp-Session-Id': session};
+    const malformed = await fetch(endpoint, {method: 'POST', headers, body: '{'});
+    assert.equal((await malformed.json()).error.code, -32700);
+    const ping = JSON.stringify({jsonrpc: '2.0', id: 100, method: 'ping'});
+    assert.equal((await fetch(endpoint, {method: 'POST', headers: {...headers, Origin: 'https://invalid.example'}, body: ping})).status, 403);
+    assert.equal((await fetch(endpoint, {method: 'POST', headers: {...headers, 'MCP-Protocol-Version': 'unknown'}, body: ping})).status, 400);
+    const utf8 = await call('eeglab_method_preflight', {options: JSON.stringify({method: 'epoch', override_reason: 'UTF-8 caf\u00e9'})});
+    assert.equal(utf8.summary.override_reason, 'UTF-8 caf\u00e9');
+    results.protocol_checks = 11;
   }
   if (mode === 'live') {
     const claims = await call('eeglab_official_claims');

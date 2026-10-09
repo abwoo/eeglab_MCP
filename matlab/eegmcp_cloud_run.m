@@ -54,6 +54,7 @@ if ~isfile(output)
 end
 result = jsondecode(fileread(output));
 if process.exitValue() ~= 0 || ~strcmp(result.status, 'success')
+    fprintf('%s\n', fileread(fullfile(folder, ['mcp-' mode '-harness.log'])));
     error('eegmcp:cloud', 'MCP cloud request failed: %s', jsonencode(result));
 end
 if nargin > 2

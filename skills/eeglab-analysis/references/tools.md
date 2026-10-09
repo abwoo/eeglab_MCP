@@ -2,13 +2,11 @@
 
 The server exposes registry-defined 45 EEGLAB/research tools plus the versioned official-claims tool for QC, planning, official preflight, protocol, plugin, and event-semantics work. Low-level tools follow the official EEGLAB pattern: user-facing `pop_` operations for data transformations/plots and `eeg_`/structure checks for consistency and metadata inspection.
 
-## Dual MCP Routing
+## Cloud MATLAB Session
 
 - Use eeglab first for EEG/EEGLAB workflows: load data, QC/provenance, events, preprocessing, ICA, ERP, spectral/time-frequency/connectivity, visualization, source, STUDY, and pipelines.
-- Use matlab MCP for generic MATLAB scripts, custom `.m` functions, matrix/statistical code, or non-EEGLAB toolboxes.
-- Treat `eeglab` and matlab MCP as workspace-isolated sessions; do not assume `EEG` or `ALLEEG` variables are shared.
-- Use file handoff for cross-server work by saving explicit `.set/.fdt`, `.mat`, `.csv`, `.png`, or report paths.
-- Keep output paths disjoint so both MCP servers do not write the same file concurrently.
+- Reviewed `eeglab_*` tools share `EEG`, `ALLEEG` and `STUDY` in one cloud MATLAB session. Separate GitHub jobs start fresh sessions.
+- Save explicit derivative `.set/.fdt`, figure and protocol paths as GitHub artifacts before continuing in another job.
 
 ## Research Workflows
 

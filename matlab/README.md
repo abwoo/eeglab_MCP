@@ -1,6 +1,6 @@
 # MATLAB Tool Interface
 
-This is the execution implementation of EEGLAB MCP. MathWorks' [MATLAB MCP Server](https://github.com/matlab/matlab-mcp-server) loads `eeglab-mcp-tools.json` and calls the MATLAB functions in this directory. The transport runs on a GitHub runner and uses a cloud MATLAB session; no desktop client configuration is supplied.
+This is the execution implementation of EEGLAB MCP. `eegmcp_cloud_run` serves MCP Streamable HTTP on the GitHub runner loopback interface and dispatches reviewed MATLAB functions from `eeglab-mcp-tools.json`. The same manifest is compatible with MathWorks' [MATLAB MCP Server](https://github.com/matlab/matlab-mcp-server). No desktop client configuration is supplied.
 
 ## Argument Convention
 
@@ -12,7 +12,9 @@ A tool call such as `eeglab_filter` receives:
 {"options":"{\"filter_type\":\"bandpass\",\"low_cutoff\":1,\"high_cutoff\":40,\"method_context\":{\"raw_input_preserved\":true,\"derivative_output_planned\":true}}"}
 ```
 
-Functions print one JSON result, captured by the official MCP server. EEGLAB globals hold the current EEG/STUDY in the shared MATLAB session. Errors return `status`, `code`, `error` and `next_step`. Method preflight and research workflows also report gate provenance and limitations.
+Functions print one JSON result, captured in the MCP tool response. EEGLAB globals hold the current EEG/STUDY in the cloud MATLAB session. Errors return `status`, `code`, `error` and `next_step`. Method preflight and research workflows also report gate provenance and limitations.
+
+The native server negotiates MCP protocol versions 2025-06-18 and 2025-03-26, returns JSON HTTP responses, validates session IDs and argument schemas, accepts notifications, and supports `ping`, `tools/list` and `tools/call`. It binds to runner loopback and validates request origins. GET returns 405 because this server does not provide an SSE stream. The listener and client stop at job completion.
 
 ## Research Workflows
 
@@ -27,10 +29,10 @@ Functions print one JSON result, captured by the official MCP server. EEGLAB glo
 
 ## STUDY
 
-`eeglab_study_create` accepts either `dataset_paths` with optional matching `subjects` and `conditions`, or `bids_path`. It does not resave raw datasets. `eeglab_study_design` takes explicit `variable_name`, `variable_values` and `paired`. Statistics require a locked protocol, a defined design and precomputed channel measures, produced with the official `std_precomp` function.
+`eeglab_study_create` accepts either `dataset_paths` with optional matching `subjects` and `conditions`, or `bids_path`. It does not resave raw datasets. `eeglab_study_design` takes explicit `variable_name`, `variable_values` and optional `paired`; pairing must agree with the actual subject structure inferred by EEGLAB. Statistics require a locked protocol, a defined design and precomputed channel measures, produced with the official `std_precomp` function.
 
 `eeglab_study_statistics` reads ERP, spectrum or ERSP measures and runs `statcond` with the design's pairing. It applies FDR, Bonferroni or no correction to the complete returned p-value family. Cluster inference is outside this tool and requires a separately validated model.
 
 ## Validation
 
-GitHub CI runs the option/error regressions, frozen requirement/preflight cases for every profile, EEGLAB sample-data processing tests, derivative workflows and real paired STUDY statistics. It then calls the same functions over MathWorks' official MCP server. The test harness is transport scaffolding; all EEG analysis and method gates are MATLAB.
+GitHub CI runs the option/error regressions, frozen requirement/preflight cases for every profile, EEGLAB sample-data processing tests, derivative workflows and real paired STUDY statistics. It calls the same functions over the native MATLAB MCP HTTP server and checks the catalog against MathWorks' official server on three platforms. The Node harness is a protocol client; the MCP server, EEG analysis and method gates are MATLAB.
