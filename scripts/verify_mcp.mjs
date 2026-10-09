@@ -101,6 +101,7 @@ try {
     await assert.rejects(() => request('tools/call', {name: 'unreviewed_function'}), /-32602/);
     await assert.rejects(() => request('tools/call', {name: 'eeglab_init', arguments: {}}), /-32602/);
     await assert.rejects(() => request('tools/call', {name: 'eeglab_init', arguments: {eeglab_path: 7}}), /-32602/);
+    await assert.rejects(() => request('tools/call', {name: 'eeglab_official_claims', arguments: {unexpected: true}}), /-32602/);
     assert.equal((await fetch(endpoint)).status, 405);
     const badSession = await fetch(endpoint, {method: 'POST', headers: {
       'Content-Type': 'application/json', 'Mcp-Session-Id': 'unknown-session',
@@ -114,7 +115,7 @@ try {
     assert.equal((await fetch(endpoint, {method: 'POST', headers: {...headers, 'MCP-Protocol-Version': 'unknown'}, body: ping})).status, 400);
     const utf8 = await call('eeglab_method_preflight', {options: JSON.stringify({method: 'epoch', override_reason: 'UTF-8 caf\u00e9'})});
     assert.equal(utf8.summary.override_reason, 'UTF-8 caf\u00e9');
-    results.protocol_checks = 11;
+    results.protocol_checks = 12;
   }
   if (mode === 'live') {
     const claims = await call('eeglab_official_claims');

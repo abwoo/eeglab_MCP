@@ -24,8 +24,12 @@ switch message.method
         end
         properties = definition.inputSchema.properties;
         required = eegmcp_cellstr(definition.inputSchema.required);
-        if any(~isfield(args, required)) || any(~ismember(fieldnames(args), fieldnames(properties)))
-            error('eegmcp:rpc_params', 'Tool arguments do not match its reviewed schema.');
+        supplied = fieldnames(args);
+        missing = setdiff(required, supplied);
+        extra = setdiff(supplied, fieldnames(properties));
+        if ~isempty(missing) || ~isempty(extra)
+            error('eegmcp:rpc_params', 'Tool %s arguments do not match its schema; missing: %s; extra: %s.', ...
+                name, strjoin(missing, ', '), strjoin(extra, ', '));
         end
         signature = catalog.signatures.(name);
         function_name = eegmcp_opt(signature, 'function', ...
