@@ -94,7 +94,7 @@ Tool path:
 
 ## 5. plugin_doctor
 
-Goal: check whether the local MATLAB/EEGLAB environment can support the requested workflow.
+Goal: check whether the GitHub MATLAB/EEGLAB runner can support the requested workflow.
 
 Use before:
 

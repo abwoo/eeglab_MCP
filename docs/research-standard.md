@@ -1,6 +1,6 @@
 # EEGLAB Research Standard
 
-This project treats the EEGLAB MCP as a local-first research workflow agent, not a clinical decision system. The MCP executes EEGLAB/MATLAB operations; the skill and MCP resources enforce planning, provenance, event semantics, QC gates, parameter records, and reproducible reporting.
+This project treats the EEGLAB MCP as a GitHub-cloud research workflow agent, not a clinical decision system. The MCP executes EEGLAB/MATLAB operations; the skill and versioned MATLAB gates enforce planning, provenance, event semantics, QC gates, parameter records, and reproducible reporting.
 
 ## Official Reference Anchors
 
@@ -24,7 +24,7 @@ This project treats the EEGLAB MCP as a local-first research workflow agent, not
 - Faster than generic MATLAB MCP for EEG: the user asks for research actions, not raw MATLAB scripts.
 - More reproducible than manual GUI-only work: tool calls record JSON arguments, outputs, limitations, and QC gates.
 - Safer than an unconstrained agent: the skill requires goal/design intake, raw preservation, event semantics, montage checks, and plugin gates before high-risk steps.
-- More reliable than a skill alone: the MCP actually executes EEGLAB locally; the skill decides and documents.
+- More reliable than a skill alone: the MCP actually executes EEGLAB in the GitHub MATLAB runner; the skill decides and documents.
 - Local-first by design: EEG data stays on the user's machine. Cross-MCP collaboration happens only through explicit files.
 
 ## Research Gate Policy
