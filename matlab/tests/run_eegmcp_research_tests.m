@@ -88,7 +88,10 @@ r = call('eegmcp_study_create', struct('dataset_paths', {paths}, 'subjects', {su
 eegmcp_check(strcmp(r.status, 'success') && r.num_datasets == 8 && ~r.raw_datasets_resaved, 'STUDY creation preserves input files', r);
 r = call('eegmcp_study_design', struct('variable_name', 'condition', 'variable_values', {{'C1', 'C2'}}, 'paired', true));
 eegmcp_check(strcmp(r.status, 'success') && r.paired, 'MATLAB creates a paired condition design', r);
-evalc('[STUDY, ALLEEG] = std_precomp(STUDY, ALLEEG, ''channels'', {''Cz''}, ''erp'', ''on'', ''recompute'', ''on'');');
+eegmcp_check(strcmp(STUDY.design(STUDY.currentdesign).variable(1).pairing, 'on'), 'the active design actually records paired subjects', r);
+r = call('eegmcp_study_design', struct('variable_name', 'condition', 'variable_values', {{'C1', 'C2'}}, 'paired', false));
+eegmcp_check(strcmp(r.code, 'invalid_arguments'), 'design rejects pairing inconsistent with subject structure', r);
+evalc('[STUDY, ALLEEG] = std_precomp(STUDY, ALLEEG, {''Cz''}, ''erp'', ''on'', ''recompute'', ''on'');');
 stats_opts = struct('measure', 'erp', 'channels', {{'Cz'}}, 'correction', 'fdr', ...
     'method_context', struct('single_subject_protocol_locked', true, 'design_variables_defined', true));
 r = call('eegmcp_study_statistics', stats_opts);

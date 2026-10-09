@@ -1,6 +1,6 @@
 function derived = eegmcp_b1_output_context(opts, derived)
-%EEGMCP_B1_OUTPUT_CONTEXT Add the output facts every gated tool derives in server.py.
-%   Uses the versioned MATLAB method-gate definitions and regression expectations.
+%EEGMCP_B1_OUTPUT_CONTEXT Add output facts to the method gate.
+%   Record
 %   derivative_output_planned (true when output_dir or output_path is set)
 %   and the output folder or path to the gate context.
 

@@ -104,7 +104,7 @@ if ~isempty(epoch_window) || ~isempty(baseline_window)
     derived.baseline_window = baseline_window;
 end
 if isfield(opts, 'pre_stimulus') || isfield(opts, 'post_stimulus')
-    %   Uses the versioned MATLAB method-gate definitions and regression expectations.
+    % Preserve explicitly supplied epoch and baseline bounds for the gate.
     if ~isfield(derived, 'epoch_window')
         derived.epoch_window = [raw(opts, 'pre_stimulus'), raw(opts, 'post_stimulus')];
     end

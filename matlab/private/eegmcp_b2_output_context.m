@@ -1,6 +1,5 @@
 function derived = eegmcp_b2_output_context(opts, derived)
-%EEGMCP_B2_OUTPUT_CONTEXT Output facts for the gate, as the last block of
-%   _preflight_context_from_arguments in server.py: when the call carries
+%EEGMCP_B2_OUTPUT_CONTEXT Record output facts for method gates. When a call carries
 %   output_dir, output_path or filepath, record whether a separate
 %   derivative output is planned. Fields already in DERIVED are kept.
 

@@ -1,5 +1,5 @@
 function present = eegmcp_b1_present(opts, name)
-%EEGMCP_B1_PRESENT True when an option is set and not blank, like _arg_present in server.py.
+%EEGMCP_B1_PRESENT True when an option is set and not blank.
 %   Null, a blank string, an empty list and an empty object count as absent.
 
 present = false;

@@ -93,7 +93,7 @@ end
 end
 
 function listed = plugin_listed(ctx)
-% plugin_eegbids_available as server.py derives it from method_context.
+% Read EEG-BIDS availability from the supplied method context.
 listed = false;
 if ~isstruct(ctx) || ~isscalar(ctx)
     return

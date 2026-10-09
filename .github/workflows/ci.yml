@@ -44,7 +44,20 @@ jobs:
         env:
           MCP_BINARY: ${{ steps.mathworks.outputs.binary }}
         with:
-          command: addpath('matlab/tests'); run_eegmcp_cloud_suite(fullfile(getenv('RUNNER_TEMP'), 'eeglab'), getenv('MCP_BINARY'), fullfile(getenv('RUNNER_TEMP'), 'mathworks-mcp', 'MATLABMCPServerToolbox.mltbx'))
+          command: addpath('matlab/tests'); run_eegmcp_cloud_suite(fullfile(getenv('RUNNER_TEMP'), 'eeglab'))
+      - name: Verify live MATLAB tools through the official server
+        env:
+          MW_BATCH_LICENSING_ONLINE: "true"
+          MCP_BINARY: ${{ steps.mathworks.outputs.binary }}
+        run: node scripts/verify_mcp.mjs "$MCP_BINARY" live "$RUNNER_TEMP/eeglab-mcp-results/mcp-live-result.json" "$RUNNER_TEMP/eeglab"
+      - name: Verify a real cloud ERP request
+        env:
+          MW_BATCH_LICENSING_ONLINE: "true"
+          GITHUB_EVENT_PATH: ${{ github.workspace }}/matlab/tests/fixtures/cloud-event.json
+          MCP_BINARY: ${{ steps.mathworks.outputs.binary }}
+        run: |
+          node scripts/verify_mcp.mjs "$MCP_BINARY" request "$RUNNER_TEMP/eeglab-mcp-results/mcp-request-result.json" "$RUNNER_TEMP/eeglab"
+          node --input-type=module -e 'import fs from "node:fs"; import assert from "node:assert/strict"; const r=JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP+"/eeglab-mcp-results/mcp-request-result.json")); assert.equal(r.response.status,"success"); assert(fs.existsSync(r.response.outputs.output_path));'
       - name: Save MCP validation evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2

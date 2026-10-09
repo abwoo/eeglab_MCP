@@ -37,11 +37,10 @@ jobs:
           release: R2024b
           products: Signal_Processing_Toolbox Statistics_and_Machine_Learning_Toolbox
       - name: Execute the reviewed tool over the official MCP
-        uses: matlab-actions/run-command@bfa857648f4895aa98a446fe41c85e0788421ed5 # v3.3.0
         env:
+          MW_BATCH_LICENSING_ONLINE: "true"
           MCP_BINARY: ${{ steps.mathworks.outputs.binary }}
-        with:
-          command: addpath('matlab/tests'); eeglab_root = fullfile(getenv('RUNNER_TEMP'), 'eeglab'); eegmcp_call_tool('eegmcp_init(%s)', eeglab_root); eegmcp_call_tool('eegmcp_load_data(%s)', fullfile(eeglab_root, 'sample_data', 'eeglab_data.set')); run_eegmcp_cloud_mcp(getenv('MCP_BINARY'), fullfile(getenv('RUNNER_TEMP'), 'mathworks-mcp', 'MATLABMCPServerToolbox.mltbx'), eeglab_root, 'request')
+        run: node scripts/verify_mcp.mjs "$MCP_BINARY" request "$RUNNER_TEMP/eeglab-mcp-results/mcp-request-result.json" "$RUNNER_TEMP/eeglab"
       - name: Upload the response and derivative files
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2

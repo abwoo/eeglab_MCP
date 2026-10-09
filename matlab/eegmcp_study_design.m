@@ -19,14 +19,19 @@ try
     if blocked
         return
     end
-    pairing = 'off';
-    if eegmcp_opt(opts, 'paired', true)
-        pairing = 'on';
-    end
     design_name = eegmcp_opt(opts, 'design_name', 'Design1');
     updated = STUDY;
     evalc(['updated = std_makedesign(STUDY, ALLEEG, 1, ''name'', design_name, ' ...
-        '''variable1'', variable, ''values1'', values, ''vartype1'', ''categorical'', ''pairing1'', pairing);']);
+        '''variable1'', variable, ''values1'', values, ''vartype1'', ''categorical'');']);
+    variables = updated.design(updated.currentdesign).variable;
+    hit = find(strcmp(variable, {variables.label}), 1);
+    if isempty(hit)
+        error('eegmcp:arguments', 'variable_name is not present in the STUDY datasets.');
+    end
+    pairing = variables(hit).pairing;
+    if isfield(opts, 'paired') && opts.paired ~= strcmp(pairing, 'on')
+        error('eegmcp:arguments', 'paired must match the subject structure inferred by EEGLAB.');
+    end
     STUDY = updated;
     result = struct('status', 'success', 'design_name', design_name, 'variable_name', variable, ...
         'variable_values', {values}, 'paired', strcmp(pairing, 'on'));

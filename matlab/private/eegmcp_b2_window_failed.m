@@ -1,6 +1,6 @@
 function failed = eegmcp_b2_window_failed(tool_name, errors)
 %EEGMCP_B2_WINDOW_FAILED Print the invalid_analysis_window error when ERRORS is not empty.
-%   Mirrors the invalid_analysis_window payload of call_tool in server.py.
+%   Include every failed window constraint in details.errors.
 
 failed = ~isempty(errors);
 if failed

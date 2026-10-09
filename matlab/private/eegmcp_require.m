@@ -1,5 +1,5 @@
 function missing = eegmcp_require(opts, names)
-%   Uses the versioned MATLAB method-gate definitions and regression expectations.
+%EEGMCP_REQUIRE Report required options missing from the JSON object.
 %   NAMES is a cell array of option names. When any is missing this prints
 %   the missing_required_argument error and returns true, so the caller
 %   just returns.

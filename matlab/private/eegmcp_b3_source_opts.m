@@ -1,6 +1,6 @@
 function [head_model, template, derived, message] = eegmcp_b3_source_opts(opts)
 %EEGMCP_B3_SOURCE_OPTS Read head_model and template, and the source gate context.
-%   DERIVED follows _preflight_context_from_arguments in server.py for
+%   DERIVED records explicit source-model facts for
 %   eeglab_source_localization and eeglab_source_settings: head_model and
 %   template as given (or [] when absent), and a chanfile marks a planned
 %   channel-location repair. MESSAGE is '' when the options are valid.

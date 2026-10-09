@@ -13,7 +13,11 @@ mkdirSync(dirname(output), {recursive: true});
 const extension = JSON.parse(readFileSync(join(root, 'matlab/eeglab-mcp-tools.json')));
 const server = spawn(binary, [
   `--extension-file=${join(root, 'matlab/eeglab-mcp-tools.json')}`,
-  '--matlab-session-mode=existing', '--disable-telemetry=true',
+  ...(mode === 'catalog' ? ['--matlab-session-mode=existing'] : [
+    '--matlab-session-mode=new', '--matlab-display-mode=nodesktop',
+    `--initial-working-folder=${join(root, 'matlab')}`,
+  ]),
+  '--disable-telemetry=true',
   `--log-folder=${dirname(output)}`, '--log-level=error',
 ], {stdio: ['pipe', 'pipe', 'pipe']});
 let stderr = '';
@@ -46,12 +50,13 @@ server.on('exit', code => {
 function request(method, params = {}) {
   const requestId = ++id;
   return new Promise((resolveResult, reject) => {
-    const timer = setTimeout(() => { pending.delete(requestId); reject(new Error(`Timed out: ${method}`)); }, 90000);
+    const timer = setTimeout(() => { pending.delete(requestId); reject(new Error(`Timed out: ${method} ${params.name || ''}`)); }, 90000);
     pending.set(requestId, {resolve: resolveResult, reject, timer});
     send({jsonrpc: '2.0', id: requestId, method, params});
   });
 }
 async function call(name, args = {}) {
+  console.log(`Calling MATLAB tool: ${name}`);
   const result = await request('tools/call', {name, arguments: args});
   assert(!result.isError, `${name} failed in the official MCP transport: ${JSON.stringify(result)}`);
   const text = result.content.filter(x => x.type === 'text').map(x => x.text).join('\n');
@@ -97,6 +102,9 @@ try {
       if (value === '@artifacts') options[key] = dirname(output);
     }
     const args = definition.inputSchema.properties.options ? {options: JSON.stringify(options)} : options;
+    const init = await call('eeglab_init', {eeglab_path: eeglabRoot}); assert.equal(init.status, 'success');
+    const loaded = await call('eeglab_load_data', {filepath: join(eeglabRoot, 'sample_data/eeglab_data.set')});
+    assert.equal(loaded.status, 'success');
     results.tool = tool; results.response = await call(tool, args);
     // A method gate can legitimately block a requested analysis; preserve that result as an artifact.
     if (results.response.status === 'error' && results.response.code !== 'official_gate_blocked') {
