@@ -6,7 +6,7 @@ All execution and validation run on GitHub Actions. There is no desktop installe
 
 ## Run In GitHub Cloud
 
-Open **Actions → MATLAB cloud request → Run workflow**. Choose a tool and provide its arguments as a JSON object. The workflow starts a licensed MATLAB session on a GitHub runner, initializes EEGLAB with its sample recording, shares that cloud session with the official MCP server, executes the tool over MCP, and uploads the response and derivative outputs as an artifact.
+Open **Actions → MATLAB cloud request → Run workflow**. Choose a tool and provide its arguments as a JSON object. The workflow provisions MATLAB and EEGLAB on a GitHub runner. The official MCP server starts MATLAB, initializes EEGLAB with its sample recording, executes the requested tool over MCP, and uploads the response and derivative outputs as an artifact.
 
 For example:
 

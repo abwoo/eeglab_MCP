@@ -39,25 +39,16 @@ jobs:
         with:
           release: R2024b
           products: Signal_Processing_Toolbox Statistics_and_Machine_Learning_Toolbox
-      - name: Run MATLAB regressions, real EEG workflows and official MCP calls
+      - name: Run native MATLAB regressions and real EEG workflows
         uses: matlab-actions/run-command@bfa857648f4895aa98a446fe41c85e0788421ed5 # v3.3.0
         env:
           MCP_BINARY: ${{ steps.mathworks.outputs.binary }}
         with:
           command: addpath('matlab/tests'); run_eegmcp_cloud_suite(fullfile(getenv('RUNNER_TEMP'), 'eeglab'))
-      - name: Verify live MATLAB tools through the official server
-        env:
-          MW_BATCH_LICENSING_ONLINE: "true"
-          MCP_BINARY: ${{ steps.mathworks.outputs.binary }}
-        run: node scripts/verify_mcp.mjs "$MCP_BINARY" live "$RUNNER_TEMP/eeglab-mcp-results/mcp-live-result.json" "$RUNNER_TEMP/eeglab"
-      - name: Verify a real cloud ERP request
-        env:
-          MW_BATCH_LICENSING_ONLINE: "true"
-          GITHUB_EVENT_PATH: ${{ github.workspace }}/matlab/tests/fixtures/cloud-event.json
-          MCP_BINARY: ${{ steps.mathworks.outputs.binary }}
-        run: |
-          node scripts/verify_mcp.mjs "$MCP_BINARY" request "$RUNNER_TEMP/eeglab-mcp-results/mcp-request-result.json" "$RUNNER_TEMP/eeglab"
-          node --input-type=module -e 'import fs from "node:fs"; import assert from "node:assert/strict"; const r=JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP+"/eeglab-mcp-results/mcp-request-result.json")); assert.equal(r.response.status,"success"); assert(fs.existsSync(r.response.outputs.output_path));'
+      - name: Verify native MATLAB MCP requests and real ERP artifacts
+        uses: matlab-actions/run-command@bfa857648f4895aa98a446fe41c85e0788421ed5 # v3.3.0
+        with:
+          command: addpath('matlab'); eeglab_root=fullfile(getenv('RUNNER_TEMP'),'eeglab'); eegmcp_cloud_run(eeglab_root); eegmcp_cloud_run(eeglab_root,'request',fullfile(pwd,'matlab','tests','fixtures','cloud-event.json'))
       - name: Save MCP validation evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2

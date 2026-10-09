@@ -24,8 +24,5 @@ async function download(name, digest) {
 }
 const binary = await download(...asset);
 if (process.platform !== 'win32') chmodSync(binary, 0o755);
-if (process.platform === 'linux') {
-  await download('MATLABMCPServerToolbox.mltbx', 'f601ca4da02291658f0e1dc8511959873f55aa43b67a76f754dc77c448cf83a2');
-}
 if (process.env.GITHUB_OUTPUT) appendFileSync(process.env.GITHUB_OUTPUT, `binary=${binary}\n`);
 console.log('mathworks_release_verified=v0.14.0');

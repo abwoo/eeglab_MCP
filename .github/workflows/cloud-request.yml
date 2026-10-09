@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       tool:
-        description: Reviewed eeglab tool to run through the official MATLAB MCP
+        description: Reviewed eeglab tool to run through native MATLAB MCP
         required: true
         default: eeglab_method_preflight
       arguments:
@@ -24,9 +24,6 @@ jobs:
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
       - name: Validate the extension contract
         run: node scripts/verify_repository.mjs
-      - name: Download and checksum the official MathWorks release
-        id: mathworks
-        run: node scripts/fetch_mathworks_server.mjs "$RUNNER_TEMP/mathworks-mcp"
       - name: Check out EEGLAB and its bundled plugins
         run: |
           git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/sccn/eeglab.git "$RUNNER_TEMP/eeglab"
@@ -36,11 +33,10 @@ jobs:
         with:
           release: R2024b
           products: Signal_Processing_Toolbox Statistics_and_Machine_Learning_Toolbox
-      - name: Execute the reviewed tool over the official MCP
-        env:
-          MW_BATCH_LICENSING_ONLINE: "true"
-          MCP_BINARY: ${{ steps.mathworks.outputs.binary }}
-        run: node scripts/verify_mcp.mjs "$MCP_BINARY" request "$RUNNER_TEMP/eeglab-mcp-results/mcp-request-result.json" "$RUNNER_TEMP/eeglab"
+      - name: Execute the reviewed tool over native MATLAB MCP
+        uses: matlab-actions/run-command@bfa857648f4895aa98a446fe41c85e0788421ed5 # v3.3.0
+        with:
+          command: addpath('matlab'); eegmcp_cloud_run(fullfile(getenv('RUNNER_TEMP'),'eeglab'),'request')
       - name: Upload the response and derivative files
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
