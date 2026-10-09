@@ -1,8 +1,7 @@
 function ok = eegmcp_check_requirement(check, ctx)
 %EEGMCP_CHECK_REQUIREMENT Evaluate one method-gate requirement against a context.
 %   The versioned official claims document defines the policy.
-%   CTX is a struct decoded from JSON. matlab/tests checks this function
-%   Uses the versioned MATLAB method-gate definitions and regression expectations.
+%   CTX is a struct decoded from JSON. Gate fixtures cover all method profiles.
 
 switch check
     case 'confirmed_condition_events'
@@ -245,8 +244,7 @@ end
 end
 
 % ---------------------------------------------------------------------------
-%   Uses the versioned MATLAB method-gate definitions and regression expectations.
-% because jsondecode renames keys that are not valid MATLAB field names.
+% Resolve context keys after jsondecode normalizes MATLAB field names.
 
 function [present, value] = get(ctx, name)
 field = matlab.lang.makeValidName(name);
@@ -259,7 +257,7 @@ end
 end
 
 function ok = value_truthy(value)
-%   Uses the versioned MATLAB method-gate definitions and regression expectations.
+% Empty values and numeric zero do not establish a prerequisite.
 if ischar(value) || isstring(value)
     ok = ~isempty(strtrim(char(value)));
 elseif iscell(value)
@@ -303,14 +301,13 @@ end
 end
 
 function value = first_truthy_value(ctx, names, default)
-%   Uses the versioned MATLAB method-gate definitions and regression expectations.
+% Use the first supplied value, including a non-empty string of whitespace.
 if nargin < 3
     default = {};
 end
 value = default;
 for k = 1:numel(names)
     [present, candidate] = get(ctx, names{k});
-    %   Uses the versioned MATLAB method-gate definitions and regression expectations.
     if present && (value_truthy(candidate) || ((ischar(candidate) || isstring(candidate)) && strlength(candidate) > 0))
         value = candidate;
         return

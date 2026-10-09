@@ -1,5 +1,5 @@
 function result = eegmcp_preflight_eval(method, tool_name, ctx, strictness, override_reason)
-%EEGMCP_PREFLIGHT_EVAL Evaluate a method gate. A port of evaluate_method_preflight.
+%EEGMCP_PREFLIGHT_EVAL Evaluate an official method gate in MATLAB.
 %   METHOD or TOOL_NAME selects the method profile. CTX is a struct with the
 %   facts the user has confirmed. STRICTNESS is 'hard' (the default) or
 %   'advisory'. A non-empty OVERRIDE_REASON accepts missing critical
@@ -95,6 +95,13 @@ if isempty(key)
     key = lower(strtrim(tool_name));
 end
 names = fieldnames(doc.method_profiles);
+% Exact profile names take precedence over aliases in other profiles.
+hit = find(strcmp(key, names), 1);
+if ~isempty(hit)
+    profile_id = names{hit};
+    profile = doc.method_profiles.(profile_id);
+    return
+end
 for k = 1:numel(names)
     candidate = doc.method_profiles.(names{k});
     if strcmp(key, names{k}) || any(strcmp(key, lower(as_cell(candidate.aliases))))

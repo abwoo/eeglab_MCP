@@ -99,6 +99,10 @@ try {
     const args = definition.inputSchema.properties.options ? {options: JSON.stringify(options)} : options;
     results.tool = tool; results.response = await call(tool, args);
     // A method gate can legitimately block a requested analysis; preserve that result as an artifact.
+    if (results.response.status === 'error' && results.response.code !== 'official_gate_blocked') {
+      results.status = 'error';
+      process.exitCode = 1;
+    }
   }
   writeFileSync(output, JSON.stringify(results, null, 2));
   console.log(`official_mcp_ok=true mode=${mode} custom_tools=${extension.tools.length}`);
