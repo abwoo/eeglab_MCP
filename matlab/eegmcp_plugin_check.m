@@ -28,7 +28,7 @@ try
         spec.available = ~isempty(found);
         spec.found_functions = found;
         % Availability does not promote an indexed plugin to execution support.
-        entries{end + 1} = spec; %#ok<AGROW>
+        entries{end + 1} = orderfields(spec); %#ok<AGROW>
     end
     eegmcp_emit(eegmcp_workflow_result('eeglab_plugin_check', opts, ...
         struct('plugins', {entries}), struct('plugin_matrix', {entries})));

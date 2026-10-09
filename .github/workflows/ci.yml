@@ -44,7 +44,7 @@ jobs:
         env:
           MCP_BINARY: ${{ steps.mathworks.outputs.binary }}
         with:
-          command: addpath('matlab/tests'); eeglab_root = fullfile(getenv('RUNNER_TEMP'), 'eeglab'); run_eegmcp_gate_tests(); run_eegmcp_tests(eeglab_root); run_eegmcp_b1_tests(eeglab_root); run_eegmcp_b2_tests(eeglab_root); run_eegmcp_b3_tests(eeglab_root); run_eegmcp_research_tests(eeglab_root); run_eegmcp_cloud_mcp(getenv('MCP_BINARY'), fullfile(getenv('RUNNER_TEMP'), 'mathworks-mcp', 'MATLABMCPServerToolbox.mltbx'), eeglab_root); run_eegmcp_cloud_mcp(getenv('MCP_BINARY'), fullfile(getenv('RUNNER_TEMP'), 'mathworks-mcp', 'MATLABMCPServerToolbox.mltbx'), eeglab_root, 'request', fullfile(pwd, 'matlab', 'tests', 'fixtures', 'cloud-event.json'))
+          command: addpath('matlab/tests'); run_eegmcp_cloud_suite(fullfile(getenv('RUNNER_TEMP'), 'eeglab'), getenv('MCP_BINARY'), fullfile(getenv('RUNNER_TEMP'), 'mathworks-mcp', 'MATLABMCPServerToolbox.mltbx'))
       - name: Save MCP validation evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2

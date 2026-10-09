@@ -25,7 +25,11 @@ r = call('eegmcp_event_semantics_audit', struct('event_types', {{'boundary', 'im
 eegmcp_check(isequal(r.summary.confirmed_analysis_events, {'square'}), 'QC markers cannot become condition triggers', r);
 eegmcp_check(isequal(r.summary.excluded_events, {'rt'}), 'explicit exclusions are preserved', r);
 r = call('eegmcp_plugin_check', struct('plugins', {{'ICLabel', 'DefinitelyMissingPlugin'}}));
-eegmcp_check(r.summary.plugins(1).available && ~r.summary.plugins(2).available, 'plugin probes report found/missing functions', r);
+plugins = r.summary.plugins;
+if isstruct(plugins)
+    plugins = num2cell(plugins);
+end
+eegmcp_check(plugins{1}.available && ~plugins{2}.available, 'plugin probes report found/missing functions', r);
 
 gate = eegmcp_call_tool('eegmcp_method_preflight(%s)', '{"method":"epoch"}');
 protocol_path = fullfile(out, 'blocked-protocol.json');

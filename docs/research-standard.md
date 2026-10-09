@@ -69,7 +69,7 @@ Plugin-dependent workflows must check availability before claiming readiness:
 - LIMO, SIFT/groupSIFT, NFT, or NSGportal only as indexed/guidance-only support unless a dedicated execution workflow exists
 
 See `docs/official-method-map.md`, `docs/official-gate-policy.md`, and `docs/official-plugin-map.md` for the claim-map backed gate implementation.
-For complete coverage auditing, read the official topic index, support matrix, risk matrix, and report field matrix exposed as MCP resources:
+For complete coverage auditing, read the repository's official topic index, support matrix, risk matrix, and report field matrix:
 `docs/official-topic-index.md`, `docs/official-support-matrix.md`, `docs/official-tool-support-matrix.md`, `docs/official-risk-matrix.md`, and `docs/official-report-field-matrix.md`.
 
 ## Analysis Branch Prerequisites
